@@ -55,7 +55,7 @@ describe("Search product controller", () => {
     expect(res.json).toHaveBeenCalledWith([]);
   });
 
-  xit("Sanitise search keyword before using it in the query", async () => {
+  it("Sanitise search keyword before using it in the query", async () => {
     const req = { params: { keyword: ".*" } };
     const res = {
       json: jest.fn(),
