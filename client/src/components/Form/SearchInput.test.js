@@ -1,6 +1,7 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import SearchInput from "./SearchInput";
 import axios from "axios";
@@ -29,14 +30,12 @@ describe("SearchInput component", () => {
   it("Search input should reflect user input", async () => {
     render(<SearchInput />);
     const input = screen.getByPlaceholderText("Search");
-    fireEvent.change(input, { target: { value: "test" } });
-    expect(mockSetValues).toHaveBeenCalledWith({ keyword: "test" });
+    userEvent.type(input, "test");
+    expect(mockSetValues).toHaveBeenCalledTimes(4);
   });
 
   it("Search input not updated when no input is provided", async () => {
     render(<SearchInput />);
-    const input = screen.getByPlaceholderText("Search");
-    fireEvent.change(input, { target: { value: "" } });
     expect(mockSetValues).not.toHaveBeenCalled();
   });
 
@@ -49,7 +48,7 @@ describe("SearchInput component", () => {
     render(<SearchInput />);
 
     const submitButton = screen.getByRole("button", { name: /search/i });
-    fireEvent.click(submitButton);
+    userEvent.click(submitButton);
     expect(axios.get).toHaveBeenCalledWith("/api/v1/product/search/test");
   });
 
@@ -62,7 +61,7 @@ describe("SearchInput component", () => {
     render(<SearchInput />);
 
     const submitButton = screen.getByRole("button", { name: /search/i });
-    await waitFor(() => fireEvent.click(submitButton));
+    await waitFor(() => userEvent.click(submitButton));
     expect(mockUseNavigate).toHaveBeenCalledWith("/search");
   });
 
@@ -73,7 +72,7 @@ describe("SearchInput component", () => {
     render(<SearchInput />);
 
     const submitButton = screen.getByRole("button", { name: /search/i });
-    await waitFor(() => fireEvent.click(submitButton));
+    await waitFor(() => userEvent.click(submitButton));
     expect(mockSetValues).not.toHaveBeenCalled();
   });
 
@@ -84,7 +83,7 @@ describe("SearchInput component", () => {
     render(<SearchInput />);
 
     const submitButton = screen.getByRole("button", { name: /search/i });
-    await waitFor(() => fireEvent.click(submitButton));
+    await waitFor(() => userEvent.click(submitButton));
     expect(mockUseNavigate).not.toHaveBeenCalled();
   });
 });

@@ -1,5 +1,6 @@
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 
 import { useSearch } from "../context/search";
@@ -114,6 +115,21 @@ describe("Search page", () => {
     });
 
     describe("Product details", () => {
+      it("Displays the product image alt text if image is not found", () => {
+        useSearch.mockReturnValue([{ results: [mockProducts[0]] }, jest.fn()]);
+
+        render(
+          <MemoryRouter>
+            <Search />
+          </MemoryRouter>
+        );
+
+        const imageElement = screen.getByAltText(mockProducts[0].name);
+        fireEvent.error(imageElement);
+
+        expect(screen.getByAltText(mockProducts[0].name)).toBeInTheDocument();
+      });
+
       it("Displays the product name", () => {
         useSearch.mockReturnValue([{ results: [mockProducts[0]] }, jest.fn()]);
 
@@ -168,7 +184,7 @@ describe("Search page", () => {
     });
 
     describe("Clicking buttons", () => {
-      it("Redirect to product details page when 'More Details' button is clicked", () => {
+      it("Redirect to product details page when 'More Details' button is clicked", async () => {
         useSearch.mockReturnValue([{ results: [mockProducts[0]] }, jest.fn()]);
 
         render(
@@ -178,7 +194,8 @@ describe("Search page", () => {
         );
 
         const moreDetailsButton = screen.getByText("More Details");
-        fireEvent.click(moreDetailsButton);
+        // fireEvent.click(moreDetailsButton);
+        userEvent.click(moreDetailsButton);
         expect(mockUseNavigate).toHaveBeenCalledWith(
           `/product/${mockProducts[0].slug}`
         );
@@ -197,7 +214,7 @@ describe("Search page", () => {
         );
 
         const addToCartButton = screen.getByText("ADD TO CART");
-        fireEvent.click(addToCartButton);
+        userEvent.click(addToCartButton);
 
         expect(mockSetCart).toHaveBeenCalledWith([mockProducts[0]]);
         expect(mockSetItem).toHaveBeenCalledWith(
