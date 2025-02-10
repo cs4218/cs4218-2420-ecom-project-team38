@@ -33,9 +33,17 @@ jest.mock("../hooks/useCategory", () =>
   jest.fn(() => [{ name: "test", slug: "test" }])
 );
 
-jest.mock("react-toastify", () => ({
-  toast: { success: jest.fn() },
-}));
+jest.mock("react-hot-toast");
+
+window.matchMedia =
+  window.matchMedia ||
+  function () {
+    return {
+      matches: false,
+      addListener: function () {},
+      removeListener: function () {},
+    };
+  };
 
 describe("Search page", () => {
   describe("No products found", () => {
@@ -143,7 +151,7 @@ describe("Search page", () => {
       });
     });
 
-    it("Displays short product description without truncating", () => {
+    it("Does not truncate product description with less than 30 characters", () => {
       useSearch.mockReturnValue([{ results: [mockProducts[1]] }, jest.fn()]);
 
       render(
@@ -155,7 +163,7 @@ describe("Search page", () => {
       expect(screen.getByText(mockProducts[1].description)).toBeInTheDocument();
     });
 
-    it("Displays long product description truncated", () => {
+    it("Truncates product description with more than 30 characters", () => {
       useSearch.mockReturnValue([{ results: [mockProducts[0]] }, jest.fn()]);
 
       render(
