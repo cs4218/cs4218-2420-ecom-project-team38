@@ -68,10 +68,10 @@ describe("Product controller", () => {
 
       await searchProductController(req, res);
 
-      expect(productModel.find).not.toHaveBeenCalledWith({
+      expect(productModel.find).toHaveBeenCalledWith({
         $or: [
-          { name: { $regex: ".*", $options: "i" } },
-          { description: { $regex: ".*", $options: "i" } },
+          { name: { $regex: "\\.\\*", $options: "i" } },
+          { description: { $regex: "\\.\\*", $options: "i" } },
         ],
       });
     });
