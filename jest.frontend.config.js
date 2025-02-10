@@ -8,7 +8,7 @@ const config = {
   moduleNameMapper: {
     "\\.(css|scss)$": "identity-obj-proxy",
   },
-  testEnvironment: "jest-environment-jsdom",
+  testEnvironment: "jsdom",
   testMatch: ["<rootDir>/client/src/**/*.test.js"],
   testPathIgnorePatterns: ["<rootDir>/client/src/_site/"],
   transform: { "^.+\\.jsx?$": "babel-jest" },
