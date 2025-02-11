@@ -261,11 +261,15 @@ export const productListController = async (req, res) => {
 export const searchProductController = async (req, res) => {
   try {
     const { keyword } = req.params;
+    const sanitisedKeyword = keyword.replace(
+      /[-[\]{}()*+?.,\\/^$|#\s]/g,
+      "\\$&"
+    );
     const resutls = await productModel
       .find({
         $or: [
-          { name: { $regex: keyword, $options: "i" } },
-          { description: { $regex: keyword, $options: "i" } },
+          { name: { $regex: sanitisedKeyword, $options: "i" } },
+          { description: { $regex: sanitisedKeyword, $options: "i" } },
         ],
       })
       .select("-photo");
