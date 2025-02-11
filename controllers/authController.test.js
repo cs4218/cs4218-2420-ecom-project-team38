@@ -1,16 +1,14 @@
 import { jest } from "@jest/globals";
-import { updateProfileController } from "./authController";
 import userModel from "../models/userModel";
 
 jest.mock("../models/userModel");
 
-// TODO: mock hashPassword
-// jest.mock("../helpers/authHelper.js");
-// jest.mock("../helpers/authHelper.js", () => ({
-//   hashPassword: jest
-//     .fn()
-//     .mockImplementation((password) => Promise.resolve(password)),
-// }));
+// module mocking in ESM
+jest.unstable_mockModule("../helpers/authHelper", () => ({
+  hashPassword: jest.fn((password) => Promise.resolve(password)),
+  comparePassword: jest.fn(),
+}));
+const { updateProfileController } = await import("./authController");
 
 describe("Update Profile Controller", () => {
   let mockUser, mockUserId;
@@ -59,16 +57,16 @@ describe("Update Profile Controller", () => {
 
       await updateProfileController(req, res);
 
-      // expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
-      //   mockUserId,
-      //   {
-      //     name: validUpdatedProfile.name,
-      //     password: validUpdatedProfile.password,
-      //     phone: validUpdatedProfile.phone,
-      //     address: validUpdatedProfile.address,
-      //   },
-      //   { new: true }
-      // );
+      expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        mockUserId,
+        {
+          name: validUpdatedProfile.name,
+          password: validUpdatedProfile.password,
+          phone: validUpdatedProfile.phone,
+          address: validUpdatedProfile.address,
+        },
+        { new: true }
+      );
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
@@ -79,10 +77,7 @@ describe("Update Profile Controller", () => {
 
     it("should fail when name is empty or blank", async () => {
       const req = {
-        body: {
-          ...validUpdatedProfile,
-          name: " ",
-        },
+        body: { ...validUpdatedProfile, name: " " },
         user: { _id: mockUserId },
       };
 
@@ -100,10 +95,7 @@ describe("Update Profile Controller", () => {
 
     it("should fail when phone is empty or blank", async () => {
       const req = {
-        body: {
-          ...validUpdatedProfile,
-          phone: "  ",
-        },
+        body: { ...validUpdatedProfile, phone: "  " },
         user: { _id: mockUserId },
       };
 
@@ -121,10 +113,7 @@ describe("Update Profile Controller", () => {
 
     it("should fail when address is empty or blank", async () => {
       const req = {
-        body: {
-          ...validUpdatedProfile,
-          address: "  ",
-        },
+        body: { ...validUpdatedProfile, address: "  " },
         user: { _id: mockUserId },
       };
 
@@ -145,10 +134,7 @@ describe("Update Profile Controller", () => {
     it("should succeed but should not update email even when email is changed", async () => {
       const newEmail = "newemail@gmail.com";
       const req = {
-        body: {
-          ...validUpdatedProfile,
-          email: newEmail,
-        },
+        body: { ...validUpdatedProfile, email: newEmail },
         user: { _id: mockUserId },
       };
 
@@ -159,16 +145,16 @@ describe("Update Profile Controller", () => {
 
       await updateProfileController(req, res);
 
-      // expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
-      //   mockUserId,
-      //   {
-      //     name: validUpdatedProfile.name,
-      //     password: validUpdatedProfile.password,
-      //     phone: validUpdatedProfile.phone,
-      //     address: validUpdatedProfile.address,
-      //   },
-      //   { new: true }
-      // );
+      expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        mockUserId,
+        {
+          name: validUpdatedProfile.name,
+          password: validUpdatedProfile.password,
+          phone: validUpdatedProfile.phone,
+          address: validUpdatedProfile.address,
+        },
+        { new: true }
+      );
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
@@ -182,10 +168,7 @@ describe("Update Profile Controller", () => {
     it("should succeed when password is exactly 6 characters", async () => {
       const newPassword = "im6chr";
       const req = {
-        body: {
-          ...validUpdatedProfile,
-          password: newPassword,
-        },
+        body: { ...validUpdatedProfile, password: newPassword },
         user: { _id: mockUserId },
       };
 
@@ -197,34 +180,28 @@ describe("Update Profile Controller", () => {
 
       await updateProfileController(req, res);
 
-      // expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
-      //   mockUserId,
-      //   {
-      //     name: validUpdatedUser.name,
-      //     password: newPassword,
-      //     phone: validUpdatedUser.phone,
-      //     address: validUpdatedUser.address,
-      //   },
-      //   { new: true }
-      // );
+      expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        mockUserId,
+        {
+          name: validUpdatedProfile.name,
+          password: newPassword,
+          phone: validUpdatedProfile.phone,
+          address: validUpdatedProfile.address,
+        },
+        { new: true }
+      );
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
         message: "Profile Updated Successfully",
-        updatedUser: {
-          ...validUpdatedProfile,
-          password: newPassword,
-        },
+        updatedUser: { ...validUpdatedProfile, password: newPassword },
       });
     });
 
     it("should succeed when password is more than 6 characters", async () => {
       const newPassword = "strongpassword42";
       const req = {
-        body: {
-          ...validUpdatedProfile,
-          password: newPassword,
-        },
+        body: { ...validUpdatedProfile, password: newPassword },
         user: { _id: mockUserId },
       };
 
@@ -236,34 +213,28 @@ describe("Update Profile Controller", () => {
 
       await updateProfileController(req, res);
 
-      // expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
-      //   mockUserId,
-      //   {
-      //     name: validUpdatedUser.name,
-      //     password: newPassword,
-      //     phone: validUpdatedUser.phone,
-      //     address: validUpdatedUser.address,
-      //   },
-      //   { new: true }
-      // );
+      expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        mockUserId,
+        {
+          name: validUpdatedProfile.name,
+          password: newPassword,
+          phone: validUpdatedProfile.phone,
+          address: validUpdatedProfile.address,
+        },
+        { new: true }
+      );
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
         message: "Profile Updated Successfully",
-        updatedUser: {
-          ...validUpdatedProfile,
-          password: newPassword,
-        },
+        updatedUser: { ...validUpdatedProfile, password: newPassword },
       });
     });
 
     it("should succeed but should not update password when password is empty or blank", async () => {
       const newPassword = " ";
       const req = {
-        body: {
-          ...validUpdatedProfile,
-          password: newPassword,
-        },
+        body: { ...validUpdatedProfile, password: newPassword },
         user: { _id: mockUserId },
       };
 
@@ -289,20 +260,14 @@ describe("Update Profile Controller", () => {
       expect(res.send).toHaveBeenCalledWith({
         success: true,
         message: "Profile Updated Successfully",
-        updatedUser: {
-          ...validUpdatedProfile,
-          password: mockUser.password,
-        },
+        updatedUser: { ...validUpdatedProfile, password: mockUser.password },
       });
     });
 
     it("should fail when password is non-empty and less than 6 characters", async () => {
       const newPassword = "2weak";
       const req = {
-        body: {
-          ...validUpdatedProfile,
-          password: newPassword,
-        },
+        body: { ...validUpdatedProfile, password: newPassword },
         user: { _id: mockUserId },
       };
 
@@ -322,10 +287,7 @@ describe("Update Profile Controller", () => {
     it("should succeed when phone is 8 digits and starts with 6", async () => {
       const newPhone = "61234567";
       const req = {
-        body: {
-          ...validUpdatedProfile,
-          phone: newPhone,
-        },
+        body: { ...validUpdatedProfile, phone: newPhone },
         user: { _id: mockUserId },
       };
 
@@ -337,34 +299,28 @@ describe("Update Profile Controller", () => {
 
       await updateProfileController(req, res);
 
-      // expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
-      //   mockUserId,
-      //   {
-      //     name: validUpdatedProfile.name,
-      //     password: validUpdatedProfile.password,
-      //     phone: newPhone,
-      //     address: validUpdatedProfile.address,
-      //   },
-      //   { new: true }
-      // );
+      expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        mockUserId,
+        {
+          name: validUpdatedProfile.name,
+          password: validUpdatedProfile.password,
+          phone: newPhone,
+          address: validUpdatedProfile.address,
+        },
+        { new: true }
+      );
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
         message: "Profile Updated Successfully",
-        updatedUser: {
-          ...validUpdatedProfile,
-          phone: newPhone,
-        },
+        updatedUser: { ...validUpdatedProfile, phone: newPhone },
       });
     });
 
     it("should succeed when phone is 8 digits and starts with 8", async () => {
       const newPhone = "81234567";
       const req = {
-        body: {
-          ...validUpdatedProfile,
-          phone: newPhone,
-        },
+        body: { ...validUpdatedProfile, phone: newPhone },
         user: { _id: mockUserId },
       };
 
@@ -376,34 +332,28 @@ describe("Update Profile Controller", () => {
 
       await updateProfileController(req, res);
 
-      // expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
-      //   mockUserId,
-      //   {
-      //     name: validUpdatedProfile.name,
-      //     password: validUpdatedProfile.password,
-      //     phone: newPhone,
-      //     address: validUpdatedProfile.address,
-      //   },
-      //   { new: true }
-      // );
+      expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        mockUserId,
+        {
+          name: validUpdatedProfile.name,
+          password: validUpdatedProfile.password,
+          phone: newPhone,
+          address: validUpdatedProfile.address,
+        },
+        { new: true }
+      );
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
         message: "Profile Updated Successfully",
-        updatedUser: {
-          ...validUpdatedProfile,
-          phone: newPhone,
-        },
+        updatedUser: { ...validUpdatedProfile, phone: newPhone },
       });
     });
 
     it("should succeed when phone is 8 digits and starts with 9", async () => {
       const newPhone = "91234567";
       const req = {
-        body: {
-          ...validUpdatedProfile,
-          phone: newPhone,
-        },
+        body: { ...validUpdatedProfile, phone: newPhone },
         user: { _id: mockUserId },
       };
 
@@ -415,34 +365,28 @@ describe("Update Profile Controller", () => {
 
       await updateProfileController(req, res);
 
-      // expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
-      //   mockUserId,
-      //   {
-      //     name: validUpdatedProfile.name,
-      //     password: validUpdatedProfile.password,
-      //     phone: newPhone,
-      //     address: validUpdatedProfile.address,
-      //   },
-      //   { new: true }
-      // );
+      expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        mockUserId,
+        {
+          name: validUpdatedProfile.name,
+          password: validUpdatedProfile.password,
+          phone: newPhone,
+          address: validUpdatedProfile.address,
+        },
+        { new: true }
+      );
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
         message: "Profile Updated Successfully",
-        updatedUser: {
-          ...validUpdatedProfile,
-          phone: newPhone,
-        },
+        updatedUser: { ...validUpdatedProfile, phone: newPhone },
       });
     });
 
     it("should fail when phone is less than 8 digits", async () => {
       const newPhone = "9876543";
       const req = {
-        body: {
-          ...validUpdatedProfile,
-          phone: newPhone,
-        },
+        body: { ...validUpdatedProfile, phone: newPhone },
         user: { _id: mockUserId },
       };
 
@@ -460,10 +404,7 @@ describe("Update Profile Controller", () => {
     it("should fail when phone is more than 8 digits", async () => {
       const newPhone = "987654321";
       const req = {
-        body: {
-          ...validUpdatedProfile,
-          phone: newPhone,
-        },
+        body: { ...validUpdatedProfile, phone: newPhone },
         user: { _id: mockUserId },
       };
 
@@ -481,10 +422,7 @@ describe("Update Profile Controller", () => {
     it("should fail when phone does not start with 6, 8 or 9", async () => {
       const newPhone = "12345678";
       const req = {
-        body: {
-          ...validUpdatedProfile,
-          phone: newPhone,
-        },
+        body: { ...validUpdatedProfile, phone: newPhone },
         user: { _id: mockUserId },
       };
 
@@ -502,10 +440,7 @@ describe("Update Profile Controller", () => {
     it("should fail when phone is non-numeric", async () => {
       const newPhone = "98abc43";
       const req = {
-        body: {
-          ...validUpdatedProfile,
-          phone: newPhone,
-        },
+        body: { ...validUpdatedProfile, phone: newPhone },
         user: { _id: mockUserId },
       };
 
