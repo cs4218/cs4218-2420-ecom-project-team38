@@ -17,8 +17,20 @@ export const registerController = async (req, res) => {
     if (!password) {
       return res.send({ message: "Password is Required" });
     }
+    // to be consistent with password requirement in update profile
+    if (password.length < 6) {
+      return res.send({
+        message: "Passsword should be at least 6 characters long",
+      });
+    }
     if (!phone) {
       return res.send({ message: "Phone no is Required" });
+    }
+    // to be consistent with phone requirement in update profile
+    if (!/^[689]\d{7}$/.test(phone)) {
+      return res.send({
+        message: "Phone should be 8 digits long and begin with 6, 8 or 9",
+      });
     }
     if (!address) {
       return res.send({ message: "Address is Required" });
@@ -164,36 +176,60 @@ export const testController = (req, res) => {
   }
 };
 
-//update prfole
+//update profile
 export const updateProfileController = async (req, res) => {
   try {
-    const { name, email, password, address, phone } = req.body;
+    let { name, email, password, address, phone } = req.body;
     const user = await userModel.findById(req.user._id);
-    //password
-    if (password && password.length < 6) {
-      return res.json({ error: "Passsword is required and 6 character long" });
+
+    name = name?.trim();
+    password = password?.trim();
+    address = address?.trim();
+    phone = phone?.trim();
+
+    // name, address and phone are required fields
+    if (!name || !address || !phone) {
+      return res.json({
+        error:
+          "Please fill in all fields (password can be left empty to keep it unchanged)",
+      });
     }
+
+    // validate password
+    if (password && password.length < 6) {
+      return res.json({
+        error: "Passsword should be at least 6 characters long",
+      });
+    }
+
+    // validate phone
+    if (phone && !/^[689]\d{7}$/.test(phone)) {
+      return res.json({
+        error: "Phone should be 8 digits long and begin with 6, 8 or 9",
+      });
+    }
+
     const hashedPassword = password ? await hashPassword(password) : undefined;
     const updatedUser = await userModel.findByIdAndUpdate(
       req.user._id,
       {
-        name: name || user.name,
+        name: name,
         password: hashedPassword || user.password,
-        phone: phone || user.phone,
-        address: address || user.address,
+        phone: phone,
+        address: address,
       },
       { new: true }
     );
     res.status(200).send({
       success: true,
-      message: "Profile Updated SUccessfully",
+      message: "Profile Updated Successfully",
       updatedUser,
     });
   } catch (error) {
     console.log(error);
     res.status(400).send({
       success: false,
-      message: "Error WHile Update profile",
+      message: "Error While Updating Profile",
       error,
     });
   }

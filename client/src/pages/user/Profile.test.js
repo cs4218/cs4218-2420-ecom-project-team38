@@ -178,7 +178,7 @@ describe("Profile Component", () => {
         const newPhone = "87654321";
         const newAddress = "456 New Address";
 
-        axios.put.mockResolvedValueOnce({ data: {} });
+        axios.put.mockResolvedValue({ data: {} });
 
         renderProfileComponent();
 
@@ -222,7 +222,7 @@ describe("Profile Component", () => {
           address: newAddress,
         };
 
-        axios.put.mockResolvedValueOnce({
+        axios.put.mockResolvedValue({
           data: {
             success: true,
             message: "Profile Updated Successfully",
@@ -265,7 +265,7 @@ describe("Profile Component", () => {
         const [, setAuth] = useAuth();
         const errorMsg = "Invalid input";
 
-        axios.put.mockResolvedValueOnce({
+        axios.put.mockResolvedValue({
           data: {
             error: errorMsg,
           },
@@ -283,7 +283,7 @@ describe("Profile Component", () => {
       it("should display error message when profile update fails due to backend error", async () => {
         const [, setAuth] = useAuth();
 
-        axios.put.mockRejectedValueOnce({});
+        axios.put.mockRejectedValue({});
 
         renderProfileComponent();
 
