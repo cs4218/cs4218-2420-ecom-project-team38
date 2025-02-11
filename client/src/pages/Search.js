@@ -26,6 +26,7 @@ const Search = () => {
                 className="card m-2"
                 style={{ width: "18rem" }}
                 data-testid="product-card"
+                key={p._id}
               >
                 <img
                   src={`/api/v1/product/product-photo/${p._id}`}
