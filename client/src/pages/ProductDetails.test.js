@@ -27,8 +27,13 @@ jest.mock('../components/Form/SearchInput', () => () => <div>Mocked SearchInput<
 describe("ProductDetails Component", () => {
   beforeEach(() => {
     useParams.mockReturnValue({ slug: "test-product" });
+    jest.spyOn(console, "error").mockImplementation(() => {});
     jest.clearAllMocks();
   });
+
+  afterEach(() => {
+    console.error.mockRestore();
+  })
 
   it("should correctly render product details", async () => {
     axios.get.mockImplementation((url) => {
@@ -79,6 +84,41 @@ describe("ProductDetails Component", () => {
       });
       expect(priceContainer).toBeInTheDocument();
     });
+  });
+
+
+  it('should handle errors gracefully when fetching product details', async () => {
+    const errorMsg = 'Error fetching product details';
+    axios.get.mockRejectedValue(new Error(errorMsg));
+
+    render(
+      <MemoryRouter initialEntries={['/product/test-product']}>
+        <ProductDetails />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(axios.get).toHaveBeenCalledWith(
+        `/api/v1/product/get-product/test-product`
+      );
+
+      expect(console.error).toHaveBeenCalledWith(new Error(errorMsg));
+    });
+  });
+
+
+  it('should not call getProduct when slug is missing', () => {
+    useParams.mockReturnValue({});
+
+    render(
+      <MemoryRouter>
+        <ProductDetails />
+      </MemoryRouter>
+    );
+
+    expect(axios.get).not.toHaveBeenCalledWith(
+      expect.stringContaining('/api/v1/product/get-product/')
+    );
   });
 
 
