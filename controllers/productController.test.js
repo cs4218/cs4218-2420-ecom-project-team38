@@ -84,8 +84,9 @@ describe("Product controller", () => {
         send: jest.fn(),
       };
 
+      const mockedError = new Error("Database error");
       productModel.find = jest.fn().mockReturnValue({
-        select: jest.fn().mockRejectedValue(new Error("Error")),
+        select: jest.fn().mockRejectedValue(mockedError),
       });
 
       await searchProductController(req, res);
@@ -94,7 +95,7 @@ describe("Product controller", () => {
       expect(res.send).toHaveBeenCalledWith({
         success: false,
         message: "Error In Search Product API",
-        error: expect.any(Error),
+        error: mockedError,
       });
     });
   });

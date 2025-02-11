@@ -265,7 +265,6 @@ export const searchProductController = async (req, res) => {
       /[-[\]{}()*+?.,\\/^$|#\s]/g,
       "\\$&"
     );
-    console.log(sanitisedKeyword);
     const resutls = await productModel
       .find({
         $or: [
