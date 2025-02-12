@@ -35,7 +35,7 @@ describe("ProductDetails Component", () => {
     console.error.mockRestore();
   })
 
-  it("should correctly render product details", async () => {
+  it("Should correctly render product details", async () => {
     axios.get.mockImplementation((url) => {
       if (url.includes("get-product/test-product")) {
         return Promise.resolve({
@@ -87,7 +87,7 @@ describe("ProductDetails Component", () => {
   });
 
 
-  it('should handle errors gracefully when fetching product details', async () => {
+  it('Should handle errors gracefully when fetching product details', async () => {
     const errorMsg = 'Error fetching product details';
     axios.get.mockRejectedValue(new Error(errorMsg));
 
@@ -107,7 +107,7 @@ describe("ProductDetails Component", () => {
   });
 
 
-  it('should not call getProduct when slug is missing', () => {
+  it('Should not call getProduct hook when slug is missing', () => {
     useParams.mockReturnValue({});
 
     render(
@@ -122,7 +122,7 @@ describe("ProductDetails Component", () => {
   });
 
 
-  it("should handle navigation of similar products if they exist", async () => {
+  it("Should handle navigation of similar products if they exist", async () => {
     const navigate = jest.fn();
     useNavigate.mockReturnValue(navigate);
   
@@ -250,7 +250,7 @@ describe("ProductDetails Component", () => {
   });
 
 
-  it("should display no similar products message when none exist", async () => {
+  it("Should display no similar products message when no similar products exist", async () => {
     axios.get.mockImplementation((url) => {
       if (url.includes("get-product/test-product")) {
         return Promise.resolve({
