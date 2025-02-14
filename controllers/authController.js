@@ -1,7 +1,12 @@
 import userModel from "../models/userModel.js";
 import orderModel from "../models/orderModel.js";
 
-import { comparePassword, hashPassword } from "./../helpers/authHelper.js";
+import {
+  comparePassword,
+  hashPassword,
+  isPasswordValid,
+  isPhoneValid,
+} from "./../helpers/authHelper.js";
 import JWT from "jsonwebtoken";
 
 export const registerController = async (req, res) => {
@@ -17,21 +22,25 @@ export const registerController = async (req, res) => {
     if (!password) {
       return res.send({ message: "Password is Required" });
     }
-    // to be consistent with password requirement in update profile
-    if (password.length < 6) {
-      return res.send({
-        message: "Passsword should be at least 6 characters long",
+
+    const passwordValidationResult = isPasswordValid(password);
+    if (passwordValidationResult) {
+      return res.json({
+        error: passwordValidationResult,
       });
     }
+
     if (!phone) {
       return res.send({ message: "Phone no is Required" });
     }
-    // to be consistent with phone requirement in update profile
-    if (!/^[689]\d{7}$/.test(phone)) {
-      return res.send({
-        message: "Phone should be 8 digits long and begin with 6, 8 or 9",
+
+    const phoneValidationResult = isPhoneValid(phone);
+    if (phoneValidationResult) {
+      return res.json({
+        error: phoneValidationResult,
       });
     }
+
     if (!address) {
       return res.send({ message: "Address is Required" });
     }
@@ -190,22 +199,25 @@ export const updateProfileController = async (req, res) => {
     // name, address and phone are required fields
     if (!name || !address || !phone) {
       return res.json({
-        error:
-          "Please fill in all fields (password can be left empty to keep it unchanged)",
+        error: "Name, address and phone are required",
       });
     }
 
     // validate password
-    if (password && password.length < 6) {
-      return res.json({
-        error: "Passsword should be at least 6 characters long",
-      });
+    if (password) {
+      const passwordValidationResult = isPasswordValid(password);
+      if (passwordValidationResult) {
+        return res.json({
+          error: passwordValidationResult,
+        });
+      }
     }
 
     // validate phone
-    if (phone && !/^[689]\d{7}$/.test(phone)) {
+    const phoneValidationResult = isPhoneValid(phone);
+    if (phoneValidationResult) {
       return res.json({
-        error: "Phone should be 8 digits long and begin with 6, 8 or 9",
+        error: phoneValidationResult,
       });
     }
 

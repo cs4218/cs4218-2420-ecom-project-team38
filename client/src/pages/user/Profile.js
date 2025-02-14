@@ -93,7 +93,7 @@ const Profile = () => {
                   <input
                     type="password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => setPassword(e.target.value.trim())}
                     className="form-control"
                     id="exampleInputPassword1"
                     placeholder="Enter Your Password"
@@ -103,7 +103,7 @@ const Profile = () => {
                   <input
                     type="text"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => setPhone(e.target.value.trim())}
                     className="form-control"
                     id="exampleInputEmail1"
                     placeholder="Enter Your Phone"

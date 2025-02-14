@@ -25,6 +25,8 @@ jest.mock("../../context/search", () => ({
 
 jest.mock("../../hooks/useCategory", () => jest.fn(() => []));
 
+jest.spyOn(console, "log").mockImplementation(() => {});
+
 const mockUseNavigate = jest.fn();
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
@@ -40,15 +42,15 @@ Object.defineProperty(window, "localStorage", {
   writable: true,
 });
 
-const renderProfileComponent = () => {
-  render(
-    <MemoryRouter>
-      <Profile />
-    </MemoryRouter>
-  );
-};
-
 describe("Profile Component", () => {
+  const renderProfileComponent = () => {
+    render(
+      <MemoryRouter>
+        <Profile />
+      </MemoryRouter>
+    );
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -103,6 +105,9 @@ describe("Profile Component", () => {
         expect(screen.getByPlaceholderText("Enter Your Email")).toHaveValue(
           mockUser.email
         );
+        expect(screen.getByPlaceholderText("Enter Your Password")).toHaveValue(
+          ""
+        );
         expect(screen.getByPlaceholderText("Enter Your Phone")).toHaveValue(
           mockUser.phone
         );
@@ -110,49 +115,20 @@ describe("Profile Component", () => {
           mockUser.address
         );
       });
-
-      it("should not prefill password form field with user data", () => {
-        renderProfileComponent();
-
-        expect(screen.getByPlaceholderText("Enter Your Password")).toHaveValue(
-          ""
-        );
-      });
     });
 
     describe("Form interaction", () => {
-      it("should allow changing of name, password, phone and address", () => {
+      it("should allow changing of name", () => {
         const name = "New User";
-        const password = "newpassword123";
-        const phone = "87654321";
-        const address = "456 New Address";
 
         renderProfileComponent();
 
         fireEvent.change(screen.getByPlaceholderText("Enter Your Name"), {
           target: { value: name },
         });
-        fireEvent.change(screen.getByPlaceholderText("Enter Your Password"), {
-          target: { value: password },
-        });
-        fireEvent.change(screen.getByPlaceholderText("Enter Your Phone"), {
-          target: { value: phone },
-        });
-        fireEvent.change(screen.getByPlaceholderText("Enter Your Address"), {
-          target: { value: address },
-        });
 
         expect(screen.getByPlaceholderText("Enter Your Name")).toHaveValue(
           name
-        );
-        expect(screen.getByPlaceholderText("Enter Your Password")).toHaveValue(
-          password
-        );
-        expect(screen.getByPlaceholderText("Enter Your Phone")).toHaveValue(
-          phone
-        );
-        expect(screen.getByPlaceholderText("Enter Your Address")).toHaveValue(
-          address
         );
       });
 
@@ -167,6 +143,72 @@ describe("Profile Component", () => {
 
         expect(screen.getByPlaceholderText("Enter Your Email")).toHaveValue(
           mockUser.email
+        );
+      });
+
+      it("should allow changing of password", () => {
+        const password = "newpassword123";
+
+        renderProfileComponent();
+
+        fireEvent.change(screen.getByPlaceholderText("Enter Your Password"), {
+          target: { value: password },
+        });
+
+        expect(screen.getByPlaceholderText("Enter Your Password")).toHaveValue(
+          password
+        );
+      });
+
+      it("should not allow password to have trailing white spaces", () => {
+        renderProfileComponent();
+
+        fireEvent.change(screen.getByPlaceholderText("Enter Your Password"), {
+          target: { value: "  newpassword123  " },
+        });
+
+        expect(screen.getByPlaceholderText("Enter Your Password")).toHaveValue(
+          "newpassword123"
+        );
+      });
+
+      it("should allow changing of phone", () => {
+        const phone = "87654321";
+
+        renderProfileComponent();
+
+        fireEvent.change(screen.getByPlaceholderText("Enter Your Phone"), {
+          target: { value: phone },
+        });
+
+        expect(screen.getByPlaceholderText("Enter Your Phone")).toHaveValue(
+          phone
+        );
+      });
+
+      it("should not allow phone to have trailing white spaces", () => {
+        renderProfileComponent();
+
+        fireEvent.change(screen.getByPlaceholderText("Enter Your Phone"), {
+          target: { value: "  87654321  " },
+        });
+
+        expect(screen.getByPlaceholderText("Enter Your Phone")).toHaveValue(
+          "87654321"
+        );
+      });
+
+      it("should allow changing of address", () => {
+        const address = "456 New Address";
+
+        renderProfileComponent();
+
+        fireEvent.change(screen.getByPlaceholderText("Enter Your Address"), {
+          target: { value: address },
+        });
+
+        expect(screen.getByPlaceholderText("Enter Your Address")).toHaveValue(
+          address
         );
       });
     });
@@ -283,7 +325,7 @@ describe("Profile Component", () => {
       it("should display error message when profile update fails due to backend error", async () => {
         const [, setAuth] = useAuth();
 
-        axios.put.mockRejectedValue({});
+        axios.put.mockRejectedValue(new Error("Backend error"));
 
         renderProfileComponent();
 
