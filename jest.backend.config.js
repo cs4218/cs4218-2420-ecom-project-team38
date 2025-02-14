@@ -1,6 +1,6 @@
 /** @type {import("jest").Config} */
 const config = {
-  // collectCoverage: true,
+  collectCoverage: true,
   collectCoverageFrom: ["controllers/**"],
   coverageThreshold: { global: { lines: 100, functions: 100 } },
   displayName: "backend",
