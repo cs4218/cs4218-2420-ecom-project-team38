@@ -83,10 +83,10 @@ describe("Update Profile Controller", () => {
       );
     });
 
-    it("should update the database with the correct hashed password if provided", async () => {
+    it("should update the database with the correct hashed password when provided", async () => {
       const newPassword = "newpassword456";
       const req = {
-        body: { ...validUpdatedProfile, password: newPassword },
+        body: { ...mockUser, password: newPassword },
         user: { _id: mockUserId },
       };
 
@@ -99,10 +99,34 @@ describe("Update Profile Controller", () => {
       expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
         mockUserId,
         {
-          name: validUpdatedProfile.name,
+          name: mockUser.name,
           password: mockHashedPassword,
-          phone: validUpdatedProfile.phone,
-          address: validUpdatedProfile.address,
+          phone: mockUser.phone,
+          address: mockUser.address,
+        },
+        { new: true }
+      );
+    });
+
+    it("should not update the database with email even when changed", async () => {
+      const newEmail = "newemail@gmail.com";
+      const req = {
+        body: { ...mockUser, password: "", email: newEmail },
+        user: { _id: mockUserId },
+      };
+
+      userModel.findById = jest.fn().mockResolvedValue({ ...mockUser });
+      userModel.findByIdAndUpdate = jest.fn();
+
+      await updateProfileController(req, res);
+
+      expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        mockUserId,
+        {
+          name: mockUser.name,
+          password: mockUser.password,
+          phone: mockUser.phone,
+          address: mockUser.address,
         },
         { new: true }
       );
@@ -133,7 +157,7 @@ describe("Update Profile Controller", () => {
   describe("Field validation", () => {
     it("should send response with error message when name is empty or blank", async () => {
       const req = {
-        body: { ...validUpdatedProfile, name: "  " },
+        body: { ...mockUser, password: "", name: "  " },
         user: { _id: mockUserId },
       };
 
@@ -150,7 +174,7 @@ describe("Update Profile Controller", () => {
 
     it("should send response with error message when phone is empty or blank", async () => {
       const req = {
-        body: { ...validUpdatedProfile, phone: "  " },
+        body: { ...mockUser, password: "", phone: "  " },
         user: { _id: mockUserId },
       };
 
@@ -167,7 +191,7 @@ describe("Update Profile Controller", () => {
 
     it("should send response with error message when address is empty or blank", async () => {
       const req = {
-        body: { ...validUpdatedProfile, address: "  " },
+        body: { ...mockUser, password: "", address: "  " },
         user: { _id: mockUserId },
       };
 
@@ -186,7 +210,7 @@ describe("Update Profile Controller", () => {
       const newPassword = "2weak";
       const passwordErrorMsg = "Passsword should be at least 6 characters long";
       const req = {
-        body: { ...validUpdatedProfile, password: newPassword },
+        body: { ...mockUser, password: newPassword },
         user: { _id: mockUserId },
       };
 
@@ -206,7 +230,7 @@ describe("Update Profile Controller", () => {
       const phoneErrorMsg =
         "Phone should be 8 digits long and begin with 6, 8 or 9";
       const req = {
-        body: { ...validUpdatedProfile, phone: newPhone },
+        body: { ...mockUser, password: "", phone: newPhone },
         user: { _id: mockUserId },
       };
 

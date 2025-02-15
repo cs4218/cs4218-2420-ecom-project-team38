@@ -42,8 +42,8 @@ Object.defineProperty(window, "localStorage", {
   writable: true,
 });
 
-describe("Profile Component", () => {
-  const renderProfileComponent = () => {
+describe("Profile Page", () => {
+  const renderProfilePage = () => {
     render(
       <MemoryRouter>
         <Profile />
@@ -55,7 +55,7 @@ describe("Profile Component", () => {
     jest.clearAllMocks();
   });
 
-  describe("User is logged in", () => {
+  describe("User is authenticated", () => {
     let mockUser;
 
     beforeEach(() => {
@@ -75,8 +75,8 @@ describe("Profile Component", () => {
     });
 
     describe("Form initialisation", () => {
-      it("should render all form fields", () => {
-        renderProfileComponent();
+      it("should render form title and all form fields", () => {
+        renderProfilePage();
 
         expect(screen.getByText("USER PROFILE")).toBeInTheDocument();
         expect(
@@ -97,7 +97,7 @@ describe("Profile Component", () => {
       });
 
       it("should prefill all form fields except password with user data", () => {
-        renderProfileComponent();
+        renderProfilePage();
 
         expect(screen.getByPlaceholderText("Enter Your Name")).toHaveValue(
           mockUser.name
@@ -121,7 +121,7 @@ describe("Profile Component", () => {
       it("should allow changing of name", () => {
         const name = "New User";
 
-        renderProfileComponent();
+        renderProfilePage();
 
         fireEvent.change(screen.getByPlaceholderText("Enter Your Name"), {
           target: { value: name },
@@ -135,7 +135,7 @@ describe("Profile Component", () => {
       it("should not allow changing of email", () => {
         const email = "newemail@gmail.com";
 
-        renderProfileComponent();
+        renderProfilePage();
 
         fireEvent.change(screen.getByPlaceholderText("Enter Your Email"), {
           target: { value: email },
@@ -149,7 +149,7 @@ describe("Profile Component", () => {
       it("should allow changing of password", () => {
         const password = "newpassword123";
 
-        renderProfileComponent();
+        renderProfilePage();
 
         fireEvent.change(screen.getByPlaceholderText("Enter Your Password"), {
           target: { value: password },
@@ -161,7 +161,7 @@ describe("Profile Component", () => {
       });
 
       it("should not allow password to have trailing white spaces", () => {
-        renderProfileComponent();
+        renderProfilePage();
 
         fireEvent.change(screen.getByPlaceholderText("Enter Your Password"), {
           target: { value: "  newpassword123  " },
@@ -175,7 +175,7 @@ describe("Profile Component", () => {
       it("should allow changing of phone", () => {
         const phone = "87654321";
 
-        renderProfileComponent();
+        renderProfilePage();
 
         fireEvent.change(screen.getByPlaceholderText("Enter Your Phone"), {
           target: { value: phone },
@@ -187,7 +187,7 @@ describe("Profile Component", () => {
       });
 
       it("should not allow phone to have trailing white spaces", () => {
-        renderProfileComponent();
+        renderProfilePage();
 
         fireEvent.change(screen.getByPlaceholderText("Enter Your Phone"), {
           target: { value: "  87654321  " },
@@ -201,7 +201,7 @@ describe("Profile Component", () => {
       it("should allow changing of address", () => {
         const address = "456 New Address";
 
-        renderProfileComponent();
+        renderProfilePage();
 
         fireEvent.change(screen.getByPlaceholderText("Enter Your Address"), {
           target: { value: address },
@@ -222,7 +222,7 @@ describe("Profile Component", () => {
 
         axios.put.mockResolvedValue({ data: {} });
 
-        renderProfileComponent();
+        renderProfilePage();
 
         fireEvent.change(screen.getByPlaceholderText("Enter Your Name"), {
           target: { value: newName },
@@ -272,7 +272,7 @@ describe("Profile Component", () => {
           },
         });
 
-        renderProfileComponent();
+        renderProfilePage();
 
         fireEvent.change(screen.getByPlaceholderText("Enter Your Name"), {
           target: { value: newName },
@@ -313,7 +313,7 @@ describe("Profile Component", () => {
           },
         });
 
-        renderProfileComponent();
+        renderProfilePage();
 
         fireEvent.click(screen.getByRole("button", { name: /update/i }));
 
@@ -327,7 +327,7 @@ describe("Profile Component", () => {
 
         axios.put.mockRejectedValue(new Error("Backend error"));
 
-        renderProfileComponent();
+        renderProfilePage();
 
         fireEvent.click(screen.getByRole("button", { name: /update/i }));
 
@@ -338,13 +338,13 @@ describe("Profile Component", () => {
     });
   });
 
-  describe("User is not logged in", () => {
+  describe("User is unauthenticated", () => {
     beforeEach(() => {
       useAuth.mockReturnValue([{ user: null, token: "" }, jest.fn()]);
     });
 
     it("should navigate to home page", () => {
-      renderProfileComponent();
+      renderProfilePage();
 
       expect(mockUseNavigate).toHaveBeenCalledWith("/");
     });
