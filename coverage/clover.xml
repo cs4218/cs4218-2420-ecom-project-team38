@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1739598697350" clover="3.2.0">
-  <project timestamp="1739598697350" name="All files">
-    <metrics statements="400" coveredstatements="229" conditionals="109" coveredconditionals="41" methods="69" coveredmethods="48" elements="578" coveredelements="318" complexity="0" loc="400" ncloc="400" packages="8" files="18" classes="18"/>
+<coverage generated="1739600071368" clover="3.2.0">
+  <project timestamp="1739600071368" name="All files">
+    <metrics statements="410" coveredstatements="239" conditionals="117" coveredconditionals="49" methods="73" coveredmethods="52" elements="600" coveredelements="340" complexity="0" loc="410" ncloc="410" packages="9" files="19" classes="19"/>
     <package name="client.src.components">
       <metrics statements="17" coveredstatements="14" conditionals="4" coveredconditionals="3" methods="6" coveredmethods="5"/>
       <file name="Footer.js" path="C:\Users\RQ\NUS\CS4218\cs4218-2420-ecom-project-team38\client\src\components\Footer.js">
@@ -459,6 +459,22 @@
         <line num="372" count="0" type="stmt"/>
         <line num="374" count="0" type="stmt"/>
         <line num="379" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="helpers">
+      <metrics statements="10" coveredstatements="10" conditionals="8" coveredconditionals="8" methods="4" coveredmethods="4"/>
+      <file name="authHelper.js" path="C:\Users\RQ\NUS\CS4218\cs4218-2420-ecom-project-team38\helpers\authHelper.js">
+        <metrics statements="10" coveredstatements="10" conditionals="8" coveredconditionals="8" methods="4" coveredmethods="4"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="2" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="10" count="3" type="stmt"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="14" count="4" type="cond" truecount="4" falsecount="0"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="20" count="8" type="cond" truecount="4" falsecount="0"/>
       </file>
     </package>
     <package name="models">
