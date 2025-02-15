@@ -1,7 +1,12 @@
 import userModel from "../models/userModel.js";
 import orderModel from "../models/orderModel.js";
 
-import { comparePassword, hashPassword } from "./../helpers/authHelper.js";
+import {
+  comparePassword,
+  hashPassword,
+  isPasswordValid,
+  isPhoneValid,
+} from "./../helpers/authHelper.js";
 import JWT from "jsonwebtoken";
 
 export const registerController = async (req, res) => {
@@ -17,9 +22,25 @@ export const registerController = async (req, res) => {
     if (!password) {
       return res.send({ message: "Password is Required" });
     }
+
+    const passwordValidationResult = isPasswordValid(password);
+    if (passwordValidationResult) {
+      return res.json({
+        error: passwordValidationResult,
+      });
+    }
+
     if (!phone) {
       return res.send({ message: "Phone no is Required" });
     }
+
+    const phoneValidationResult = isPhoneValid(phone);
+    if (phoneValidationResult) {
+      return res.json({
+        error: phoneValidationResult,
+      });
+    }
+
     if (!address) {
       return res.send({ message: "Address is Required" });
     }
@@ -164,36 +185,63 @@ export const testController = (req, res) => {
   }
 };
 
-//update prfole
+//update profile
 export const updateProfileController = async (req, res) => {
   try {
-    const { name, email, password, address, phone } = req.body;
+    let { name, email, password, address, phone } = req.body;
     const user = await userModel.findById(req.user._id);
-    //password
-    if (password && password.length < 6) {
-      return res.json({ error: "Passsword is required and 6 character long" });
+
+    name = name?.trim();
+    password = password?.trim();
+    address = address?.trim();
+    phone = phone?.trim();
+
+    // name, address and phone are required fields
+    if (!name || !address || !phone) {
+      return res.json({
+        error: "Name, address and phone are required",
+      });
     }
+
+    // validate password
+    if (password) {
+      const passwordValidationResult = isPasswordValid(password);
+      if (passwordValidationResult) {
+        return res.json({
+          error: passwordValidationResult,
+        });
+      }
+    }
+
+    // validate phone
+    const phoneValidationResult = isPhoneValid(phone);
+    if (phoneValidationResult) {
+      return res.json({
+        error: phoneValidationResult,
+      });
+    }
+
     const hashedPassword = password ? await hashPassword(password) : undefined;
     const updatedUser = await userModel.findByIdAndUpdate(
       req.user._id,
       {
-        name: name || user.name,
+        name: name,
         password: hashedPassword || user.password,
-        phone: phone || user.phone,
-        address: address || user.address,
+        phone: phone,
+        address: address,
       },
       { new: true }
     );
     res.status(200).send({
       success: true,
-      message: "Profile Updated SUccessfully",
+      message: "Profile Updated Successfully",
       updatedUser,
     });
   } catch (error) {
     console.log(error);
     res.status(400).send({
       success: false,
-      message: "Error WHile Update profile",
+      message: "Error While Updating Profile",
       error,
     });
   }

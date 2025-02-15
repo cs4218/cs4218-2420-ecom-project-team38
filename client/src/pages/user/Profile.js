@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import UserMenu from "../../components/UserMenu";
 import Layout from "./../../components/Layout";
 import { useAuth } from "../../context/auth";
 import toast from "react-hot-toast";
 import axios from "axios";
 const Profile = () => {
+  const navigate = useNavigate();
   //context
   const [auth, setAuth] = useAuth();
   //state
@@ -16,12 +18,17 @@ const Profile = () => {
 
   //get user data
   useEffect(() => {
+    if (!auth?.user) {
+      navigate("/");
+      return;
+    }
+
     const { email, name, phone, address } = auth?.user;
     setName(name);
     setPhone(phone);
     setEmail(email);
     setAddress(address);
-  }, [auth?.user]);
+  }, [auth?.user, navigate]);
 
   // form function
   const handleSubmit = async (e) => {
@@ -34,7 +41,7 @@ const Profile = () => {
         phone,
         address,
       });
-      if (data?.errro) {
+      if (data?.error) {
         toast.error(data?.error);
       } else {
         setAuth({ ...auth, user: data?.updatedUser });
@@ -66,7 +73,7 @@ const Profile = () => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="form-control"
-                    id="exampleInputEmail1"
+                    id="exampleInputName1"
                     placeholder="Enter Your Name"
                     autoFocus
                   />
@@ -75,10 +82,9 @@ const Profile = () => {
                   <input
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                     className="form-control"
                     id="exampleInputEmail1"
-                    placeholder="Enter Your Email "
+                    placeholder="Enter Your Email"
                     disabled
                   />
                 </div>
@@ -86,7 +92,7 @@ const Profile = () => {
                   <input
                     type="password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => setPassword(e.target.value.trim())}
                     className="form-control"
                     id="exampleInputPassword1"
                     placeholder="Enter Your Password"
@@ -96,9 +102,9 @@ const Profile = () => {
                   <input
                     type="text"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => setPhone(e.target.value.trim())}
                     className="form-control"
-                    id="exampleInputEmail1"
+                    id="exampleInputPhone1"
                     placeholder="Enter Your Phone"
                   />
                 </div>
@@ -108,7 +114,7 @@ const Profile = () => {
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     className="form-control"
-                    id="exampleInputEmail1"
+                    id="exampleInputAddress1"
                     placeholder="Enter Your Address"
                   />
                 </div>
