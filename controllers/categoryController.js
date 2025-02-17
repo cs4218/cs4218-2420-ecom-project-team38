@@ -46,6 +46,14 @@ export const updateCategoryController = async (req, res) => {
     }
 
     const trimmedName = name.trim();
+    const existingCategory = await categoryModel.findOne({ name: trimmedName });
+
+    if (existingCategory) {
+      return res
+        .status(200)
+        .send({ success: true, message: "Category Already Exists" });
+    }
+
     const category = await categoryModel.findByIdAndUpdate(
       id,
       { name: trimmedName, slug: slugify(trimmedName) },

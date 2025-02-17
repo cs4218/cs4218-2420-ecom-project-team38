@@ -6,6 +6,8 @@ import {
   deleteCategoryController,
 } from "./categoryController";
 
+jest.mock("../models/categoryModel");
+
 describe("Category controller", () => {
   describe("Create category controller", () => {
     afterEach(() => {
