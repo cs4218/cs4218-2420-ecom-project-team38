@@ -1,5 +1,5 @@
 TN:
-SF:client\src\components\Footer.js
+SF:client/src/components/Footer.js
 FN:4,(anonymous_0)
 FNF:1
 FNH:1
@@ -12,7 +12,7 @@ BRF:0
 BRH:0
 end_of_record
 TN:
-SF:client\src\components\Header.js
+SF:client/src/components/Header.js
 FN:10,(anonymous_0)
 FN:14,(anonymous_1)
 FN:63,(anonymous_2)
@@ -41,7 +41,7 @@ BRF:4
 BRH:3
 end_of_record
 TN:
-SF:client\src\components\Layout.js
+SF:client/src/components/Layout.js
 FN:8,(anonymous_0)
 FNF:1
 FNH:1
@@ -55,7 +55,7 @@ BRF:0
 BRH:0
 end_of_record
 TN:
-SF:client\src\components\UserMenu.js
+SF:client/src/components/UserMenu.js
 FN:3,(anonymous_0)
 FNF:1
 FNH:1
@@ -68,7 +68,7 @@ BRF:0
 BRH:0
 end_of_record
 TN:
-SF:client\src\components\Form\SearchInput.js
+SF:client/src/components/Form/SearchInput.js
 FN:5,(anonymous_0)
 FN:9,(anonymous_1)
 FN:30,(anonymous_2)
@@ -95,7 +95,7 @@ BRF:0
 BRH:0
 end_of_record
 TN:
-SF:client\src\hooks\useCategory.js
+SF:client/src/hooks/useCategory.js
 FN:4,useCategory
 FN:8,(anonymous_1)
 FN:17,(anonymous_2)
@@ -119,7 +119,7 @@ BRF:0
 BRH:0
 end_of_record
 TN:
-SF:client\src\pages\ProductDetails.js
+SF:client/src/pages/ProductDetails.js
 FN:7,(anonymous_0)
 FN:14,(anonymous_1)
 FN:18,(anonymous_2)
@@ -165,7 +165,7 @@ BRF:4
 BRH:4
 end_of_record
 TN:
-SF:client\src\pages\Search.js
+SF:client/src/pages/Search.js
 FN:8,(anonymous_0)
 FN:24,(anonymous_1)
 FN:46,(anonymous_2)
@@ -196,7 +196,7 @@ BRF:4
 BRH:4
 end_of_record
 TN:
-SF:client\src\pages\Auth\Login.js
+SF:client/src/pages/Auth/Login.js
 FN:9,(anonymous_0)
 FN:18,(anonymous_1)
 FN:60,(anonymous_2)
@@ -245,7 +245,7 @@ BRF:8
 BRH:7
 end_of_record
 TN:
-SF:client\src\pages\Auth\Register.js
+SF:client/src/pages/Auth/Register.js
 FN:7,(anonymous_0)
 FN:18,(anonymous_1)
 FN:51,(anonymous_2)
@@ -303,7 +303,7 @@ BRF:4
 BRH:3
 end_of_record
 TN:
-SF:client\src\pages\user\Dashboard.js
+SF:client/src/pages/user/Dashboard.js
 FN:5,(anonymous_0)
 FNF:1
 FNH:1
@@ -317,7 +317,7 @@ BRF:0
 BRH:0
 end_of_record
 TN:
-SF:client\src\pages\user\Profile.js
+SF:client/src/pages/user/Profile.js
 FN:8,(anonymous_0)
 FN:20,(anonymous_1)
 FN:34,(anonymous_2)
@@ -380,7 +380,7 @@ BRF:4
 BRH:4
 end_of_record
 TN:
-SF:controllers\authController.js
+SF:controllers/authController.js
 FN:12,(anonymous_0)
 FN:87,(anonymous_1)
 FN:141,(anonymous_2)
@@ -562,7 +562,7 @@ BRF:49
 BRH:15
 end_of_record
 TN:
-SF:controllers\productController.js
+SF:controllers/productController.js
 FN:20,(anonymous_0)
 FN:65,(anonymous_1)
 FN:89,(anonymous_2)
@@ -768,7 +768,7 @@ BRF:32
 BRH:1
 end_of_record
 TN:
-SF:helpers\authHelper.js
+SF:helpers/authHelper.js
 FN:3,(anonymous_0)
 FN:9,(anonymous_1)
 FN:13,(anonymous_2)
@@ -803,7 +803,7 @@ BRF:8
 BRH:8
 end_of_record
 TN:
-SF:models\categoryModel.js
+SF:models/categoryModel.js
 FNF:0
 FNH:0
 DA:3,1
@@ -813,7 +813,7 @@ BRF:0
 BRH:0
 end_of_record
 TN:
-SF:models\orderModel.js
+SF:models/orderModel.js
 FNF:0
 FNH:0
 DA:3,2
@@ -823,7 +823,7 @@ BRF:0
 BRH:0
 end_of_record
 TN:
-SF:models\productModel.js
+SF:models/productModel.js
 FNF:0
 FNH:0
 DA:3,1
@@ -833,7 +833,7 @@ BRF:0
 BRH:0
 end_of_record
 TN:
-SF:models\userModel.js
+SF:models/userModel.js
 FNF:0
 FNH:0
 DA:3,1
