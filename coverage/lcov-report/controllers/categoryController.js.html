@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">76.74% </span>
+                <span class="strong">78.72% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>33/43</span>
+                <span class='fraction'>37/47</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>10/10</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">76.74% </span>
+                <span class="strong">78.72% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>33/43</span>
+                <span class='fraction'>37/47</span>
             </div>
         
             
@@ -192,7 +192,16 @@
 <a name='L127'></a><a href='#L127'>127</a>
 <a name='L128'></a><a href='#L128'>128</a>
 <a name='L129'></a><a href='#L129'>129</a>
-<a name='L130'></a><a href='#L130'>130</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">5x</span>
@@ -202,6 +211,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -228,8 +238,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -329,16 +347,17 @@ export const createCategoryController = async (req, res) =&gt; {
     if (!name || name.trim().length === 0) {
       return res.status(401).send({ message: "Name is required" });
     }
-    const existingCategory = await categoryModel.findOne({ name });
+    const trimmedName = name.trim();
+    const existingCategory = await categoryModel.findOne({ name: trimmedName });
     if (existingCategory) {
       return res.status(200).send({
         success: true,
-        message: "Category Already Exisits",
+        message: "Category Already Exists",
       });
     }
     const category = await new categoryModel({
-      name,
-      slug: slugify(name),
+      name: trimmedName,
+      slug: slugify(trimmedName),
     }).save();
     res.status(201).send({
       success: true,
@@ -350,7 +369,7 @@ export const createCategoryController = async (req, res) =&gt; {
     res.status(500).send({
       success: false,
       errro: error,
-      message: "Errro in Category",
+      message: "Error in Category",
     });
   }
 };
@@ -360,9 +379,17 @@ export const updateCategoryController = async (req, res) =&gt; {
   try {
     const { name } = req.body;
     const { id } = req.params;
+&nbsp;
+    if (!name || name.trim().length === 0) {
+      return res
+        .status(400)
+        .send({ success: false, message: "Name is required" });
+    }
+&nbsp;
+    const trimmedName = name.trim();
     const category = await categoryModel.findByIdAndUpdate(
       id,
-      { name, slug: slugify(name) },
+      { name: trimmedName, slug: slugify(trimmedName) },
       { new: true }
     );
 &nbsp;
@@ -457,7 +484,7 @@ export const deleteCategoryController = async (req, res) =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-02-17T03:53:43.321Z
+                at 2025-02-17T06:23:40.632Z
             </div>
         <script src="../prettify.js"></script>
         <script>

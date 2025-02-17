@@ -6,16 +6,17 @@ export const createCategoryController = async (req, res) => {
     if (!name || name.trim().length === 0) {
       return res.status(401).send({ message: "Name is required" });
     }
-    const existingCategory = await categoryModel.findOne({ name });
+    const trimmedName = name.trim();
+    const existingCategory = await categoryModel.findOne({ name: trimmedName });
     if (existingCategory) {
       return res.status(200).send({
         success: true,
-        message: "Category Already Exisits",
+        message: "Category Already Exists",
       });
     }
     const category = await new categoryModel({
-      name,
-      slug: slugify(name),
+      name: trimmedName,
+      slug: slugify(trimmedName),
     }).save();
     res.status(201).send({
       success: true,
@@ -27,7 +28,7 @@ export const createCategoryController = async (req, res) => {
     res.status(500).send({
       success: false,
       errro: error,
-      message: "Errro in Category",
+      message: "Error in Category",
     });
   }
 };
@@ -37,9 +38,17 @@ export const updateCategoryController = async (req, res) => {
   try {
     const { name } = req.body;
     const { id } = req.params;
+
+    if (!name || name.trim().length === 0) {
+      return res
+        .status(400)
+        .send({ success: false, message: "Name is required" });
+    }
+
+    const trimmedName = name.trim();
     const category = await categoryModel.findByIdAndUpdate(
       id,
-      { name, slug: slugify(name) },
+      { name: trimmedName, slug: slugify(trimmedName) },
       { new: true }
     );
 

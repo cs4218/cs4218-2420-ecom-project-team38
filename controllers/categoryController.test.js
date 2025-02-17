@@ -47,7 +47,7 @@ describe("Category controller", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
-        message: "Category Already Exisits",
+        message: "Category Already Exists",
       });
       expect(categoryModel.prototype.save).not.toHaveBeenCalled();
     });
@@ -88,7 +88,7 @@ describe("Category controller", () => {
       expect(res.send).toHaveBeenCalledWith({
         success: false,
         errro: mockError,
-        message: "Errro in Category",
+        message: "Error in Category",
       });
     });
   });
@@ -119,6 +119,19 @@ describe("Category controller", () => {
         success: true,
         messsage: "Category Updated Successfully",
         category: mockCategory,
+      });
+    });
+
+    it("Should not allow updating of category with name containing whitespaces only", async () => {
+      const req = { body: { name: " " }, params: { id: "1" } };
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      await updateCategoryController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: "Name is required",
       });
     });
 
