@@ -1,6 +1,9 @@
 import { expect, jest } from "@jest/globals";
 import categoryModel from "../models/categoryModel";
-import { createCategoryController } from "./categoryController";
+import {
+  createCategoryController,
+  updateCategoryController,
+} from "./categoryController";
 
 describe("Category controller", () => {
   describe("Create category controller", () => {
@@ -85,6 +88,53 @@ describe("Category controller", () => {
         success: false,
         errro: mockError,
         message: "Errro in Category",
+      });
+    });
+  });
+
+  describe("Update category controller", () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it("Should update category successfully", async () => {
+      const req = { body: { name: "test" }, params: { id: "1" } };
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+      const mockCategory = { name: "test", slug: "test" };
+
+      categoryModel.findByIdAndUpdate = jest
+        .fn()
+        .mockResolvedValue(mockCategory);
+
+      await updateCategoryController(req, res);
+
+      expect(categoryModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        "1",
+        mockCategory,
+        { new: true }
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        messsage: "Category Updated Successfully",
+        category: mockCategory,
+      });
+    });
+
+    it("Should handle error when updating category", async () => {
+      const req = { body: { name: "test" }, params: { id: "1" } };
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      const mockError = new Error("Error updating category");
+      categoryModel.findByIdAndUpdate = jest.fn().mockRejectedValue(mockError);
+
+      await updateCategoryController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        error: mockError,
+        message: "Error while updating category",
       });
     });
   });
