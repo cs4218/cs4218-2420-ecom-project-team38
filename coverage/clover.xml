@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1739762211141" clover="3.2.0">
-  <project timestamp="1739762211141" name="All files">
+<coverage generated="1739764051203" clover="3.2.0">
+  <project timestamp="1739764051203" name="All files">
     <metrics statements="449" coveredstatements="268" conditionals="123" coveredconditionals="55" methods="78" coveredmethods="55" elements="650" coveredelements="378" complexity="0" loc="449" ncloc="449" packages="9" files="20" classes="20"/>
     <package name="client.src.components">
       <metrics statements="17" coveredstatements="14" conditionals="4" coveredconditionals="3" methods="6" coveredmethods="5"/>
@@ -341,11 +341,11 @@
         <line num="26" count="1" type="stmt"/>
         <line num="27" count="1" type="stmt"/>
         <line num="36" count="1" type="stmt"/>
-        <line num="37" count="2" type="stmt"/>
-        <line num="38" count="2" type="stmt"/>
-        <line num="39" count="2" type="stmt"/>
-        <line num="40" count="2" type="stmt"/>
-        <line num="45" count="1" type="stmt"/>
+        <line num="37" count="3" type="stmt"/>
+        <line num="38" count="3" type="stmt"/>
+        <line num="39" count="3" type="stmt"/>
+        <line num="40" count="3" type="stmt"/>
+        <line num="45" count="2" type="stmt"/>
         <line num="51" count="1" type="stmt"/>
         <line num="52" count="1" type="stmt"/>
         <line num="61" count="1" type="stmt"/>
@@ -361,10 +361,10 @@
         <line num="89" count="0" type="stmt"/>
         <line num="90" count="0" type="stmt"/>
         <line num="99" count="1" type="stmt"/>
-        <line num="100" count="2" type="stmt"/>
-        <line num="101" count="2" type="stmt"/>
-        <line num="102" count="2" type="stmt"/>
-        <line num="103" count="1" type="stmt"/>
+        <line num="100" count="3" type="stmt"/>
+        <line num="101" count="3" type="stmt"/>
+        <line num="102" count="3" type="stmt"/>
+        <line num="103" count="2" type="stmt"/>
         <line num="108" count="1" type="stmt"/>
         <line num="109" count="1" type="stmt"/>
       </file>
