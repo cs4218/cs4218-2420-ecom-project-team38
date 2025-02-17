@@ -169,7 +169,9 @@ describe("Category controller", () => {
       const req = { params: { id: "1" } };
       const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
 
-      categoryModel.findByIdAndDelete = jest.fn();
+      categoryModel.findByIdAndDelete = jest
+        .fn()
+        .mockResolvedValue({ name: "test" });
 
       await deleteCategoryController(req, res);
 
