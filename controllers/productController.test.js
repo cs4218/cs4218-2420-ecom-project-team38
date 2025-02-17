@@ -1,11 +1,28 @@
 import { describe, jest } from "@jest/globals";
 
+jest.mock('braintree', () => {
+  const mockGenerate = jest.fn((_, callback) => {
+    console.log('mockGenerate called');
+    callback(null, { clientToken: 'mock-braintree-token' });
+  });
+  
+  return {
+    Environment: { Sandbox: 'sandbox' },
+    BraintreeGateway: jest.fn(() => ({
+      clientToken: {
+        generate: mockGenerate
+      }
+    }))
+  };
+});
+
 import {
   getProductController,
   getSingleProductController,
   productPhotoController,
   relatedProductController,
   searchProductController,
+  braintreeTokenController,
 } from "../controllers/productController";
 import productModel from "../models/productModel";
 
@@ -356,4 +373,21 @@ describe("Product controller", () => {
       });
     });
   });
+
+  describe("Braintree token controller", () => {
+    it("Generates a client token for Braintree", async () => {
+      const req = {};
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+          
+      await braintreeTokenController(req, res);
+
+      console.log(res.send.mock.calls);
+          
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({ clientToken: "mock-braintree-token" });
+    })
+  })
 });
