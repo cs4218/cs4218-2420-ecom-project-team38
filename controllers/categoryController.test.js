@@ -48,7 +48,7 @@ describe("Category controller", () => {
       expect(categoryModel.findOne).toHaveBeenCalledWith({ name: "test" });
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
-        success: true,
+        success: false,
         message: "Category Already Exists",
       });
       expect(categoryModel.prototype.save).not.toHaveBeenCalled();
