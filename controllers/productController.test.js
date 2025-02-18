@@ -1,21 +1,5 @@
 import { describe, jest } from "@jest/globals";
-
-jest.mock('braintree', () => {
-  const mockGenerate = jest.fn((_, callback) => {
-    console.log('mockGenerate called');
-    callback(null, { clientToken: 'mock-braintree-token' });
-  });
-  
-  return {
-    Environment: { Sandbox: 'sandbox' },
-    BraintreeGateway: jest.fn(() => ({
-      clientToken: {
-        generate: mockGenerate
-      }
-    }))
-  };
-});
-
+import braintree from "braintree";
 import {
   getProductController,
   getSingleProductController,
@@ -376,6 +360,13 @@ describe("Product controller", () => {
 
   describe("Braintree token controller", () => {
     it("Generates a client token for Braintree", async () => {
+      jest.spyOn(braintree, "BraintreeGateway").mockImplementation(() => ({
+        clientToken: {
+          generate: (_, callback) =>
+            callback(null, { clientToken: "mock-braintree-token" }),
+        },
+      }));
+
       const req = {};
       const res = {
         status: jest.fn().mockReturnThis(),
