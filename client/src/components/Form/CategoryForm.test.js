@@ -12,13 +12,10 @@ describe("CategroryForm component", () => {
   let mockHandleSubmit;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     mockValue = "";
     mockSetValue = jest.fn();
     mockHandleSubmit = jest.fn();
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
   });
 
   it("Should render correctly", () => {

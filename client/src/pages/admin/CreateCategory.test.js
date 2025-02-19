@@ -30,6 +30,7 @@ jest.mock("../../hooks/useCategory", () =>
 describe("CreateCategory page", () => {
   describe("Create category", () => {
     beforeEach(() => {
+      jest.clearAllMocks();
       axios.post = jest.fn().mockResolvedValue({ data: { success: true } });
       axios.get = jest
         .fn()
@@ -45,10 +46,6 @@ describe("CreateCategory page", () => {
             ],
           },
         });
-    });
-
-    afterEach(() => {
-      jest.clearAllMocks();
     });
 
     it("Should render create category form fields correctly", async () => {
@@ -183,7 +180,7 @@ describe("CreateCategory page", () => {
   });
 
   describe("Get all categories", () => {
-    afterEach(() => {
+    beforeEach(() => {
       jest.clearAllMocks();
     });
 
@@ -227,6 +224,7 @@ describe("CreateCategory page", () => {
 
   describe("Update category", () => {
     beforeEach(() => {
+      jest.clearAllMocks();
       axios.put = jest.fn().mockResolvedValue({ data: { success: true } });
       axios.get = jest
         .fn()
@@ -236,10 +234,6 @@ describe("CreateCategory page", () => {
         .mockResolvedValueOnce({
           data: { success: true, category: [{ _id: 1, name: "Books" }] },
         });
-    });
-
-    afterEach(() => {
-      jest.clearAllMocks();
     });
 
     it("Should render update category form fields correctly", async () => {
@@ -359,6 +353,7 @@ describe("CreateCategory page", () => {
 
   describe("Delete category", () => {
     beforeEach(() => {
+      jest.clearAllMocks();
       axios.delete = jest.fn().mockResolvedValue({ data: { success: true } });
       axios.get = jest
         .fn()
@@ -366,10 +361,6 @@ describe("CreateCategory page", () => {
           data: { success: true, category: [{ _id: 1, name: "Book" }] },
         })
         .mockResolvedValueOnce({ data: { success: true, category: [] } });
-    });
-
-    afterEach(() => {
-      jest.clearAllMocks();
     });
 
     it("Should display success message after successfully deleting a category", async () => {

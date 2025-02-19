@@ -48,6 +48,8 @@ export const updateCategoryController = async (req, res) => {
     const trimmedName = name.trim();
     const existingCategory = await categoryModel.findOne({ name: trimmedName });
 
+    console.log(existingCategory);
+
     if (existingCategory) {
       return res
         .status(200)

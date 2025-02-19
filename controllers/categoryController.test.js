@@ -10,7 +10,7 @@ jest.mock("../models/categoryModel");
 
 describe("Category controller", () => {
   describe("Create category controller", () => {
-    afterEach(() => {
+    beforeEach(() => {
       jest.clearAllMocks();
     });
 
@@ -18,10 +18,10 @@ describe("Category controller", () => {
       const req = { body: { name: "test" } };
       const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
 
-      categoryModel.findOne = jest.fn().mockResolvedValue(null);
+      categoryModel.findOne = jest.fn().mockResolvedValueOnce(null);
       categoryModel.prototype.save = jest
         .fn()
-        .mockResolvedValue({ name: "test", slug: "test" });
+        .mockResolvedValueOnce({ name: "test", slug: "test" });
 
       await createCategoryController(req, res);
 
@@ -41,7 +41,7 @@ describe("Category controller", () => {
 
       categoryModel.findOne = jest
         .fn()
-        .mockResolvedValue({ name: "test", slug: "test" });
+        .mockResolvedValueOnce({ name: "test", slug: "test" });
 
       await createCategoryController(req, res);
 
@@ -81,8 +81,8 @@ describe("Category controller", () => {
       const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
 
       const mockError = new Error("Error creating category");
-      categoryModel.findOne = jest.fn().mockResolvedValue(null);
-      categoryModel.prototype.save = jest.fn().mockRejectedValue(mockError);
+      categoryModel.findOne = jest.fn().mockResolvedValueOnce(null);
+      categoryModel.prototype.save = jest.fn().mockRejectedValueOnce(mockError);
       jest.spyOn(console, "log").mockImplementation(() => {});
 
       await createCategoryController(req, res);
@@ -97,7 +97,7 @@ describe("Category controller", () => {
   });
 
   describe("Update category controller", () => {
-    afterEach(() => {
+    beforeEach(() => {
       jest.clearAllMocks();
     });
 
@@ -106,9 +106,10 @@ describe("Category controller", () => {
       const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
       const mockCategory = { name: "test", slug: "test" };
 
+      categoryModel.findOne = jest.fn().mockResolvedValueOnce(null);
       categoryModel.findByIdAndUpdate = jest
         .fn()
-        .mockResolvedValue(mockCategory);
+        .mockResolvedValueOnce(mockCategory);
 
       await updateCategoryController(req, res);
 
@@ -125,12 +126,35 @@ describe("Category controller", () => {
       });
     });
 
+    it("Should not result in duplicate categories", async () => {
+      const req = { body: { name: "test" }, params: { id: "1" } };
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      categoryModel.findOne = jest
+        .fn()
+        .mockResolvedValueOnce({ name: "test", slug: "test" });
+      categoryModel.findByIdAndUpdate = jest.fn().mockResolvedValueOnce();
+
+      await updateCategoryController(req, res);
+
+      expect(categoryModel.findByIdAndUpdate).not.toHaveBeenCalled();
+      expect(categoryModel.findOne).toHaveBeenCalledWith({ name: "test" });
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        message: "Category Already Exists",
+      });
+    });
+
     it("Should not allow updating of category with name containing whitespaces only", async () => {
       const req = { body: { name: " " }, params: { id: "1" } };
       const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
 
+      categoryModel.findByIdAndUpdate = jest.fn();
+
       await updateCategoryController(req, res);
 
+      expect(categoryModel.findByIdAndUpdate).not.toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
@@ -142,7 +166,8 @@ describe("Category controller", () => {
       const req = { body: { name: "test" }, params: { id: "1" } };
       const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
 
-      categoryModel.findByIdAndUpdate = jest.fn().mockResolvedValue(null);
+      categoryModel.findOne = jest.fn().mockResolvedValueOnce(null);
+      categoryModel.findByIdAndUpdate = jest.fn().mockResolvedValueOnce(null);
 
       await updateCategoryController(req, res);
 
@@ -163,7 +188,10 @@ describe("Category controller", () => {
       const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
 
       const mockError = new Error("Error updating category");
-      categoryModel.findByIdAndUpdate = jest.fn().mockRejectedValue(mockError);
+      categoryModel.findOne = jest.fn().mockResolvedValueOnce(null);
+      categoryModel.findByIdAndUpdate = jest
+        .fn()
+        .mockRejectedValueOnce(mockError);
       jest.spyOn(console, "log").mockImplementation(() => {});
 
       await updateCategoryController(req, res);
@@ -178,7 +206,7 @@ describe("Category controller", () => {
   });
 
   describe("Delete category controller", () => {
-    afterEach(() => {
+    beforeEach(() => {
       jest.clearAllMocks();
     });
 
@@ -188,7 +216,7 @@ describe("Category controller", () => {
 
       categoryModel.findByIdAndDelete = jest
         .fn()
-        .mockResolvedValue({ name: "test" });
+        .mockResolvedValueOnce({ name: "test" });
 
       await deleteCategoryController(req, res);
 
@@ -204,7 +232,7 @@ describe("Category controller", () => {
       const req = { params: { id: "1" } };
       const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
 
-      categoryModel.findByIdAndDelete = jest.fn().mockResolvedValue(null);
+      categoryModel.findByIdAndDelete = jest.fn().mockResolvedValueOnce(null);
 
       await deleteCategoryController(req, res);
 
@@ -222,7 +250,9 @@ describe("Category controller", () => {
       jest.spyOn(console, "log").mockImplementation(() => {});
 
       const mockError = new Error("Error deleting category");
-      categoryModel.findByIdAndDelete = jest.fn().mockRejectedValue(mockError);
+      categoryModel.findByIdAndDelete = jest
+        .fn()
+        .mockRejectedValueOnce(mockError);
 
       await deleteCategoryController(req, res);
 
