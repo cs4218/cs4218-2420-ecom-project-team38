@@ -1,7 +1,7 @@
 import React from "react";
 import { screen, render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import "@testing-library/jest-dom/extend-expect";
+import "@testing-library/jest-dom";
 import Dashboard from "./Dashboard";
 import { useAuth } from "../../context/auth";
 
