@@ -1,6 +1,6 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import SearchInput from "./SearchInput";
@@ -28,9 +28,10 @@ describe("SearchInput component", () => {
   });
 
   it("Search input should reflect user input", async () => {
+    const user = userEvent.setup();
     render(<SearchInput />);
     const input = screen.getByPlaceholderText("Search");
-    userEvent.type(input, "test");
+    await user.type(input, "test");
     expect(mockSetValues).toHaveBeenCalledTimes(4);
   });
 
@@ -39,7 +40,8 @@ describe("SearchInput component", () => {
     expect(mockSetValues).not.toHaveBeenCalled();
   });
 
-  it("Makes API call on successful form submission", () => {
+  it("Makes API call on successful form submission", async () => {
+    const user = userEvent.setup();
     useSearch.mockReturnValue([{ keyword: "test", results: [] }, jest.fn()]);
     axios.get.mockResolvedValue({
       data: [{ name: "test", description: "test" }],
@@ -48,11 +50,12 @@ describe("SearchInput component", () => {
     render(<SearchInput />);
 
     const submitButton = screen.getByRole("button", { name: /search/i });
-    userEvent.click(submitButton);
+    await user.click(submitButton);
     expect(axios.get).toHaveBeenCalledWith("/api/v1/product/search/test");
   });
 
   it("Navigates to search page on successful form submission", async () => {
+    const user = userEvent.setup();
     useSearch.mockReturnValue([{ keyword: "test", results: [] }, jest.fn()]);
     axios.get.mockResolvedValue({
       data: [{ name: "test", description: "test" }],
@@ -60,30 +63,29 @@ describe("SearchInput component", () => {
 
     render(<SearchInput />);
 
-    const submitButton = screen.getByRole("button", { name: /search/i });
-    await waitFor(() => userEvent.click(submitButton));
+    await user.click(screen.getByRole("button", { name: /search/i }));
     expect(mockUseNavigate).toHaveBeenCalledWith("/search");
   });
 
   it("Should not update search results if API call fails", async () => {
+    const user = userEvent.setup();
     useSearch.mockReturnValue([{ keyword: "", results: [] }, jest.fn()]);
     axios.get.mockRejectedValue(new Error("Network Error"));
 
     render(<SearchInput />);
 
-    const submitButton = screen.getByRole("button", { name: /search/i });
-    await waitFor(() => userEvent.click(submitButton));
+    await user.click(screen.getByRole("button", { name: /search/i }));
     expect(mockSetValues).not.toHaveBeenCalled();
   });
 
   it("Should not navigate to search page if API call fails", async () => {
+    const user = userEvent.setup();
     useSearch.mockReturnValue([{ keyword: "", results: [] }, jest.fn()]);
     axios.get.mockRejectedValue(new Error("Network Error"));
 
     render(<SearchInput />);
 
-    const submitButton = screen.getByRole("button", { name: /search/i });
-    await waitFor(() => userEvent.click(submitButton));
+    await user.click(screen.getByRole("button", { name: /search/i }));
     expect(mockUseNavigate).not.toHaveBeenCalled();
   });
 });

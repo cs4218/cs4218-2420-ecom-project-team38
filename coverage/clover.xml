@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1739871735419" clover="3.2.0">
-  <project timestamp="1739871735419" name="All files">
+<coverage generated="1739935042280" clover="3.2.0">
+  <project timestamp="1739935042280" name="All files">
     <metrics statements="517" coveredstatements="334" conditionals="141" coveredconditionals="71" methods="91" coveredmethods="67" elements="749" coveredelements="472" complexity="0" loc="517" ncloc="517" packages="10" files="23" classes="23"/>
     <package name="client.src.components">
       <metrics statements="19" coveredstatements="16" conditionals="4" coveredconditionals="3" methods="7" coveredmethods="6"/>
@@ -12,25 +12,25 @@
       <file name="Footer.js" path="/Users/nicolelim/Desktop/cs4218-2420-ecom-project-team38/client/src/components/Footer.js">
         <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
         <line num="4" count="7" type="stmt"/>
-        <line num="5" count="180" type="stmt"/>
+        <line num="5" count="181" type="stmt"/>
       </file>
       <file name="Header.js" path="/Users/nicolelim/Desktop/cs4218-2420-ecom-project-team38/client/src/components/Header.js">
         <metrics statements="10" coveredstatements="7" conditionals="4" coveredconditionals="3" methods="3" coveredmethods="2"/>
         <line num="10" count="7" type="stmt"/>
-        <line num="11" count="180" type="stmt"/>
-        <line num="12" count="180" type="stmt"/>
-        <line num="13" count="180" type="stmt"/>
-        <line num="14" count="180" type="stmt"/>
+        <line num="11" count="181" type="stmt"/>
+        <line num="12" count="181" type="stmt"/>
+        <line num="13" count="181" type="stmt"/>
+        <line num="14" count="181" type="stmt"/>
         <line num="15" count="0" type="stmt"/>
         <line num="20" count="0" type="stmt"/>
         <line num="21" count="0" type="stmt"/>
-        <line num="23" count="180" type="stmt"/>
+        <line num="23" count="181" type="stmt"/>
         <line num="64" count="100" type="stmt"/>
       </file>
       <file name="Layout.js" path="/Users/nicolelim/Desktop/cs4218-2420-ecom-project-team38/client/src/components/Layout.js">
         <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
         <line num="8" count="7" type="stmt"/>
-        <line num="9" count="180" type="stmt"/>
+        <line num="9" count="181" type="stmt"/>
         <line num="28" count="7" type="stmt"/>
       </file>
       <file name="UserMenu.js" path="/Users/nicolelim/Desktop/cs4218-2420-ecom-project-team38/client/src/components/UserMenu.js">
@@ -67,15 +67,15 @@
       <metrics statements="9" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
       <file name="useCategory.js" path="/Users/nicolelim/Desktop/cs4218-2420-ecom-project-team38/client/src/hooks/useCategory.js">
         <metrics statements="9" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
-        <line num="5" count="36" type="stmt"/>
-        <line num="8" count="36" type="stmt"/>
+        <line num="5" count="37" type="stmt"/>
+        <line num="8" count="37" type="stmt"/>
         <line num="9" count="12" type="stmt"/>
         <line num="10" count="12" type="stmt"/>
         <line num="11" count="0" type="stmt"/>
         <line num="13" count="12" type="stmt"/>
-        <line num="17" count="36" type="stmt"/>
+        <line num="17" count="37" type="stmt"/>
         <line num="18" count="12" type="stmt"/>
-        <line num="21" count="36" type="stmt"/>
+        <line num="21" count="37" type="stmt"/>
       </file>
     </package>
     <package name="client.src.pages">
@@ -83,24 +83,24 @@
       <file name="ProductDetails.js" path="/Users/nicolelim/Desktop/cs4218-2420-ecom-project-team38/client/src/pages/ProductDetails.js">
         <metrics statements="21" coveredstatements="21" conditionals="4" coveredconditionals="4" methods="6" coveredmethods="6"/>
         <line num="7" count="1" type="stmt"/>
-        <line num="8" count="10" type="stmt"/>
-        <line num="9" count="10" type="stmt"/>
-        <line num="10" count="10" type="stmt"/>
-        <line num="11" count="9" type="stmt"/>
-        <line num="14" count="9" type="stmt"/>
+        <line num="8" count="11" type="stmt"/>
+        <line num="9" count="11" type="stmt"/>
+        <line num="10" count="11" type="stmt"/>
+        <line num="11" count="10" type="stmt"/>
+        <line num="14" count="10" type="stmt"/>
         <line num="15" count="6" type="cond" truecount="2" falsecount="0"/>
-        <line num="18" count="9" type="stmt"/>
+        <line num="18" count="10" type="stmt"/>
         <line num="19" count="5" type="stmt"/>
         <line num="20" count="5" type="stmt"/>
         <line num="23" count="4" type="stmt"/>
         <line num="24" count="4" type="stmt"/>
         <line num="26" count="1" type="stmt"/>
-        <line num="30" count="9" type="stmt"/>
+        <line num="30" count="10" type="stmt"/>
         <line num="31" count="4" type="stmt"/>
         <line num="32" count="4" type="stmt"/>
         <line num="35" count="2" type="stmt"/>
         <line num="37" count="2" type="stmt"/>
-        <line num="40" count="9" type="stmt"/>
+        <line num="40" count="10" type="stmt"/>
         <line num="76" count="6" type="stmt"/>
         <line num="98" count="1" type="stmt"/>
       </file>

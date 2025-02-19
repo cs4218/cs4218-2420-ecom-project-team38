@@ -193,6 +193,7 @@ describe("Search page", () => {
 
     describe("Clicking buttons", () => {
       it("Redirect to product details page when 'More Details' button is clicked", async () => {
+        const user = userEvent.setup();
         useSearch.mockReturnValue([{ results: [mockProducts[0]] }, jest.fn()]);
 
         render(
@@ -201,9 +202,7 @@ describe("Search page", () => {
           </MemoryRouter>
         );
 
-        const moreDetailsButton = screen.getByText("More Details");
-        // fireEvent.click(moreDetailsButton);
-        userEvent.click(moreDetailsButton);
+        await user.click(screen.getByText("More Details"));
         expect(mockUseNavigate).toHaveBeenCalledWith(
           `/product/${mockProducts[0].slug}`
         );
@@ -214,6 +213,7 @@ describe("Search page", () => {
         // reference: https://marek-rozmus.medium.com/mocking-local-storage-with-jest-c4b35a45d62e
         const mockSetItem = jest.spyOn(Storage.prototype, "setItem");
         mockSetItem.mockImplementation(() => {});
+        const user = userEvent.setup();
 
         render(
           <MemoryRouter>
@@ -222,7 +222,7 @@ describe("Search page", () => {
         );
 
         const addToCartButton = screen.getByText("ADD TO CART");
-        userEvent.click(addToCartButton);
+        await user.click(addToCartButton);
 
         expect(mockSetCart).toHaveBeenCalledWith([mockProducts[0]]);
         expect(mockSetItem).toHaveBeenCalledWith(

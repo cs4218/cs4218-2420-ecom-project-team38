@@ -3,7 +3,7 @@ import { screen, render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import * as router from "react-router";
 import userEvent from "@testing-library/user-event";
-import "@testing-library/jest-dom/extend-expect";
+import "@testing-library/jest-dom";
 import UserMenu from "./UserMenu";
 
 const mockUseNavigate = jest.fn();
@@ -30,19 +30,21 @@ describe("User Menu Component", () => {
     expect(screen.getByText("Orders")).toBeInTheDocument();
   });
 
-  it("should navigate to the profile page when profile link is clicked", () => {
+  it("should navigate to the profile page when profile link is clicked", async () => {
+    const user = userEvent.setup();
     renderUserMenuComponent();
 
-    userEvent.click(screen.getByRole("link", { name: /profile/i }));
+    await user.click(screen.getByRole("link", { name: /profile/i }));
 
     expect(mockUseNavigate).toHaveBeenCalled();
     expect(mockUseNavigate.mock.calls[0][0]).toEqual("/dashboard/user/profile");
   });
 
-  it("should navigate to the orders page when order link is clicked", () => {
+  it("should navigate to the orders page when order link is clicked", async () => {
+    const user = userEvent.setup();
     renderUserMenuComponent();
 
-    userEvent.click(screen.getByRole("link", { name: /orders/i }));
+    await user.click(screen.getByRole("link", { name: /orders/i }));
 
     expect(mockUseNavigate).toHaveBeenCalled();
     expect(mockUseNavigate.mock.calls[0][0]).toEqual("/dashboard/user/orders");

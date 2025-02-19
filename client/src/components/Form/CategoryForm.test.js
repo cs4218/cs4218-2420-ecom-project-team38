@@ -37,7 +37,8 @@ describe("CategroryForm component", () => {
     expect(button).toBeInTheDocument();
   });
 
-  it("Should reflect user input", () => {
+  it("Should reflect user input", async () => {
+    const user = userEvent.setup();
     render(
       <CategoryForm
         handleSubmit={mockHandleSubmit}
@@ -46,8 +47,7 @@ describe("CategroryForm component", () => {
       />
     );
 
-    const input = screen.getByPlaceholderText("Enter new category");
-    userEvent.type(input, "test");
+    await user.type(screen.getByPlaceholderText("Enter new category"), "test");
 
     expect(mockSetValue).toHaveBeenCalledTimes(4);
   });
