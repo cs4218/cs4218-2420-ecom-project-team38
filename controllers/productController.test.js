@@ -7,10 +7,13 @@ import {
   relatedProductController,
   searchProductController,
   braintreeTokenController,
+  brainTreePaymentController
 } from "../controllers/productController";
 import productModel from "../models/productModel";
+import orderModel from "../models/orderModel";
 
 jest.mock("../models/productModel");
+jest.mock("../models/orderModel");
 
 describe("Product controller", () => {
   describe("Get product controller", () => {
@@ -409,6 +412,45 @@ describe("Product controller", () => {
           
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith(mockError);
+    })
+  })
+
+  describe("BrainTree payment controller", () => {
+    it("Creates a Braintree transaction with the correct amount and nonce", async () => {
+      jest.spyOn(braintree, "BraintreeGateway").mockImplementation(() => ({
+        transaction: {
+          sale: (_, callback) => callback(null, { success: true }),
+        },
+      }));
+
+      const req = {
+        body: {
+          nonce: 'fake-nonce',
+          cart: [
+            { _id: "67b6257c91b2a9d1b753c5d4", price: 50 },
+            { _id: "67b6259457a811c8986eda71", price: 100 },
+          ],
+          options: {
+            submitForSettlement: true,
+          },
+        },
+        user: {
+          _id: '67b6250197ca04df46835aa8',
+        },
+      };
+  
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+        json: jest.fn(),
+      };
+          
+      await brainTreePaymentController(req, res);
+
+      console.log(res.send.mock.calls);
+          
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({ ok: true });
     })
   })
 });
