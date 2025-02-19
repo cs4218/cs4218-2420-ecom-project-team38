@@ -50,6 +50,8 @@ describe("Product controller", () => {
     });
 
     it("Returns an error when an exception occurs from fetching all the products", async () => {
+      const mockError = new Error("Something went wrong with the database");
+
       productModel.find = jest.fn().mockReturnValue({
         populate: jest.fn().mockReturnThis(),
         select: jest.fn().mockReturnThis(),
@@ -57,7 +59,7 @@ describe("Product controller", () => {
         sort: jest
           .fn()
           .mockRejectedValue(
-            new Error("Something went wrong with the database")
+            mockError
           ),
       });
 
@@ -107,12 +109,14 @@ describe("Product controller", () => {
     });
 
     it("Returns an error when an exception occurs from fetching a single product", async () => {
+      const mockError = new Error("Something went wrong with the database");
+
       productModel.findOne = jest.fn().mockReturnValue({
         select: jest.fn().mockReturnThis(),
         populate: jest
           .fn()
           .mockRejectedValue(
-            new Error("Something went wrong with the database")
+            mockError
           ),
       });
 
@@ -162,11 +166,13 @@ describe("Product controller", () => {
     });
 
     it("Returns an error when an exception occurs from getting photo of a product", async () => {
+      const mockError = new Error("Something went wrong while fetching the photo");
+
       productModel.findById = jest.fn().mockReturnValue({
         select: jest
           .fn()
           .mockRejectedValue(
-            new Error("Something went wrong while fetching the photo")
+            mockError
           ),
       });
 
@@ -379,6 +385,30 @@ describe("Product controller", () => {
           
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({ clientToken: "mock-braintree-token" });
+    })
+
+    it("Returns an error when an exception occurs from generating the token", async () => {
+      const mockError = new Error("Something went wrong with Braintree");
+
+      jest.spyOn(braintree, "BraintreeGateway").mockImplementation(() => ({
+        clientToken: {
+          generate: (_, callback) =>
+            callback(mockError, null),
+        },
+      }));
+
+      const req = {};
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+          
+      await braintreeTokenController(req, res);
+
+      console.log(res.send.mock.calls);
+          
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith(mockError);
     })
   })
 });
