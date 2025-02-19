@@ -1,4 +1,5 @@
 import { describe, jest } from "@jest/globals";
+import mongoose from "mongoose";
 import braintree from "braintree";
 import {
   getProductController,
@@ -419,9 +420,12 @@ describe("Product controller", () => {
     it("Creates a Braintree transaction with the correct amount and nonce", async () => {
       jest.spyOn(braintree, "BraintreeGateway").mockImplementation(() => ({
         transaction: {
-          sale: (_, callback) => callback(null, { success: true }),
+          sale: (_, callback) => callback(null, { amount: 150, paymentMethodNonce: "fake-payment-nonce" }),
         },
       }));
+
+      const mockSave = jest.fn().mockResolvedValue({});
+      jest.spyOn(orderModel.prototype, 'save').mockImplementation(mockSave);
 
       const req = {
         body: {
@@ -451,6 +455,15 @@ describe("Product controller", () => {
           
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({ ok: true });
+
+      const productIds = req.body.cart.map(p => new mongoose.Types.ObjectId(p._id));
+
+      expect(mockSave).toHaveBeenCalled();
+      const savedOrder = mockSave.mock.instances[0];
+      expect(savedOrder.products).toEqual(productIds);
+      expect(savedOrder.payment).toEqual({ amount: 150, paymentMethodNonce: "fake-payment-nonce" });
+      expect(savedOrder.buyer).toEqual(new mongoose.Types.ObjectId(req.user._id));
+      expect(savedOrder.status).toEqual("Not Process");
     })
   })
 });
