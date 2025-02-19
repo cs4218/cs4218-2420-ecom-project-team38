@@ -83,6 +83,7 @@ describe("Category controller", () => {
       const mockError = new Error("Error creating category");
       categoryModel.findOne = jest.fn().mockResolvedValue(null);
       categoryModel.prototype.save = jest.fn().mockRejectedValue(mockError);
+      jest.spyOn(console, "log").mockImplementation(() => {});
 
       await createCategoryController(req, res);
 
@@ -163,6 +164,7 @@ describe("Category controller", () => {
 
       const mockError = new Error("Error updating category");
       categoryModel.findByIdAndUpdate = jest.fn().mockRejectedValue(mockError);
+      jest.spyOn(console, "log").mockImplementation(() => {});
 
       await updateCategoryController(req, res);
 
@@ -217,6 +219,7 @@ describe("Category controller", () => {
     it("Should handle error when deleting category", async () => {
       const req = { params: { id: "1" } };
       const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+      jest.spyOn(console, "log").mockImplementation(() => {});
 
       const mockError = new Error("Error deleting category");
       categoryModel.findByIdAndDelete = jest.fn().mockRejectedValue(mockError);

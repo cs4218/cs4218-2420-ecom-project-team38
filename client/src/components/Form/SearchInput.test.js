@@ -69,8 +69,10 @@ describe("SearchInput component", () => {
 
   it("Should not update search results if API call fails", async () => {
     const user = userEvent.setup();
+    const mockError = new Error("Network Error");
     useSearch.mockReturnValue([{ keyword: "", results: [] }, jest.fn()]);
-    axios.get.mockRejectedValue(new Error("Network Error"));
+    axios.get.mockRejectedValue(mockError);
+    jest.spyOn(console, "log").mockImplementation(() => {});
 
     render(<SearchInput />);
 
@@ -80,8 +82,10 @@ describe("SearchInput component", () => {
 
   it("Should not navigate to search page if API call fails", async () => {
     const user = userEvent.setup();
+    const mockError = new Error("Network Error");
     useSearch.mockReturnValue([{ keyword: "", results: [] }, jest.fn()]);
-    axios.get.mockRejectedValue(new Error("Network Error"));
+    axios.get.mockRejectedValue(mockError);
+    jest.spyOn(console, "log").mockImplementation(() => {});
 
     render(<SearchInput />);
 

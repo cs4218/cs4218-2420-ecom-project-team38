@@ -52,7 +52,7 @@ describe("CategroryForm component", () => {
     expect(mockSetValue).toHaveBeenCalledTimes(4);
   });
 
-  it("Should submit form after clicking submit", async () => {
+  it("Should submit form after clicking submit", () => {
     render(
       <CategoryForm
         handleSubmit={mockHandleSubmit}
