@@ -2,7 +2,7 @@ import React from "react";
 import { screen, render, fireEvent, waitFor } from "@testing-library/react";
 import axios from "axios";
 import { MemoryRouter } from "react-router-dom";
-import "@testing-library/jest-dom/extend-expect";
+import "@testing-library/jest-dom";
 import toast from "react-hot-toast";
 import Profile from "./Profile";
 import { useAuth } from "../../context/auth";
