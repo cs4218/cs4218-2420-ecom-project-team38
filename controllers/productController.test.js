@@ -4,6 +4,7 @@ import braintree from "braintree";
 import {
   getProductController,
   getSingleProductController,
+  deleteProductController,
   productPhotoController,
   relatedProductController,
   searchProductController,
@@ -140,6 +141,35 @@ describe("Product controller", () => {
       });
     });
   });
+
+  describe("Delete product controller", () => {
+    it("Deletes a single product", async () => {
+      const mockProduct = {
+        _id: "67b8d6e11400470837227a34",
+        name: "Test Product",
+        price: 50,
+      };
+    
+      productModel.findByIdAndDelete = jest.fn().mockImplementation(() => ({
+        select: jest.fn().mockResolvedValue(mockProduct),
+      }))
+  
+      const req = { params: { pid: "67b8d6e11400470837227a34" } };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+  
+      await deleteProductController(req, res);
+
+      expect(productModel.findByIdAndDelete).toHaveBeenCalledWith("67b8d6e11400470837227a34");
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        message: "Product Deleted successfully",
+      });
+    })
+  })
 
   describe("Product photo controller", () => {
     it("Get photo of a single product", async () => {
@@ -385,7 +415,7 @@ describe("Product controller", () => {
           
       await braintreeTokenController(req, res);
 
-      console.log(res.send.mock.calls);
+      // console.log(res.send.mock.calls);
           
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({ clientToken: "mock-braintree-token" });
@@ -409,7 +439,7 @@ describe("Product controller", () => {
           
       await braintreeTokenController(req, res);
 
-      console.log(res.send.mock.calls);
+      // console.log(res.send.mock.calls);
           
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith(mockError);
@@ -451,7 +481,7 @@ describe("Product controller", () => {
           
       await brainTreePaymentController(req, res);
 
-      console.log(res.send.mock.calls);
+      // console.log(res.send.mock.calls);
           
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({ ok: true });
