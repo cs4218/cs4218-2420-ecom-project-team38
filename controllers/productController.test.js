@@ -1,7 +1,10 @@
 import { describe, jest } from "@jest/globals";
 import mongoose from "mongoose";
 import braintree from "braintree";
+import fs from "fs";
+import slugify from "slugify";
 import {
+  createProductController,
   getProductController,
   getSingleProductController,
   deleteProductController,
@@ -18,6 +21,72 @@ jest.mock("../models/productModel");
 jest.mock("../models/orderModel");
 
 describe("Product controller", () => {
+  describe("Create product controller", () => {
+    it("Creates a new product", async () => {
+      jest.spyOn(fs, 'readFileSync').mockReturnValue(Buffer.from('mock-file-data'));
+
+      const mockSlug = "test-product";
+  
+      const mockProduct = {
+        _id: "67b98fd0235fa3cf8e4bbe72",
+        name: "test product",
+        description: "This is a test product",
+        price: 50,
+        category: "67b9927c50c661ec1f06c2fc",
+        quantity: 1,
+        shipping: true
+      };
+
+      const mockPhoto = {
+        path: "mock-photo-path",
+        type: "image/png",
+        size: 1000,
+      };
+
+      const mockSave = jest.fn().mockResolvedValue({
+        ...mockProduct,
+        slug: mockSlug,
+        photo: { 
+          data: fs.readFileSync(mockPhoto.path), 
+          contentType: mockPhoto.type,
+         },
+      });
+  
+      jest.spyOn(productModel.prototype, 'save').mockImplementation(mockSave);
+  
+      const req = {
+        fields: { ...mockProduct },
+        files: { photo: mockPhoto }
+      };
+  
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+  
+      await createProductController(req, res);
+     
+      expect(fs.readFileSync).toHaveBeenCalledWith(mockPhoto.path);
+      expect(res.status).toHaveBeenCalledWith(201);
+      
+      const sentResponse = res.send.mock.calls[0][0];
+      expect(sentResponse.success).toBe(true);
+      expect(sentResponse.message).toBe("Product Created Successfully");
+    
+      const sentProduct = sentResponse.products;
+      expect(sentProduct.name).toBe(mockProduct.name);
+      expect(sentProduct.description).toBe(mockProduct.description);
+      expect(sentProduct.price).toBe(mockProduct.price);
+      expect(sentProduct.category.toString()).toBe(mockProduct.category);
+      expect(sentProduct.quantity).toBe(mockProduct.quantity);
+      expect(sentProduct.shipping).toBe(mockProduct.shipping);
+      expect(sentProduct.slug).toBe(mockSlug);
+      expect(sentProduct.photo.contentType).toBe(mockPhoto.type);
+      expect(Buffer.from(sentProduct.photo.data).toString()).toBe(Buffer.from('mock-file-data').toString());
+    });
+  });
+
+
   describe("Get product controller", () => {
     it("Gets a list of all the products", async () => {
       const mockProducts = [
@@ -87,7 +156,10 @@ describe("Product controller", () => {
 
   describe("Get single product controller", () => {
     it("Gets a single product", async () => {
-      const mockProduct = { name: "", description: "" };
+      const mockProduct = { 
+        name: "Single Product", 
+        description: "This is a single product" 
+      };
 
       productModel.findOne = jest.fn().mockReturnValue({
         select: jest.fn().mockReturnThis(),
@@ -167,6 +239,30 @@ describe("Product controller", () => {
       expect(res.send).toHaveBeenCalledWith({
         success: true,
         message: "Product Deleted successfully",
+      });
+    })
+
+    it("Raises an error when an exception occurs from deleting the product", async () => {
+      const mockError = new Error("Could not delete product");
+
+      productModel.findByIdAndDelete = jest.fn().mockImplementation(() => ({
+        select: jest.fn().mockRejectedValue(mockError),
+      }))
+  
+      const req = { params: { pid: "67b8ede47f8111e1ce491e93" } };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+  
+      await deleteProductController(req, res);
+
+      expect(productModel.findByIdAndDelete).toHaveBeenCalledWith("67b8ede47f8111e1ce491e93");
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: "Error while deleting product",
+        error: mockError,
       });
     })
   })
@@ -414,9 +510,7 @@ describe("Product controller", () => {
       };
           
       await braintreeTokenController(req, res);
-
-      // console.log(res.send.mock.calls);
-          
+ 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({ clientToken: "mock-braintree-token" });
     })
@@ -438,9 +532,7 @@ describe("Product controller", () => {
       };
           
       await braintreeTokenController(req, res);
-
-      // console.log(res.send.mock.calls);
-          
+   
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith(mockError);
     })
@@ -480,9 +572,7 @@ describe("Product controller", () => {
       };
           
       await brainTreePaymentController(req, res);
-
-      // console.log(res.send.mock.calls);
-          
+     
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({ ok: true });
 
