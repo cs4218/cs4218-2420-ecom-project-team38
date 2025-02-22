@@ -115,7 +115,7 @@ describe("Orders Page", () => {
 
         mockOrder1 = {
           _id: "test_orderid_1",
-          status: "Not Process",
+          status: "Not Processed",
           buyer: { name: mockUserName },
           createdAt: "2025-01-13T17:02:55.129Z",
           payment: { success: true },

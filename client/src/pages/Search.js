@@ -36,7 +36,7 @@ const Search = () => {
                 <div className="card-body">
                   <h5 className="card-title">{p.name}</h5>
                   <p className="card-text">
-                    {p.description.length < 30
+                    {p.description.length <= 30
                       ? p.description
                       : `${p.description.substring(0, 30)}...`}
                   </p>

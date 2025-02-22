@@ -273,7 +273,7 @@ describe("Auth Controller", () => {
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.send).toHaveBeenCalledWith({
           success: false,
-          message: "Error While Updating Profile",
+          message: "Error while updating profile",
           error: dbReadError,
         });
       });
@@ -295,7 +295,7 @@ describe("Auth Controller", () => {
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.send).toHaveBeenCalledWith({
           success: false,
-          message: "Error While Updating Profile",
+          message: "Error while updating profile",
           error: dbUpdateError,
         });
       });
@@ -317,7 +317,7 @@ describe("Auth Controller", () => {
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.send).toHaveBeenCalledWith({
           success: false,
-          message: "Error While Updating Profile",
+          message: "Error while updating profile",
           error: hashError,
         });
       });
@@ -374,7 +374,7 @@ describe("Auth Controller", () => {
     it("should send response with all orders returned from the database find query", async () => {
       const mockOrder = {
         _id: "test_orderid",
-        status: "Not Process",
+        status: "Not Processed",
         buyer: { name: "Test User" },
         createdAt: "2025-01-13T17:02:55.129Z",
         payment: { success: true },
@@ -411,7 +411,7 @@ describe("Auth Controller", () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
-        message: "Error While Getting Orders",
+        message: "Error while getting orders",
         error: dbError,
       });
     });
@@ -476,7 +476,7 @@ describe("Auth Controller", () => {
     it("should send response with all orders returned from the database find query", async () => {
       const mockOrder = {
         _id: "test_orderid",
-        status: "Not Process",
+        status: "Not Processed",
         buyer: { name: "Test User" },
         createdAt: "2025-01-13T17:02:55.129Z",
         payment: { success: true },
@@ -515,7 +515,7 @@ describe("Auth Controller", () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
-        message: "Error While Getting All Orders",
+        message: "Error while getting all orders",
         error: dbError,
       });
     });
@@ -528,7 +528,7 @@ describe("Auth Controller", () => {
       jest.clearAllMocks();
 
       mockOrderId = "testOrderId123";
-      mockOrderStatus = "Not Process";
+      mockOrderStatus = "Not Processed";
 
       req = {
         params: { orderId: mockOrderId },
@@ -557,7 +557,7 @@ describe("Auth Controller", () => {
     it("should send response with updated order when database update is successful", async () => {
       const mockOrder = {
         _id: "test_orderid",
-        status: "Not Process",
+        status: "Not Processed",
         buyer: { name: "Test User" },
         createdAt: "2025-01-13T17:02:55.129Z",
         payment: { success: true },
@@ -588,7 +588,7 @@ describe("Auth Controller", () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
-        message: "Error While Updating Order",
+        message: "Error while updating order",
         error: dbError,
       });
     });
