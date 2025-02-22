@@ -1,12 +1,33 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { CartProvider, useCart } from "./cart";
-import "@testing-library/jest-dom";
+import '@testing-library/jest-dom';
+
+const mockItem = {
+  _id: "1",
+  name: "Test Product 1",
+  description: "This is a test product",
+  price: 100
+}
 
 const TestComponent = () => {
-  const [cart] = useCart();
-  return <div data-testid="cart-length">{cart.length}</div>;
+  const [cart, setCart] = useCart();
+  return (
+    <div>
+      <div data-testid="cart-items">{JSON.stringify(cart)}</div>
+      <button onClick={() => setCart([...cart, mockItem])}>Add Item</button>
+    </div>
+  );
 };
+
+Object.defineProperty(window, "localStorage", {
+  value: {
+    getItem: jest.fn(),
+    setItem: jest.fn(),
+    removeItem: jest.fn(),
+  },
+  writable: true,
+});
 
 const renderTestComponent = () => {
   return render(
@@ -16,33 +37,39 @@ const renderTestComponent = () => {
   );
 };
 
-const mockItems = [
-  {
-    _id: "1",
-    name: "Test Product 1",
-    description: "This is a test product",
-    price: 100,
-  },
-  {
-    _id: "2",
-    name: "Test Product 2",
-    description: "This is another test product",
-    price: 69,
-  },
-];
-
 describe("Cart Context", () => {
   beforeEach(() => {
-    localStorage.clear();
-  });
-  it("should initialize with an empty cart when localStorage is empty", () => {
-    renderTestComponent();
-    expect(screen.getByTestId("cart-length")).toHaveTextContent(0);
+    jest.clearAllMocks();
   });
 
-  it("should initialize with localStorage data", () => {
-    localStorage.setItem("cart", JSON.stringify(mockItems));
+  it("should initialize with an empty cart when localStorage is empty", async () => {
+    localStorage.getItem.mockReturnValueOnce(null);
     renderTestComponent();
-    expect(screen.getByTestId("cart-length")).toHaveTextContent(mockItems.length);
+
+    await waitFor(() => {
+      expect(localStorage.getItem).toHaveBeenCalledWith("cart");
+      expect(screen.getByTestId("cart-items").textContent).toBe("[]");
+    });
+  });
+
+  it("should initialize with localStorage data", async () => {
+    localStorage.getItem.mockReturnValueOnce(JSON.stringify(mockItem));
+    renderTestComponent();
+
+    await waitFor(() => {
+      expect(localStorage.getItem).toHaveBeenCalledWith("cart");
+      expect(screen.getByTestId("cart-items")).toHaveTextContent(JSON.stringify(mockItem));
+    });
+  });
+
+  it("should update the cart when new item is added", async () => {
+    localStorage.getItem.mockReturnValueOnce(null);
+    renderTestComponent();
+
+    fireEvent.click(screen.getByText("Add Item"));
+    await waitFor(() => {
+      expect(localStorage.getItem).toHaveBeenCalledWith("cart");
+      expect(screen.getByTestId("cart-items")).toHaveTextContent(JSON.stringify([mockItem]));
+    });
   });
 });

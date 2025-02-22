@@ -52,13 +52,15 @@ Object.defineProperty(window, "localStorage", {
   writable: true,
 });
 
-if (typeof window !== "undefined" && !window.matchMedia) {
-  window.matchMedia = () => ({
-    matches: false,
-    addListener: () => {},
-    removeListener: () => {},
-  });
-}
+window.matchMedia =
+  window.matchMedia ||
+  function () {
+    return {
+      matches: false,
+      addListener: function () {},
+      removeListener: function () {},
+    };
+  };
 
 const renderCartPage = () => {
   return render(
