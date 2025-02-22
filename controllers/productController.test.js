@@ -84,6 +84,175 @@ describe("Product controller", () => {
       expect(sentProduct.photo.contentType).toBe(mockPhoto.type);
       expect(Buffer.from(sentProduct.photo.data).toString()).toBe(Buffer.from('mock-file-data').toString());
     });
+
+    it("Does not create a product when name is missing", async () => {
+      const mockProduct = {
+        _id: "67ba0da9a6aac64d80e7a1c1",
+        description: "This is a test product without a name",
+        price: 50,
+        category: "67ba0db37d0621608b2f79e2",
+        quantity: 1,
+        shipping: true
+      };
+
+      const req = {
+        fields: { ...mockProduct },
+        files: { photo: { path: "mock-photo-path", type: "image/png", size: 100 } }
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+  
+      await createProductController(req, res);
+  
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        error: "Name is Required",
+      });
+    });
+
+    it("Does not create a product when description is missing", async () => {
+      const mockProduct = {
+        _id: "67ba0e19b5b64a493c0f08aa",
+        name: "test product without description",
+        price: 30,
+        category: "67ba0e2118a0d48a87a8b2da",
+        quantity: 2,
+        shipping: false
+      };
+
+      const req = {
+        fields: { ...mockProduct },
+        files: { photo: { path: "mock-photo-path", type: "image/png", size: 200 } }
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+  
+      await createProductController(req, res);
+  
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        error: "Description is Required",
+      });
+    });
+
+    it("Does not create a product when price is missing", async () => {
+      const mockProduct = {
+        _id: "67ba0ef4eb3e31ba78754958",
+        name: "test product without price",
+        description: "This is a test product without a price",
+        category: "67ba0eec6cc1ffa6d221791f",
+        quantity: 6,
+        shipping: true
+      };
+
+      const req = {
+        fields: { ...mockProduct },
+        files: { photo: { path: "mock-photo-path", type: "image/png", size: 200 } }
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+  
+      await createProductController(req, res);
+  
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        error: "Price is Required",
+      });
+    });
+
+    it("Does not create a product when category is missing", async () => {
+      const mockProduct = {
+        _id: "67ba0e19b5b64a493c0f08aa",
+        name: "test product without category",
+        description: "This is a test product without a category",
+        price: 60,
+        quantity: 5,
+        shipping: false
+      };
+
+      const req = {
+        fields: { ...mockProduct },
+        files: { photo: { path: "mock-photo-path", type: "image/jpg", size: 200 } }
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+  
+      await createProductController(req, res);
+  
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        error: "Category is Required",
+      });
+    });
+
+    it("Does not create a product when quantity is missing", async () => {
+      const mockProduct = {
+        _id: "67ba0e19b5b64a493c0f08aa",
+        name: "test product without quantity",
+        description: "This is a test product without a quantity",
+        price: 60,
+        category: "67ba0eec6cc1ffa6d221791f",
+        shipping: false
+      };
+
+      const req = {
+        fields: { ...mockProduct },
+        files: { photo: { path: "mock-photo-path", type: "image/jpg", size: 700 } }
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+  
+      await createProductController(req, res);
+  
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        error: "Quantity is Required",
+      });
+    });
+
+    it("Does not create a photo when photo is too large in size", async () => {
+      const mockProduct = {
+        _id: "67ba0e19b5b64a493c0f08aa",
+        name: "test product without category",
+        description: "This is a test product with a photo that is too large in size",
+        price: 60,
+        category: "67ba0db37d0621608b2f79e2",
+        quantity: 5,
+        shipping: false
+      };
+
+      const req = {
+        fields: { ...mockProduct },
+        files: { photo: { path: "mock-photo-path", type: "image/jpg", size: 2000000 }}
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+  
+      await createProductController(req, res);
+  
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        error: "Photo is Required and should be less then 1mb",
+      });
+    });
   });
 
 
