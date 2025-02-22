@@ -4,7 +4,6 @@ import { useCart } from "../context/cart";
 import { useAuth } from "../context/auth";
 import { useNavigate } from "react-router-dom";
 import DropIn from "braintree-web-drop-in-react";
-import { AiFillWarning } from "react-icons/ai";
 import axios from "axios";
 import toast from "react-hot-toast";
 import "../styles/CartStyles.css";
@@ -32,7 +31,8 @@ const CartPage = () => {
       console.log(error);
     }
   };
-  //detele item
+
+  //delete item
   const removeCartItem = (pid) => {
     try {
       let myCart = [...cart];
@@ -54,6 +54,7 @@ const CartPage = () => {
       console.log(error);
     }
   };
+
   useEffect(() => {
     getToken();
   }, [auth?.token]);
@@ -77,6 +78,7 @@ const CartPage = () => {
       setLoading(false);
     }
   };
+  
   return (
     <Layout>
       <div className=" cart-page">
