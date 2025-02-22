@@ -10,11 +10,11 @@ const { Option } = Select;
 
 const AdminOrders = () => {
   const [status, setStatus] = useState([
-    "Not Process",
+    "Not Processed",
     "Processing",
     "Shipped",
-    "deliverd",
-    "cancel",
+    "Delivered",
+    "Cancelled",
   ]);
   const [changeStatus, setCHangeStatus] = useState("");
   const [orders, setOrders] = useState([]);
@@ -25,6 +25,7 @@ const AdminOrders = () => {
       setOrders(data);
     } catch (error) {
       console.log(error);
+      toast.error("Something went wrong");
     }
   };
 
@@ -40,6 +41,7 @@ const AdminOrders = () => {
       getOrders();
     } catch (error) {
       console.log(error);
+      toast.error("Something went wrong");
     }
   };
   return (
@@ -101,7 +103,11 @@ const AdminOrders = () => {
                       </div>
                       <div className="col-md-8">
                         <p>{p.name}</p>
-                        <p>{p.description.substring(0, 30)}</p>
+                        <p>
+                          {p.description.length <= 30
+                            ? p.description
+                            : `${p.description.substring(0, 30)}...`}
+                        </p>
                         <p>Price : {p.price}</p>
                       </div>
                     </div>
