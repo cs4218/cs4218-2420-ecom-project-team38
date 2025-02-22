@@ -25,7 +25,9 @@ jest.mock("../../context/search", () => ({
 
 jest.mock("../../hooks/useCategory", () => jest.fn(() => []));
 
-jest.spyOn(console, "log").mockImplementation(() => {});
+jest.mock("../../components/UserMenu", () =>
+  jest.fn(() => <div>Mock User Menu</div>)
+);
 
 const mockUseNavigate = jest.fn();
 jest.mock("react-router-dom", () => ({
@@ -42,6 +44,8 @@ Object.defineProperty(window, "localStorage", {
   writable: true,
 });
 
+jest.spyOn(console, "log").mockImplementation(() => {});
+
 describe("Profile Page", () => {
   const renderProfilePage = () => {
     render(
@@ -56,6 +60,7 @@ describe("Profile Page", () => {
   });
 
   describe("User is authenticated", () => {
+    const mockToken = "testtoken";
     let mockUser;
 
     beforeEach(() => {
@@ -67,14 +72,23 @@ describe("Profile Page", () => {
         address: "123 Test Address",
       };
 
-      useAuth.mockReturnValue([{ user: mockUser, token: "" }, jest.fn()]);
+      useAuth.mockReturnValue([
+        { user: mockUser, token: mockToken },
+        jest.fn(),
+      ]);
 
       window.localStorage.getItem.mockReturnValue(
         JSON.stringify({ user: mockUser })
       );
     });
 
-    describe("Form initialisation", () => {
+    describe("Page initialisation", () => {
+      it("should render the user menu", () => {
+        renderProfilePage();
+
+        expect(screen.getByText("Mock User Menu")).toBeInTheDocument();
+      });
+
       it("should render form title and all form fields", () => {
         renderProfilePage();
 
@@ -291,7 +305,7 @@ describe("Profile Page", () => {
         await waitFor(() =>
           expect(setAuth).toHaveBeenCalledWith({
             user: updatedUser,
-            token: "",
+            token: mockToken,
           })
         );
         expect(localStorage.setItem).toHaveBeenCalledWith(
@@ -340,7 +354,7 @@ describe("Profile Page", () => {
 
   describe("User is unauthenticated", () => {
     beforeEach(() => {
-      useAuth.mockReturnValue([{ user: null, token: "" }, jest.fn()]);
+      useAuth.mockReturnValue([null, jest.fn()]);
     });
 
     it("should navigate to home page", () => {
