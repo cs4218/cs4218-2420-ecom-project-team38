@@ -115,7 +115,7 @@ export const loginController = async (req, res) => {
     });
     res.status(200).send({
       success: true,
-      message: "Login successful",
+      message: "Login successfully!",
       user: {
         _id: user._id,
         name: user.name,
