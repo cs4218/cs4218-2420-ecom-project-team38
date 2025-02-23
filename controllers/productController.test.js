@@ -1842,5 +1842,78 @@ describe("Product controller", () => {
       expect(savedOrder.buyer).toEqual(new mongoose.Types.ObjectId(req.user._id));
       expect(savedOrder.status).toEqual("Not Process");
     });
+
+    it("Returns an error if an exception occurs inside the Braintree transaction", async () => {
+      jest.spyOn(braintree, "BraintreeGateway").mockImplementation(() => ({
+        transaction: {
+          sale: (_, callback) => callback(new Error("Braintree transaction failed"), null),
+        },
+      }));
+
+      const req = {
+        body: {
+          nonce: "fake-nonce",
+          cart: [
+            { _id: "67b6257c91b2a9d1b753c5d4", price: 20 },
+            { _id: "67b6259457a811c8986eda71", price: 25 },
+          ],
+          options: {
+            submitForSettlement: true,
+          },
+        },
+        user: {
+          _id: "67b6250197ca04df46835aa8",
+        },
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+        json: jest.fn(),
+      };
+
+      await brainTreePaymentController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith(expect.any(Error));
+    });
+
+    it("Returns an error if an exception occurs outside the Braintree transaction", async () => {
+      const mockError = new Error("Failed to initialise Braintree Gateway");
+
+      jest.spyOn(braintree, "BraintreeGateway").mockImplementation(() => {
+        throw mockError;
+      });
+
+      const req = {
+        body: {
+          nonce: "fake-nonce",
+          cart: [
+            { _id: "67b6257c91b2a9d1b753c5d4", price: 20 },
+            { _id: "67b6259457a811c8986eda71", price: 25 },
+          ],
+          options: {
+            submitForSettlement: true,
+          },
+        },
+        user: {
+          _id: "67b6250197ca04df46835aa8",
+        },
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      await brainTreePaymentController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        ok: false,
+        message: "Error outside Braintree transaction",
+        error: mockError,
+      });
+    });
   });
 });
