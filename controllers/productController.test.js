@@ -11,6 +11,7 @@ import {
   deleteProductController,
   productPhotoController,
   productCountController,
+  productListController,
   relatedProductController,
   searchProductController,
   braintreeTokenController,
@@ -445,6 +446,48 @@ describe("Product controller", () => {
         success: true,
         message: "Product Updated Successfully",
         products: mockUpdatedProductResponse,
+      });
+    });
+
+    it("Raises an error when an exception occurs from updating a product", async () => {
+      const mockError = new Error("Something went wrong when creating the product");
+      const mockProductId = "67bac8f8c3398a1d89886761";
+
+      const mockUpdatedProduct = {
+        name: "Updated Product",
+        description: "This is an updated product",
+        price: 70,
+        category: "67babe1aeae58eb5646d28fb",
+        quantity: 2,
+        shipping: true,
+      };
+
+      const mockPhoto = {
+        path: "updated-photo-path",
+        size: 350,
+        type: "image/png",
+      };
+
+      productModel.findByIdAndUpdate = jest.fn().mockRejectedValue(mockError);
+
+      const req = {
+        params: { pid: mockProductId },
+        fields: mockUpdatedProduct,
+        files: { photo: mockPhoto }, 
+      };
+  
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+  
+      await updateProductController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        error: mockError,
+        message: "Error in Update product",
       });
     });
 
@@ -1212,6 +1255,150 @@ describe("Product controller", () => {
         success: false
       });
     })
+  })
+
+  describe("Product list controller", () => {
+    it("Returns exactly 6 products on the first page", async () => {
+      const mockProducts = [
+        { name: "Test product 1", description: "First test product" },
+        { name: "Test product 2", description: "Second test product" },
+        { name: "Test product 3", description: "Test product 3" },
+        { name: "Test product 4", description: "Test product 4" },
+        { name: "Test product 5", description: "Test product 5" },
+        { name: "Test product 6", description: "Test product 6" },
+      ];
+
+      productModel.find = jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        sort: jest.fn().mockResolvedValue(mockProducts),
+      });
+
+      const req = { params: { page: 1 } };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+
+      await productListController(req, res);
+
+      expect(productModel.find).toHaveBeenCalledWith({});
+      expect(productModel.find().select).toHaveBeenCalledWith("-photo");
+      expect(productModel.find().limit).toHaveBeenCalledWith(6);
+      expect(productModel.find().skip).toHaveBeenCalledWith(0);
+      expect(productModel.find().sort).toHaveBeenCalledWith({ createdAt: -1 });
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        products: mockProducts,
+      });
+    })
+
+    it("Returns fewer than 6 products when there are not enough products", async () => {
+      const mockProducts = [
+        { name: "Test product 1", description: "First test product" },
+        { name: "Test product 2", description: "Second test product" },
+        { name: "Test product 3", description: "Test product 3" },
+        { name: "Test product 4", description: "Test product 4" },
+      ];
+
+      productModel.find = jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        sort: jest.fn().mockResolvedValue(mockProducts),
+      });
+
+      const req = { params: { page: 1 } };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+
+      await productListController(req, res);
+
+      expect(productModel.find).toHaveBeenCalledWith({});
+      expect(productModel.find().select).toHaveBeenCalledWith("-photo");
+      expect(productModel.find().limit).toHaveBeenCalledWith(6);
+      expect(productModel.find().skip).toHaveBeenCalledWith(0);
+      expect(productModel.find().sort).toHaveBeenCalledWith({ createdAt: -1 });
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        products: mockProducts,
+      });
+    })
+
+    it("Returns the correct products for the second page when there are more than 6 products", async () => {
+      const mockProducts = [
+        { name: "Test product 1", description: "Test product 1" },
+        { name: "Test product 2", description: "Test product 2" },
+        { name: "Test product 3", description: "Test product 3" },
+        { name: "Test product 4", description: "Test product 4" },
+        { name: "Test product 5", description: "Test product 5" },
+        { name: "Test product 6", description: "Test product 6" },
+        { name: "Test product 7", description: "Test product 7" },
+        { name: "Test product 8", description: "Test product 8" },
+      ];
+
+      productModel.find = jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        sort: jest.fn().mockResolvedValue(mockProducts.slice(6)),
+      });
+
+      const req = { params: { page: 2 } };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+
+      await productListController(req, res);
+
+      expect(productModel.find).toHaveBeenCalledWith({});
+      expect(productModel.find().select).toHaveBeenCalledWith("-photo");
+      expect(productModel.find().limit).toHaveBeenCalledWith(6);
+      expect(productModel.find().skip).toHaveBeenCalledWith(6);
+      expect(productModel.find().sort).toHaveBeenCalledWith({ createdAt: -1 });
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        products: mockProducts.slice(6),
+      });
+    })
+
+    it("Returns an error when an exception occurs from fetching the products list", async () => {
+      const mockError = new Error("Something went wrong when getting the products list");
+
+      productModel.find = jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        sort: jest
+          .fn()
+          .mockRejectedValue(
+            mockError
+          ),
+      });
+
+      const req = { params: { page: 1 } };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+
+      await productListController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: "error in per page ctrl",
+        error: mockError,
+      });
+    });
   })
 
   describe("Braintree token controller", () => {
