@@ -578,6 +578,18 @@ describe("Auth Controller", () => {
       expect(res.json).toHaveBeenCalledWith([mockOrder]);
     });
 
+    it("should send error response when order not found in database", async () => {
+      orderModel.findByIdAndUpdate = jest.fn().mockResolvedValue(null);
+
+      await orderStatusController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: "Order not found",
+      });
+    });
+
     it("should send error response when error updating order status to database", async () => {
       const dbError = new Error("Database error while updating order");
       orderModel.findByIdAndUpdate = jest.fn().mockRejectedValue(dbError);
