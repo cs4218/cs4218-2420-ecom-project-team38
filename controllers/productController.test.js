@@ -10,6 +10,7 @@ import {
   getSingleProductController,
   deleteProductController,
   productPhotoController,
+  productCountController,
   relatedProductController,
   searchProductController,
   braintreeTokenController,
@@ -86,6 +87,44 @@ describe("Product controller", () => {
       expect(sentProduct.photo.contentType).toBe(mockPhoto.type);
       expect(Buffer.from(sentProduct.photo.data).toString()).toBe(Buffer.from('mock-file-data').toString());
     });
+
+    it("Raises an error when an exception occurs from creating a product", async () => {
+      const mockError = new Error("Something went wrong when creating the product");
+
+      jest.spyOn(productModel.prototype, 'save').mockRejectedValue(mockError);
+      
+      const req = {
+        fields: { 
+          name: "test product", 
+          description: "test description", 
+          price: 100, 
+          category: "test category", 
+          quantity: 10, 
+          shipping: true 
+        },
+        files: { 
+          photo: { 
+            path: "mock-photo-path", 
+            type: "image/png", 
+            size: 100 
+          } 
+        }
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+
+      await createProductController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: "Error in creating product",
+        error: mockError,
+      });
+    })
 
     it("Does not create a product if the name is missing", async () => {
       const mockProduct = {
@@ -1129,6 +1168,51 @@ describe("Product controller", () => {
       });
     });
   });
+
+  describe("Product count controller", () => {
+    it("Returns the number of products", async () => {
+      productModel.find = jest.fn().mockReturnValue({
+        estimatedDocumentCount: jest.fn().mockResolvedValue(50), 
+      });
+  
+      const req = {};
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+  
+      await productCountController(req, res);
+
+      expect(productModel.find).toHaveBeenCalledWith({});
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        total: 50,
+      });
+    })
+
+    it("Returns an error when an exception occurs from fetching the product count", async () => {
+      productModel.find = jest.fn().mockReturnValue({
+        estimatedDocumentCount: jest.fn().mockRejectedValue(new Error("Error occurred from fetching product count")), 
+      });
+  
+      const req = {};
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+  
+      await productCountController(req, res);
+
+      expect(productModel.find).toHaveBeenCalledWith({});
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.send).toHaveBeenCalledWith({
+        message: "Error in product count",
+        error: new Error("Error occurred from fetching product count"),
+        success: false
+      });
+    })
+  })
 
   describe("Braintree token controller", () => {
     it("Generates a client token for Braintree", async () => {
