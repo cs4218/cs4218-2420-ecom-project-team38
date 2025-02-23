@@ -456,7 +456,7 @@ describe("Product controller", () => {
 
       const mockUpdatedProduct = {
         name: "Updated Product",
-        description: "This is an updated product",
+        description: "This is an updated product with a photo",
         price: 100,
         category: "67babe1aeae58eb5646d28fb",
         quantity: 10,
@@ -498,6 +498,54 @@ describe("Product controller", () => {
       await updateProductController(req, res);
 
       expect(fs.readFileSync).toHaveBeenCalledWith(mockPhoto.path);
+      expect(mockSave).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        message: "Product Updated Successfully",
+        products: mockUpdatedProductResponse,
+      });
+    });
+
+    it("Updates a product without photo if all necessary details are given and within the limit", async () => {
+      jest.spyOn(fs, "readFileSync").mockReturnValue(Buffer.from("mock-file-data"));
+
+      const mockProductId = "67bac8f8c3398a1d89886761";
+      const mockSlug = "updated-product";
+
+      const mockUpdatedProduct = {
+        name: "Updated Product",
+        description: "This is an updated product without a photo",
+        price: 200,
+        category: "67babe1aeae58eb5646d28fb",
+        quantity: 100,
+        shipping: false,
+      };
+
+      const mockUpdatedProductResponse = {
+        ...mockUpdatedProduct,
+        _id: mockProductId,
+        slug: mockSlug,
+      };
+
+      productModel.findByIdAndUpdate = jest.fn().mockResolvedValue(mockUpdatedProductResponse);
+
+      const mockSave = jest.fn().mockResolvedValue(mockUpdatedProductResponse);
+      mockUpdatedProductResponse.save = mockSave;
+
+      const req = {
+        params: { pid: mockProductId },
+        fields: mockUpdatedProduct,
+        files: { photo: null },
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+
+      await updateProductController(req, res);
+
       expect(mockSave).toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.send).toHaveBeenCalledWith({
@@ -1643,7 +1691,7 @@ describe("Product controller", () => {
         sort: jest.fn().mockResolvedValue(mockProducts),
       });
 
-      const req = { params: { page: 1 } };
+      const req = { params: {} };
       const res = {
         status: jest.fn().mockReturnThis(),
         send: jest.fn(),
