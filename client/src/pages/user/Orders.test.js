@@ -4,7 +4,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import moment from "moment";
 import { MemoryRouter } from "react-router-dom";
-import "@testing-library/jest-dom/extend-expect";
+import "@testing-library/jest-dom";
 import { useAuth } from "../../context/auth";
 import Orders from "./Orders";
 
@@ -75,7 +75,7 @@ describe("Orders Page", () => {
     });
 
     it("should make API call to get the user's orders", async () => {
-      axios.get.mockResolvedValue({ data: {} });
+      axios.get.mockResolvedValue({ data: [] });
 
       renderOrdersPage();
 
