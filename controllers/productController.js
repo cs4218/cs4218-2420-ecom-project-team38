@@ -115,6 +115,10 @@ export const productPhotoController = async (req, res) => {
       res.set("Content-type", product.photo.contentType);
       return res.status(200).send(product.photo.data);
     }
+    return res.status(400).send({
+      success: false,
+      message: "No photo found",
+    });
   } catch (error) {
     console.log(error);
     res.status(500).send({

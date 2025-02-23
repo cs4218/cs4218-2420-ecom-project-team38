@@ -1,4 +1,4 @@
-import { describe, jest } from "@jest/globals";
+import { describe, expect, jest } from "@jest/globals";
 import mongoose from "mongoose";
 import braintree from "braintree";
 import fs from "fs";
@@ -30,7 +30,7 @@ jest.mock("../models/orderModel");
 
 describe("Product controller", () => {
   describe("Create product controller", () => {
-    it("Creates a new product if all necessary details are given and within the limit ", async () => {
+    it("Creates a new product with a photo if all necessary details are given and within the limit ", async () => {
       jest.spyOn(fs, "readFileSync").mockReturnValue(Buffer.from("mock-file-data"));
 
       const mockSlug = "test-product";
@@ -38,7 +38,7 @@ describe("Product controller", () => {
       const mockProduct = {
         _id: "67b98fd0235fa3cf8e4bbe72",
         name: "test product",
-        description: "This is a test product",
+        description: "This is a test product with a photo",
         price: 50,
         category: "67b9927c50c661ec1f06c2fc",
         quantity: 1,
@@ -93,6 +93,56 @@ describe("Product controller", () => {
       expect(Buffer.from(sentProduct.photo.data).toString()).toBe(
         Buffer.from("mock-file-data").toString()
       );
+    });
+
+    it("Creates a new product without a photo if all necessary details are given and within the limit ", async () => {
+      jest.spyOn(fs, "readFileSync").mockReturnValue(Buffer.from("mock-file-data"));
+
+      const mockSlug = "test-product";
+
+      const mockProduct = {
+        _id: "67b98fd0235fa3cf8e4bbe72",
+        name: "test product",
+        description: "This is a test product without a photo",
+        price: 200,
+        category: "67b9927c50c661ec1f06c2fc",
+        quantity: 5,
+        shipping: false,
+      };
+
+      const mockSave = jest.fn().mockResolvedValue({
+        ...mockProduct,
+        slug: mockSlug,
+      });
+
+      jest.spyOn(productModel.prototype, "save").mockImplementation(mockSave);
+
+      const req = {
+        fields: { ...mockProduct },
+        files: { photo: null },
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+
+      await createProductController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(201);
+
+      const sentResponse = res.send.mock.calls[0][0];
+      expect(sentResponse.success).toBe(true);
+      expect(sentResponse.message).toBe("Product Created Successfully");
+
+      const sentProduct = sentResponse.products;
+      expect(sentProduct.name).toBe(mockProduct.name);
+      expect(sentProduct.description).toBe(mockProduct.description);
+      expect(sentProduct.price).toBe(mockProduct.price);
+      expect(sentProduct.category.toString()).toBe(mockProduct.category);
+      expect(sentProduct.quantity).toBe(mockProduct.quantity);
+      expect(sentProduct.shipping).toBe(mockProduct.shipping);
+      expect(sentProduct.slug).toBe(mockSlug);
     });
 
     it("Raises an error when an exception occurs from creating a product", async () => {
@@ -1274,11 +1324,39 @@ describe("Product controller", () => {
       expect(productModel.findById().select).toHaveBeenCalledWith("photo");
     });
 
-    it("Returns an error when an exception occurs from getting photo of a product", async () => {
-      const mockError = new Error("Something went wrong while fetching the photo");
+    it("Raises an error if the product photo does not exist", async () => {
+      const mockProduct = {
+        photo: {
+          data: null,
+          contentType: null,
+        },
+      };
 
       productModel.findById = jest.fn().mockReturnValue({
-        select: jest.fn().mockRejectedValue(mockError),
+        select: jest.fn().mockResolvedValue(mockProduct),
+      });
+
+      const req = { params: { pid: "67ace09e434c9d2b82b55b85" } };
+      const res = {
+        set: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+
+      await productPhotoController(req, res);
+
+      expect(productModel.findById).toHaveBeenCalledWith(req.params.pid);
+      expect(productModel.findById().select).toHaveBeenCalledWith("photo");
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it("Returns an error when an exception occurs from fetching the product photo", async () => {
+      const mockProduct = {
+        photo: null,
+      };
+
+      productModel.findById = jest.fn().mockReturnValue({
+        select: jest.fn().mockResolvedValue(mockProduct),
       });
 
       const req = { params: { pid: "67ace20a02fdf529e74bfe34" } };
@@ -1294,7 +1372,7 @@ describe("Product controller", () => {
       expect(res.send).toHaveBeenCalledWith({
         success: false,
         message: "Error while getting photo",
-        error: new Error("Something went wrong while fetching the photo"),
+        error: expect.any(Error),
       });
     });
   });
