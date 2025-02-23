@@ -194,14 +194,6 @@ export const updateProfileController = async (req, res) => {
     address = address?.trim();
     phone = phone?.trim();
 
-    const user = await userModel.findById(req.user._id);
-    if (!user) {
-      return res.status(404).send({
-        success: false,
-        message: "User not found",
-      });
-    }
-
     // name, address and phone are required fields
     if (!name || !address || !phone) {
       return res.json({
@@ -227,12 +219,25 @@ export const updateProfileController = async (req, res) => {
       });
     }
 
-    const hashedPassword = password ? await hashPassword(password) : undefined;
+    let newHashedPassword, currentHashedPassword;
+    if (password) {
+      newHashedPassword = await hashPassword(password);
+    } else {
+      const user = await userModel.findById(req.user._id);
+      if (!user) {
+        return res.status(404).send({
+          success: false,
+          message: "User not found",
+        });
+      }
+      currentHashedPassword = user.password;
+    }
+
     const updatedUser = await userModel.findByIdAndUpdate(
       req.user._id,
       {
         name: name,
-        password: hashedPassword || user.password,
+        password: newHashedPassword || currentHashedPassword,
         phone: phone,
         address: address,
       },
