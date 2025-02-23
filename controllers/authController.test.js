@@ -257,8 +257,8 @@ describe("Auth Controller", () => {
     });
 
     describe("Error handling", () => {
-      it("should send error response when error reading profile from database", async () => {
-        const dbReadError = new Error("Database read error");
+      it("should send error response when error getting user from database", async () => {
+        const dbReadError = new Error("Database error getting user");
         const req = {
           body: { ...validUpdatedProfile },
           user: { _id: mockUserId },
@@ -275,6 +275,25 @@ describe("Auth Controller", () => {
           success: false,
           message: "Error while updating profile",
           error: dbReadError,
+        });
+      });
+
+      it("should send error response when user not found in database", async () => {
+        const req = {
+          body: { ...validUpdatedProfile },
+          user: { _id: mockUserId },
+        };
+
+        userModel.findById = jest.fn().mockResolvedValue(null);
+        userModel.findByIdAndUpdate = jest.fn();
+
+        await updateProfileController(req, res);
+
+        expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith({
+          success: false,
+          message: "User not found",
         });
       });
 
