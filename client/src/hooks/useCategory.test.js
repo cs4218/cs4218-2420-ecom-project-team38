@@ -29,8 +29,20 @@ describe("Use Category Hook", () => {
     const mockCategoryData = {
       success: true,
       message: "All Categories List",
-      category: ["Test Category 1", "Test Category 2"],
+      category: [
+        {
+          _id: "test_catid_1",
+          name: "Test Category 1",
+          slug: "test-category-1",
+        },
+        {
+          _id: "test_catid_2",
+          name: "Test Category 2",
+          slug: "test-category-2",
+        },
+      ],
     };
+
     axios.get.mockResolvedValue({ data: mockCategoryData });
 
     const { result } = renderHook(() => useCategory());
