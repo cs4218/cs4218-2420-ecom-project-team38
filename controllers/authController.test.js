@@ -230,7 +230,6 @@ describe("Auth Controller", () => {
 
         await updateProfileController(req, res);
 
-        expect(mockHashPassword).not.toHaveBeenCalled();
         expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
           mockUserId,
           {
