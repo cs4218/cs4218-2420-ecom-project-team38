@@ -118,6 +118,37 @@ describe("CategoryProduct Component", () => {
     });
   });
 
+  it("Raises an error when an exception occurs from fetching products by category", async () => {
+    axios.get.mockRejectedValue(new Error("Failed to fetch products"));
+
+    render(
+      <MemoryRouter>
+        <CategoryProduct />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(console.error).toHaveBeenCalledWith(expect.any(Error));
+    });
+
+    expect(screen.queryByText("Test Product 1")).not.toBeInTheDocument();
+    expect(screen.queryByText("Test Product 2")).not.toBeInTheDocument();
+  });
+
+  it("Should not call getProductByCategory hook when slug is missing", () => {
+    useParams.mockReturnValue({});
+
+    render(
+      <MemoryRouter>
+        <CategoryProduct />
+      </MemoryRouter>
+    );
+
+    expect(axios.get).not.toHaveBeenCalledWith(
+      expect.stringContaining("/api/v1/product/product-category/")
+    );
+  });
+
   it("Navigates to the product details page when the 'More Details' button is clicked", async () => {
     const navigate = jest.fn();
     useNavigate.mockReturnValue(navigate);
