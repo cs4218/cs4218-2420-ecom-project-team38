@@ -32,21 +32,23 @@ describe("User Menu Component", () => {
 
   it("should navigate to the profile page when profile link is clicked", async () => {
     const user = userEvent.setup();
+
     renderUserMenuComponent();
 
     await user.click(screen.getByRole("link", { name: /profile/i }));
 
     expect(mockUseNavigate).toHaveBeenCalled();
-    expect(mockUseNavigate.mock.calls[0][0]).toEqual("/dashboard/user/profile");
+    expect(mockUseNavigate.mock.calls[0][0]).toBe("/dashboard/user/profile");
   });
 
   it("should navigate to the orders page when order link is clicked", async () => {
     const user = userEvent.setup();
+
     renderUserMenuComponent();
 
     await user.click(screen.getByRole("link", { name: /orders/i }));
 
     expect(mockUseNavigate).toHaveBeenCalled();
-    expect(mockUseNavigate.mock.calls[0][0]).toEqual("/dashboard/user/orders");
+    expect(mockUseNavigate.mock.calls[0][0]).toBe("/dashboard/user/orders");
   });
 });

@@ -3,6 +3,8 @@ import categoryModel from "../models/categoryModel";
 import {
   createCategoryController,
   updateCategoryController,
+  categoryControlller,
+  singleCategoryController,
   deleteCategoryController,
 } from "./categoryController";
 
@@ -201,6 +203,141 @@ describe("Category controller", () => {
         success: false,
         error: mockError,
         message: "Error while updating category",
+      });
+    });
+  });
+
+  describe("All category controller", () => {
+    const req = {};
+    let res;
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+
+      res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+        json: jest.fn(),
+      };
+    });
+
+    it("Should get all categories from the database", async () => {
+      categoryModel.find = jest.fn();
+
+      await categoryControlller(req, res);
+
+      expect(categoryModel.find).toHaveBeenCalledWith({});
+    });
+
+    it("should send successful response with all categories returned from the database find query", async () => {
+      const mockCategories = [
+        {
+          _id: "test_catid_1",
+          name: "Test Category 1",
+          slug: "test-category-1",
+        },
+        {
+          _id: "test_catid_2",
+          name: "Test Category 2",
+          slug: "test-category-2",
+        },
+      ];
+
+      categoryModel.find = jest.fn().mockResolvedValue(mockCategories);
+
+      await categoryControlller(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        message: "All Categories List",
+        category: mockCategories,
+      });
+    });
+
+    it("Should send error response when error getting all categories from database", async () => {
+      const dbError = new Error("Database error while getting all categories");
+      categoryModel.find = jest.fn().mockRejectedValue(dbError);
+
+      await categoryControlller(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: "Error while getting all categories",
+        error: dbError,
+      });
+    });
+  });
+
+  describe("Single category controller", () => {
+    const mockCategorySlug = "test-category-slug";
+    let req, res;
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+
+      req = { params: { slug: mockCategorySlug } };
+
+      res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+        json: jest.fn(),
+      };
+    });
+
+    it("Should get the single category from the database", async () => {
+      categoryModel.findOne = jest.fn();
+
+      await singleCategoryController(req, res);
+
+      expect(categoryModel.findOne).toHaveBeenCalledWith({
+        slug: mockCategorySlug,
+      });
+    });
+
+    it("should send successful response with the category returned from the database find query", async () => {
+      const mockCategory = {
+        _id: "test_catid",
+        name: "Test Category",
+        slug: "test-category",
+      };
+
+      categoryModel.findOne = jest.fn().mockResolvedValue(mockCategory);
+
+      await singleCategoryController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        message: "Get Single Category Successfully",
+        category: mockCategory,
+      });
+    });
+
+    it("Should send error response when category does not exist", async () => {
+      categoryModel.findOne = jest.fn().mockResolvedValue(null);
+
+      await singleCategoryController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: "Category does not exist",
+      });
+    });
+
+    it("Should send error response when error getting single category from database", async () => {
+      const dbError = new Error("Database error while getting single category");
+      categoryModel.findOne = jest.fn().mockRejectedValue(dbError);
+
+      await singleCategoryController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: "Error while getting single category",
+        error: dbError,
       });
     });
   });
