@@ -35,7 +35,7 @@ describe("ProductDetails Component", () => {
     console.error.mockRestore();
   })
 
-  it("Should correctly render product details", async () => {
+  it("Correctly renders product details", async () => {
     axios.get.mockImplementation((url) => {
       if (url.includes("get-product/test-product")) {
         return Promise.resolve({
@@ -250,7 +250,7 @@ describe("ProductDetails Component", () => {
   });
 
 
-  it("Should display no similar products message when no similar products exist", async () => {
+  it("Displays no similar products message when no similar products exist", async () => {
     axios.get.mockImplementation((url) => {
       if (url.includes("get-product/test-product")) {
         return Promise.resolve({
