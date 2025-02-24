@@ -122,7 +122,7 @@ describe("ProductDetails Component", () => {
   });
 
 
-  it("Should handle navigation of similar products if they exist", async () => {
+  it("Navigates to the product details page when the 'More Details' button is clicked", async () => {
     const navigate = jest.fn();
     useNavigate.mockReturnValue(navigate);
   

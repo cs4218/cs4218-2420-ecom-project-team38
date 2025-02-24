@@ -35,7 +35,7 @@ describe("CategoryProduct Component", () => {
     console.error.mockRestore();
   });
 
-  it("Should correctly display products belonging to the category", async () => {
+  it("Correctly displays products belonging to the category", async () => {
     axios.get.mockImplementation((url) => {
       if (url.includes("product-category/test-category")) {
         return Promise.resolve({
@@ -47,6 +47,7 @@ describe("CategoryProduct Component", () => {
                 description: "This is a test product",
                 price: 10.0,
                 category: { _id: "10", name: "Test Category" },
+                slug: "test-product-1",
               },
               {
                 _id: "12346",
@@ -54,6 +55,7 @@ describe("CategoryProduct Component", () => {
                 description: "This is another test product",
                 price: 20.0,
                 category: { _id: "10", name: "Test Category" },
+                slug: "test-product-2",
               },
             ],
           },
@@ -90,5 +92,72 @@ describe("CategoryProduct Component", () => {
       const moreDetailsButtons = screen.getAllByRole("button", { name: /more details/i });
       expect(moreDetailsButtons.length).toBe(2);
     });
+  });
+
+  it("Displays no results found when a category has no products", async () => {
+    axios.get.mockImplementation((url) => {
+      if (url.includes("product-category/test-category")) {
+        return Promise.resolve({
+          data: {
+            products: [],
+          },
+        });
+      }
+
+      return Promise.reject(new Error("Not Found"));
+    });
+
+    render(
+      <MemoryRouter>
+        <CategoryProduct />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("0 result found")).toBeInTheDocument();
+    });
+  });
+
+  it("Navigates to the product details page when the 'More Details' button is clicked", async () => {
+    const navigate = jest.fn();
+    useNavigate.mockReturnValue(navigate);
+
+    axios.get.mockImplementation((url) => {
+      if (url.includes("product-category/test-category")) {
+        return Promise.resolve({
+          data: {
+            products: [
+              {
+                _id: "12345",
+                name: "Test Product 1",
+                description: "This is a test product",
+                price: 10.0,
+                category: { _id: "10", name: "Test Category" },
+                slug: "test-product-1",
+              },
+            ],
+          },
+        });
+      }
+
+      return Promise.reject(new Error("Not Found"));
+    });
+
+    render(
+      <MemoryRouter>
+        <CategoryProduct />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Test Product 1")).toBeInTheDocument();
+    });
+
+    const moreDetailsButton = screen.getByRole("button", {
+      name: /more details/i,
+    });
+    fireEvent.click(moreDetailsButton);
+
+    expect(navigate).toHaveBeenCalledWith("/product/test-product-1");
   });
 });
