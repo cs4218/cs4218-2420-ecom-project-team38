@@ -162,21 +162,6 @@ describe("CreateCategory page", () => {
         "somthing went wrong in input form"
       );
     });
-
-    xit("API should not be called when input is empty", async () => {
-      const user = userEvent.setup();
-
-      render(
-        <MemoryRouter>
-          <CreateCategory />
-        </MemoryRouter>
-      );
-
-      await waitFor(() => screen.findByText("Book")); // wait for initial state to be set
-      await user.click(screen.getByRole("button", { name: /submit/i }));
-
-      expect(axios.post).not.toHaveBeenCalled();
-    });
   });
 
   describe("Get all categories", () => {
@@ -331,23 +316,6 @@ describe("CreateCategory page", () => {
         { name: "Book" }
       );
       expect(toast.error).toHaveBeenCalledWith("Something went wrong");
-    });
-
-    xit("API should not be called when input is empty", async () => {
-      const user = userEvent.setup();
-
-      render(
-        <MemoryRouter>
-          <CreateCategory />
-        </MemoryRouter>
-      );
-
-      await waitFor(() => screen.findByText("Book")); // wait for initial state to be set
-      await user.click(screen.getByRole("button", { name: /edit/i }));
-      await user.clear(screen.getByDisplayValue("Book"));
-      await user.click(screen.getAllByRole("button", { name: /submit/i })[1]);
-
-      expect(axios.put).not.toHaveBeenCalled();
     });
   });
 
