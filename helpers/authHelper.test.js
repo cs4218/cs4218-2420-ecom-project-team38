@@ -6,6 +6,7 @@ import {
   isPasswordValid,
   isPhoneValid,
   isEmailValid,
+  emailErrorMsg,
 } from "./authHelper";
 
 jest.mock("bcrypt");
@@ -180,8 +181,6 @@ describe("Auth Helper", () => {
   });
 
   describe("isEmailValid", () => {
-    const emailErrorMsg = "Email should be a valid email address in the format example@example.com";
-
     it("should return an empty string when a valid email is provided", () => {
       const email = "test@test.com";
 

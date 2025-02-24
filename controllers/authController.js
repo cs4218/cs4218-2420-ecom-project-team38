@@ -15,46 +15,46 @@ export const registerController = async (req, res) => {
     const { name, email, password, phone, address, answer } = req.body;
     //validations
     if (!name) {
-      return res.send({ error: "Name is required" });
+      return res.status(400).send({ error: "Name is required" });
     }
     if (!email) {
-      return res.send({ message: "Email is required" });
+      return res.status(400).send({ error: "Email is required" });
     }
 
-    const emailValidationResult = isEmailValid(phone);
+    const emailValidationResult = isEmailValid(email);
     if (emailValidationResult) {
-      return res.json({
+      return res.status(400).json({
         error: emailValidationResult,
       });
     }
 
     if (!password) {
-      return res.send({ message: "Password is required" });
+      return res.status(400).send({ error: "Password is required" });
     }
 
     const passwordValidationResult = isPasswordValid(password);
     if (passwordValidationResult) {
-      return res.json({
+      return res.status(400).json({
         error: passwordValidationResult,
       });
     }
 
     if (!phone) {
-      return res.send({ message: "Phone number is required" });
+      return res.status(400).send({ error: "Phone number is required" });
     }
 
     const phoneValidationResult = isPhoneValid(phone);
     if (phoneValidationResult) {
-      return res.json({
+      return res.status(400).json({
         error: phoneValidationResult,
       });
     }
 
     if (!address) {
-      return res.send({ message: "Address is required" });
+      return res.status(400).send({ error: "Address is required" });
     }
     if (!answer) {
-      return res.send({ message: "Answer is required" });
+      return res.status(400).send({ error: "Answer is required" });
     }
     //check user
     const exisitingUser = await userModel.findOne({ email });
