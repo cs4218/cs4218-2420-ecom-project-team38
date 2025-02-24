@@ -12,11 +12,13 @@ jest.spyOn(console, "log").mockImplementation(() => {});
 const mockHashPassword = jest.fn();
 const mockIsPasswordValid = jest.fn();
 const mockIsPhoneValid = jest.fn();
+const mockIsEmailValid = jest.fn();
 jest.unstable_mockModule("../helpers/authHelper", () => ({
   hashPassword: mockHashPassword,
   comparePassword: jest.fn(),
   isPasswordValid: mockIsPasswordValid,
   isPhoneValid: mockIsPhoneValid,
+  isEmailValid: mockIsEmailValid,
 }));
 const {
   updateProfileController,

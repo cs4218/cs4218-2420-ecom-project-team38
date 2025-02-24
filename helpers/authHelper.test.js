@@ -5,6 +5,7 @@ import {
   comparePassword,
   isPasswordValid,
   isPhoneValid,
+  isEmailValid,
 } from "./authHelper";
 
 jest.mock("bcrypt");
@@ -175,6 +176,34 @@ describe("Auth Helper", () => {
       const result = isPhoneValid(phone);
 
       expect(result).toBe(phoneErrorMsg);
+    });
+  });
+
+  describe("isEmailValid", () => {
+    const emailErrorMsg = "Email should be a valid email address in the format example@example.com";
+
+    it("should return an empty string when a valid email is provided", () => {
+      const email = "test@test.com";
+
+      const result = isEmailValid(email);
+
+      expect(result).toBe("");
+    });
+
+    it("should return an error message when email does not contain @", () => {
+      const email = "test.com";
+
+      const result = isEmailValid(email);
+
+      expect(result).toBe(emailErrorMsg);
+    });
+
+    it("should return an error message when email is empty", () => {
+      const email = "";
+
+      const result = isEmailValid(email);
+
+      expect(result).toBe(emailErrorMsg);
     });
   });
 });
