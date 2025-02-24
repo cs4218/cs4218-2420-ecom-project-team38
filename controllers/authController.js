@@ -6,6 +6,7 @@ import {
   hashPassword,
   isPasswordValid,
   isPhoneValid,
+  isEmailValid
 } from "./../helpers/authHelper.js";
 import JWT from "jsonwebtoken";
 
@@ -19,6 +20,14 @@ export const registerController = async (req, res) => {
     if (!email) {
       return res.send({ message: "Email is required" });
     }
+
+    const emailValidationResult = isEmailValid(phone);
+    if (emailValidationResult) {
+      return res.json({
+        error: emailValidationResult,
+      });
+    }
+
     if (!password) {
       return res.send({ message: "Password is required" });
     }
