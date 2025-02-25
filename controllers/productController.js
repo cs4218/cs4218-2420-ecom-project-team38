@@ -10,19 +10,19 @@ import slugify from "slugify";
 dotenv.config();
 
 //payment gateway
-var gateway = new braintree.BraintreeGateway({
-  environment: braintree.Environment.Sandbox,
-  merchantId: process.env.BRAINTREE_MERCHANT_ID,
-  publicKey: process.env.BRAINTREE_PUBLIC_KEY,
-  privateKey: process.env.BRAINTREE_PRIVATE_KEY,
-});
+// var gateway = new braintree.BraintreeGateway({
+//   environment: braintree.Environment.Sandbox,
+//   merchantId: process.env.BRAINTREE_MERCHANT_ID,
+//   publicKey: process.env.BRAINTREE_PUBLIC_KEY,
+//   privateKey: process.env.BRAINTREE_PRIVATE_KEY,
+// });
 
 export const createProductController = async (req, res) => {
   try {
     const { name, description, price, category, quantity, shipping } =
       req.fields;
     const { photo } = req.files;
-    //alidation
+    // validation
     switch (true) {
       case !name:
         return res.status(500).send({ error: "Name is Required" });
@@ -37,7 +37,7 @@ export const createProductController = async (req, res) => {
       case photo && photo.size > 1000000:
         return res
           .status(500)
-          .send({ error: "photo is Required and should be less then 1mb" });
+          .send({ error: "Photo is Required and should be less then 1mb" });
     }
 
     const products = new productModel({ ...req.fields, slug: slugify(name) });
@@ -115,6 +115,10 @@ export const productPhotoController = async (req, res) => {
       res.set("Content-type", product.photo.contentType);
       return res.status(200).send(product.photo.data);
     }
+    return res.status(400).send({
+      success: false,
+      message: "No photo found",
+    });
   } catch (error) {
     console.log(error);
     res.status(500).send({
@@ -164,7 +168,7 @@ export const updateProductController = async (req, res) => {
       case photo && photo.size > 1000000:
         return res
           .status(500)
-          .send({ error: "photo is Required and should be less then 1mb" });
+          .send({ error: "Photo is Required and should be less then 1mb" });
     }
 
     const products = await productModel.findByIdAndUpdate(
@@ -187,7 +191,7 @@ export const updateProductController = async (req, res) => {
     res.status(500).send({
       success: false,
       error,
-      message: "Error in Updte product",
+      message: "Error in Update product",
     });
   }
 };
@@ -208,7 +212,7 @@ export const productFiltersController = async (req, res) => {
     console.log(error);
     res.status(400).send({
       success: false,
-      message: "Error WHile Filtering Products",
+      message: "Error While Filtering Products",
       error,
     });
   }
@@ -314,6 +318,14 @@ export const relatedProductController = async (req, res) => {
 export const productCategoryController = async (req, res) => {
   try {
     const category = await categoryModel.findOne({ slug: req.params.slug });
+
+    if (!category) {
+      return res.status(404).send({
+        success: false,
+        message: "Category Not Found",
+      });
+    }
+
     const products = await productModel.find({ category }).populate("category");
     res.status(200).send({
       success: true,
@@ -333,16 +345,39 @@ export const productCategoryController = async (req, res) => {
 //payment gateway api
 //token
 export const braintreeTokenController = async (req, res) => {
+  // try {
+  //   gateway.clientToken.generate({}, function (err, response) {
+  //     if (err) {
+  //       res.status(500).send(err);
+  //     } else {
+  //       res.send(response);
+  //     }
+  //   });
+  // } catch (error) {
+  //   console.log(error);
+  // }
+
   try {
-    gateway.clientToken.generate({}, function (err, response) {
-      if (err) {
-        res.status(500).send(err);
-      } else {
-        res.send(response);
-      }
+    const response = await new Promise((resolve, reject) => {
+      const gateway = new braintree.BraintreeGateway({
+        environment: braintree.Environment.Sandbox,
+        merchantId: process.env.BRAINTREE_MERCHANT_ID,
+        publicKey: process.env.BRAINTREE_PUBLIC_KEY,
+        privateKey: process.env.BRAINTREE_PRIVATE_KEY,
+     });
+
+      gateway.clientToken.generate({}, function (err, response) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(response);
+        }
+      });
     });
+
+    res.status(200).send(response);
   } catch (error) {
-    console.log(error);
+    res.status(500).send(error);
   }
 };
 
@@ -354,6 +389,13 @@ export const brainTreePaymentController = async (req, res) => {
     cart.map((i) => {
       total += i.price;
     });
+    const gateway = new braintree.BraintreeGateway({
+      environment: braintree.Environment.Sandbox,
+      merchantId: process.env.BRAINTREE_MERCHANT_ID,
+      publicKey: process.env.BRAINTREE_PUBLIC_KEY,
+      privateKey: process.env.BRAINTREE_PRIVATE_KEY,
+    });
+
     let newTransaction = gateway.transaction.sale(
       {
         amount: total,
@@ -369,13 +411,17 @@ export const brainTreePaymentController = async (req, res) => {
             payment: result,
             buyer: req.user._id,
           }).save();
-          res.json({ ok: true });
+          res.status(200).json({ ok: true });
         } else {
           res.status(500).send(error);
         }
       }
     );
   } catch (error) {
-    console.log(error);
+    res.status(500).json({ 
+      ok: false, 
+      message: "Error outside Braintree transaction", 
+      error 
+    });
   }
 };

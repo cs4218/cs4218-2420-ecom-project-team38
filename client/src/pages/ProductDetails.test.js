@@ -86,8 +86,42 @@ describe("ProductDetails Component", () => {
     });
   });
 
+  it("Should redirect to the 404 page if an invalid slug is accessed", async () => {
+    useParams.mockReturnValue({ slug: "invalid-slug" });
 
-  it('Should handle errors gracefully when fetching product details', async () => {
+    axios.get.mockImplementation((url) => {
+      if (url.includes("get-product/invalid-slug")) {
+        return Promise.resolve({
+          data: {
+            product: null,
+          },
+        });
+      }
+
+      return Promise.reject(new Error("Not Found"));
+    });
+
+    const navigate = jest.fn();
+    useNavigate.mockReturnValue(navigate);
+
+    render(
+      <MemoryRouter initialEntries={["/product/invalid-slug"]}>
+        <ProductDetails />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(axios.get).toHaveBeenCalledWith(
+        `/api/v1/product/get-product/invalid-slug`
+      );
+    });
+
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledWith("/404");
+    });
+  });
+
+  it('Should handle errors gracefully when fetching product details of a existing product', async () => {
     const errorMsg = 'Error fetching product details';
     axios.get.mockRejectedValue(new Error(errorMsg));
 

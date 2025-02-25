@@ -6,20 +6,19 @@ import "@testing-library/jest-dom";
 import toast from "react-hot-toast";
 import Register from "./Register";
 
-// Mocking axios.post
 jest.mock("axios");
 jest.mock("react-hot-toast");
 
 jest.mock("../../context/auth", () => ({
-  useAuth: jest.fn(() => [null, jest.fn()]), // Mock useAuth hook to return null state and a mock function for setAuth
+  useAuth: jest.fn(() => [null, jest.fn()]),
 }));
 
 jest.mock("../../context/cart", () => ({
-  useCart: jest.fn(() => [null, jest.fn()]), // Mock useCart hook to return null state and a mock function
+  useCart: jest.fn(() => [null, jest.fn()]),
 }));
 
 jest.mock("../../context/search", () => ({
-  useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]), // Mock useSearch hook to return null state and a mock function
+  useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]),
 }));
 
 Object.defineProperty(window, "localStorage", {
@@ -41,6 +40,54 @@ window.matchMedia =
     };
   };
 
+const renderRegistrationPage = () => {
+  return render(
+    <MemoryRouter initialEntries={["/register"]}>
+      <Routes>
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </MemoryRouter>
+  );
+};
+
+const fillAndSubmitRegistrationForm = (
+  getByPlaceholderText,
+  getByText,
+  {
+    name = "John Doe",
+    email = "test@example.com",
+    password = "password123",
+    phone = "1234567890",
+    address = "123 Street",
+    dob = "2000-01-01",
+    sport = "Football",
+  } = {}
+) => {
+  fireEvent.change(getByPlaceholderText("Enter Your Name"), {
+    target: { value: name },
+  });
+  fireEvent.change(getByPlaceholderText("Enter Your Email"), {
+    target: { value: email },
+  });
+  fireEvent.change(getByPlaceholderText("Enter Your Password"), {
+    target: { value: password },
+  });
+  fireEvent.change(getByPlaceholderText("Enter Your Phone"), {
+    target: { value: phone },
+  });
+  fireEvent.change(getByPlaceholderText("Enter Your Address"), {
+    target: { value: address },
+  });
+  fireEvent.change(getByPlaceholderText("Enter Your DOB"), {
+    target: { value: dob },
+  });
+  fireEvent.change(getByPlaceholderText("What is Your Favorite sports"), {
+    target: { value: sport },
+  });
+
+  fireEvent.click(getByText("REGISTER"));
+};
+
 describe("Register Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -49,37 +96,8 @@ describe("Register Component", () => {
   it("should register the user successfully", async () => {
     axios.post.mockResolvedValueOnce({ data: { success: true } });
 
-    const { getByText, getByPlaceholderText } = render(
-      <MemoryRouter initialEntries={["/register"]}>
-        <Routes>
-          <Route path="/register" element={<Register />} />
-        </Routes>
-      </MemoryRouter>
-    );
-
-    fireEvent.change(getByPlaceholderText("Enter Your Name"), {
-      target: { value: "John Doe" },
-    });
-    fireEvent.change(getByPlaceholderText("Enter Your Email"), {
-      target: { value: "test@example.com" },
-    });
-    fireEvent.change(getByPlaceholderText("Enter Your Password"), {
-      target: { value: "password123" },
-    });
-    fireEvent.change(getByPlaceholderText("Enter Your Phone"), {
-      target: { value: "1234567890" },
-    });
-    fireEvent.change(getByPlaceholderText("Enter Your Address"), {
-      target: { value: "123 Street" },
-    });
-    fireEvent.change(getByPlaceholderText("Enter Your DOB"), {
-      target: { value: "2000-01-01" },
-    });
-    fireEvent.change(getByPlaceholderText("What is Your Favorite sports"), {
-      target: { value: "Football" },
-    });
-
-    fireEvent.click(getByText("REGISTER"));
+    const { getByText, getByPlaceholderText } = renderRegistrationPage();
+    fillAndSubmitRegistrationForm(getByPlaceholderText, getByText, {});
 
     await waitFor(() => expect(axios.post).toHaveBeenCalled());
     expect(toast.success).toHaveBeenCalledWith(
@@ -90,39 +108,44 @@ describe("Register Component", () => {
   it("should display error message on failed registration", async () => {
     axios.post.mockRejectedValueOnce({ message: "User already exists" });
 
-    const { getByText, getByPlaceholderText } = render(
-      <MemoryRouter initialEntries={["/register"]}>
-        <Routes>
-          <Route path="/register" element={<Register />} />
-        </Routes>
-      </MemoryRouter>
-    );
-
-    fireEvent.change(getByPlaceholderText("Enter Your Name"), {
-      target: { value: "John Doe" },
-    });
-    fireEvent.change(getByPlaceholderText("Enter Your Email"), {
-      target: { value: "test@example.com" },
-    });
-    fireEvent.change(getByPlaceholderText("Enter Your Password"), {
-      target: { value: "password123" },
-    });
-    fireEvent.change(getByPlaceholderText("Enter Your Phone"), {
-      target: { value: "1234567890" },
-    });
-    fireEvent.change(getByPlaceholderText("Enter Your Address"), {
-      target: { value: "123 Street" },
-    });
-    fireEvent.change(getByPlaceholderText("Enter Your DOB"), {
-      target: { value: "2000-01-01" },
-    });
-    fireEvent.change(getByPlaceholderText("What is Your Favorite sports"), {
-      target: { value: "Football" },
-    });
-
-    fireEvent.click(getByText("REGISTER"));
+    const { getByText, getByPlaceholderText } = renderRegistrationPage();
+    fillAndSubmitRegistrationForm(getByPlaceholderText, getByText, {});
 
     await waitFor(() => expect(axios.post).toHaveBeenCalled());
     expect(toast.error).toHaveBeenCalledWith("Something went wrong");
+  });
+
+  it("should not allow form submission on empty field", async () => {
+    const { getByText, getByPlaceholderText } = renderRegistrationPage();
+    fillAndSubmitRegistrationForm(getByPlaceholderText, getByText, {
+      name: "",
+    });
+
+    await waitFor(() => expect(axios.post).not.toHaveBeenCalled());
+  });
+
+  it("should not allow form submission on invalid field", async () => {
+    const { getByText, getByPlaceholderText } = renderRegistrationPage();
+    fillAndSubmitRegistrationForm(getByPlaceholderText, getByText, {
+      email: "test.com",
+    });
+
+    await waitFor(() => expect(axios.post).not.toHaveBeenCalled());
+  });
+
+  it("should display error message on invalid input in server", async () => {
+    const errorMessage = "invalid input";
+    axios.post.mockResolvedValueOnce({
+      data: {
+        success: false,
+        message: errorMessage,
+      },
+    });
+
+    const { getByText, getByPlaceholderText } = renderRegistrationPage();
+    fillAndSubmitRegistrationForm(getByPlaceholderText, getByText, {});
+
+    await waitFor(() => expect(axios.post).toHaveBeenCalled());
+    expect(toast.error).toHaveBeenCalledWith(errorMessage);
   });
 });
