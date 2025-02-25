@@ -22,6 +22,15 @@ jest.mock("../context/cart", () => ({
   useCart: jest.fn(() => [null, jest.fn()]),
 }));
 
+Object.defineProperty(window, "localStorage", {
+  value: {
+    setItem: jest.fn(),
+    getItem: jest.fn(),
+    removeItem: jest.fn(),
+  },
+  writable: true,
+});
+
 jest.mock("../components/Form/SearchInput", () => () => <div>Mocked SearchInput</div>);
 
 describe("CategoryProduct Component", () => {
