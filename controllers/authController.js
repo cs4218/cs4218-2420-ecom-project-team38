@@ -198,8 +198,6 @@ export const testController = (req, res) => {
 export const updateProfileController = async (req, res) => {
   try {
     let { name, email, password, address, phone } = req.body;
-    const user = await userModel.findById(req.user._id);
-
     name = name?.trim();
     password = password?.trim();
     address = address?.trim();
@@ -230,12 +228,25 @@ export const updateProfileController = async (req, res) => {
       });
     }
 
-    const hashedPassword = password ? await hashPassword(password) : undefined;
+    let newHashedPassword, currentHashedPassword;
+    if (password) {
+      newHashedPassword = await hashPassword(password);
+    } else {
+      const user = await userModel.findById(req.user._id);
+      if (!user) {
+        return res.status(404).send({
+          success: false,
+          message: "User not found",
+        });
+      }
+      currentHashedPassword = user.password;
+    }
+
     const updatedUser = await userModel.findByIdAndUpdate(
       req.user._id,
       {
         name: name,
-        password: hashedPassword || user.password,
+        password: newHashedPassword || currentHashedPassword,
         phone: phone,
         address: address,
       },
