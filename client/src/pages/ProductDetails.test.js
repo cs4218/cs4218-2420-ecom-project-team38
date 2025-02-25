@@ -2,11 +2,13 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
 import ProductDetails from "../pages/ProductDetails";
 import { useParams, useNavigate } from "react-router-dom";
 import '@testing-library/jest-dom';
 
 jest.mock('axios');
+jest.mock('react-hot-toast')
 
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
