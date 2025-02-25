@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useCart } from "../context/cart";
 import Layout from "./../components/Layout";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
@@ -9,7 +10,7 @@ const ProductDetails = () => {
   const params = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState({});
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useCart([]);
   const [relatedProducts, setRelatedProducts] = useState([]);
 
   //initalp details

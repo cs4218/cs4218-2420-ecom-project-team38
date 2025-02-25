@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useCart } from "../context/cart";
 import Layout from "../components/Layout";
 import { useParams, useNavigate } from "react-router-dom";
 import "../styles/CategoryProductStyles.css";
@@ -9,7 +10,7 @@ const CategoryProduct = () => {
   const params = useParams();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useCart([]);
   const [category, setCategory] = useState([]);
 
   useEffect(() => {
