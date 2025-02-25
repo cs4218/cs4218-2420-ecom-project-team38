@@ -2,7 +2,6 @@ import { describe, expect, jest } from "@jest/globals";
 import mongoose from "mongoose";
 import braintree from "braintree";
 import fs from "fs";
-import * as slugify from "slugify";
 import {
   createProductController,
   updateProductController,
@@ -22,7 +21,6 @@ import {
 import categoryModel from "../models/categoryModel";
 import productModel from "../models/productModel";
 import orderModel from "../models/orderModel";
-import { error } from "console";
 
 jest.mock("../models/categoryModel");
 jest.mock("../models/productModel");
