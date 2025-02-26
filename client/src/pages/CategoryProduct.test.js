@@ -4,6 +4,9 @@ import { MemoryRouter } from "react-router-dom";
 import axios from "axios";
 import CategoryProduct from "./CategoryProduct";
 import { useParams, useNavigate } from "react-router-dom";
+import { useCart } from "../context/cart";
+import { toast } from "react-hot-toast";
+
 import "@testing-library/jest-dom";
 
 jest.mock("axios");
@@ -20,6 +23,12 @@ jest.mock("../context/auth", () => ({
 
 jest.mock("../context/cart", () => ({
   useCart: jest.fn(() => [null, jest.fn()]),
+}));
+
+jest.mock("react-hot-toast", () => ({
+  toast: {
+    success: jest.fn(),
+  },
 }));
 
 Object.defineProperty(window, "localStorage", {
@@ -199,5 +208,78 @@ describe("CategoryProduct Component", () => {
     fireEvent.click(moreDetailsButton);
 
     expect(navigate).toHaveBeenCalledWith("/product/test-product-1");
+  });
+
+  it("Adds product to cart when 'ADD TO CART' button is clicked", async () => {
+    axios.get.mockImplementation((url) => {
+      if (url.includes("product-category/test-category")) {
+        return Promise.resolve({
+          data: {
+            products: [
+              {
+                _id: "12345",
+                name: "Test Product 1",
+                description: "This is a test product",
+                price: 10.0,
+                category: { _id: "10", name: "Test Category" },
+                slug: "test-category",
+              },
+              {
+                _id: "12346",
+                name: "Test Product 2",
+                description: "This is another test product",
+                price: 20.0,
+                category: { _id: "10", name: "Test Category" },
+                slug: "test-category",
+              },
+            ],
+          },
+        });
+      }
+      return Promise.reject(new Error("Not Found"));
+    });
+
+    const mockSetCart = jest.fn();
+    useCart.mockReturnValue([[], mockSetCart]);
+
+    render(
+      <MemoryRouter initialEntries={["/category/test-category"]}>
+        <CategoryProduct />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Test Product 1")).toBeInTheDocument();
+    });
+
+    const moreAddToCartButtons = screen.getAllByText("ADD TO CART");
+    fireEvent.click(moreAddToCartButtons[0]);
+
+    expect(mockSetCart).toHaveBeenCalledWith([
+      {
+        _id: "12345",
+        name: "Test Product 1",
+        description: "This is a test product",
+        price: 10.0,
+        category: { _id: "10", name: "Test Category" },
+        slug: "test-category",
+      },
+    ]);
+
+    expect(localStorage.setItem).toHaveBeenCalledWith(
+      "cart",
+      JSON.stringify([
+        {
+          _id: "12345",
+          name: "Test Product 1",
+          description: "This is a test product",
+          price: 10.0,
+          category: { _id: "10", name: "Test Category" },
+          slug: "test-category",
+        },
+      ])
+    );
+
+    expect(toast.success).toHaveBeenCalledWith("Item Added to cart");
   });
 });
