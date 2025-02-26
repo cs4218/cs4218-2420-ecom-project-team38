@@ -33,11 +33,13 @@ const {
 describe("Auth Controller", () => {
   describe("Registration Controller", () => {
     let req, res;
+    const mockPassword = "testpassword"
+    const mockHashedPassword = "hashedpassword";
     const mockUser = {
       _id: "1",
       name: "Test User",
       email: "test@test.com",
-      password: "hashedpassword",
+      password: mockHashedPassword,
       phone: "98765432",
       address: "123 Test Address",
       answer: "Test Answer",
@@ -47,7 +49,7 @@ describe("Auth Controller", () => {
         body: {
           name: mockUser.name,
           email: mockUser.email,
-          password: "testpassword1",
+          password: mockPassword,
           phone: mockUser.phone,
           address: mockUser.address,
           answer: mockUser.answer,
@@ -61,6 +63,7 @@ describe("Auth Controller", () => {
 
       userModel.findOne = jest.fn().mockResolvedValue(null);
       userModel.prototype.save = jest.fn().mockResolvedValue(mockUser);
+      mockHashPassword.mockResolvedValue(mockHashedPassword);
       mockIsEmailValid.mockReturnValue("");
       mockIsPasswordValid.mockReturnValue("");
       mockIsPhoneValid.mockReturnValue("");
@@ -77,6 +80,8 @@ describe("Auth Controller", () => {
         expect(userModel.findOne).toHaveBeenCalledWith({
           email: req.body.email,
         });
+        
+        expect(mockHashPassword).toHaveBeenCalledWith(req.body.password);
         expect(userModel.prototype.save).toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(201);
         expect(res.send).toHaveBeenCalledWith({
@@ -89,6 +94,7 @@ describe("Auth Controller", () => {
 
     describe("Field validation", () => {
       const expectInvalidInput = (errorMsg) => {
+        expect(mockHashPassword).not.toHaveBeenCalled();
         expect(userModel.findOne).not.toHaveBeenCalled();
         expect(userModel.prototype.save).not.toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(400);
@@ -116,6 +122,7 @@ describe("Auth Controller", () => {
         req.body.email = "test";
         await registerController(req, res);
         expect(userModel.findOne).not.toHaveBeenCalled();
+        expect(mockHashPassword).not.toHaveBeenCalled();
         expect(userModel.prototype.save).not.toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: emailErrorMsg });
@@ -136,6 +143,7 @@ describe("Auth Controller", () => {
         req.body.password = "test";
         await registerController(req, res);
         expect(userModel.findOne).not.toHaveBeenCalled();
+        expect(mockHashPassword).not.toHaveBeenCalled();
         expect(userModel.prototype.save).not.toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({
@@ -157,6 +165,7 @@ describe("Auth Controller", () => {
         req.body.phone = "123";
         await registerController(req, res);
         expect(userModel.findOne).not.toHaveBeenCalled();
+        expect(mockHashPassword).not.toHaveBeenCalled();
         expect(userModel.prototype.save).not.toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({
@@ -193,6 +202,7 @@ describe("Auth Controller", () => {
         expect(userModel.findOne).toHaveBeenCalledWith({
           email: req.body.email,
         });
+        expect(mockHashPassword).not.toHaveBeenCalled();
         expect(userModel.prototype.save).not.toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.send).toHaveBeenCalledWith({
@@ -202,31 +212,40 @@ describe("Auth Controller", () => {
       });
 
       it("should return an error when userModel.findOne throw an error", async () => {
+        const mockErrorMsg = "Test Error";
         userModel.findOne = jest
           .fn()
-          .mockRejectedValue(new Error("Test error"));
+          .mockRejectedValue(new Error(mockErrorMsg));
         await registerController(req, res);
+        expect(mockHashPassword).not.toHaveBeenCalled();
+        expect(userModel.prototype.save).not.toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(500);
         expect(res.send).toHaveBeenCalledWith(
           expect.objectContaining({
             success: false,
             message: "Error in registration",
-            error: expect.any(Error),
+            error: expect.objectContaining({ message: mockErrorMsg }),
           })
         );
       });
 
       it("should return an error when userModel.prototype.save() throw an error", async () => {
+        const mockErrorMsg = "Test Error";
         userModel.prototype.save = jest
           .fn()
-          .mockRejectedValue(new Error("Test error"));
+          .mockRejectedValue(new Error(mockErrorMsg));
         await registerController(req, res);
+
+        expect(userModel.findOne).toHaveBeenCalledWith({
+          email: req.body.email,
+        });
+        expect(mockHashPassword).toHaveBeenCalledWith(req.body.password);
         expect(res.status).toHaveBeenCalledWith(500);
         expect(res.send).toHaveBeenCalledWith(
           expect.objectContaining({
             success: false,
             message: "Error in registration",
-            error: expect.any(Error),
+            error: expect.objectContaining({ message: mockErrorMsg }),
           })
         );
       });
@@ -341,8 +360,8 @@ describe("Auth Controller", () => {
       });
 
       it("should return an error when the password hashing function fails", async () => {
-        const errorMsg = "Test Error";
-        mockHashPassword.mockRejectedValue(new Error(errorMsg));
+        const mockErrorMsg = "Test Error";
+        mockHashPassword.mockRejectedValue(new Error(mockErrorMsg));
         await forgotPasswordController(req, res);
 
         expect(userModel.findOne).toHaveBeenCalledWith({
@@ -356,13 +375,13 @@ describe("Auth Controller", () => {
         expect(res.send).toHaveBeenCalledWith({
           success: false,
           message: "Something went wrong",
-          error: expect.objectContaining({ message: errorMsg }),
+          error: expect.objectContaining({ message: mockErrorMsg }),
         });
       });
 
       it("should return an error when there is a problem updating the database", async () => {
-        const errorMsg = "Test Error";
-        mockHashPassword.mockRejectedValue(new Error(errorMsg));
+        const mockErrorMsg = "Test Error";
+        mockHashPassword.mockRejectedValue(new Error(mockErrorMsg));
         await forgotPasswordController(req, res);
         expect(userModel.findOne).toHaveBeenCalledWith({
           email: req.body.email,
@@ -374,13 +393,13 @@ describe("Auth Controller", () => {
         expect(res.send).toHaveBeenCalledWith({
           success: false,
           message: "Something went wrong",
-          error: expect.objectContaining({ message: errorMsg }),
+          error: expect.objectContaining({ message: mockErrorMsg }),
         });
       });
     });
   });
 
-  describe("Update Profile Controller", () => {
+  describe("Test Controller", () => {
     let req, res;
 
     beforeEach(() => {
@@ -395,17 +414,17 @@ describe("Auth Controller", () => {
     });
 
     it("should gracefully handle error correctly", () => {
-      const error = new Error("Test error");
+      const mockError = new Error("Test error");
       res.send.mockImplementationOnce(() => {
-        throw error;
+        throw mockError;
       });
       const consoleSpy = jest
         .spyOn(console, "log")
         .mockImplementation(() => {});
 
       testController(req, res);
-      expect(consoleSpy).toHaveBeenCalledWith(error);
-      expect(res.send).toHaveBeenLastCalledWith({ error });
+      expect(consoleSpy).toHaveBeenCalledWith(mockError);
+      expect(res.send).toHaveBeenLastCalledWith({ error: mockError });
 
       consoleSpy.mockRestore();
     });
