@@ -16,6 +16,7 @@ describe("AdminMenu component", () => {
       </MemoryRouter>
     );
 
+    expect(screen.getAllByRole("link")).toHaveLength(4);
     expect(
       screen.getByRole("link", { name: "Create Product" })
     ).toBeInTheDocument();
@@ -24,7 +25,6 @@ describe("AdminMenu component", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Products" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Orders" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Users" })).toBeInTheDocument();
   });
 
   it("Create product link should be correct", () => {
@@ -74,19 +74,6 @@ describe("AdminMenu component", () => {
     expect(screen.getByRole("link", { name: "Orders" })).toHaveAttribute(
       "href",
       "/dashboard/admin/orders"
-    );
-  });
-
-  it("Users link should be correct", () => {
-    render(
-      <MemoryRouter>
-        <AdminMenu />
-      </MemoryRouter>
-    );
-
-    expect(screen.getByRole("link", { name: "Users" })).toHaveAttribute(
-      "href",
-      "/dashboard/admin/users"
     );
   });
 });
