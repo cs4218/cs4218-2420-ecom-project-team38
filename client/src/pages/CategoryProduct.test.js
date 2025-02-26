@@ -10,6 +10,7 @@ import { toast } from "react-hot-toast";
 import "@testing-library/jest-dom";
 
 jest.mock("axios");
+jest.mock("react-hot-toast");
 
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
@@ -23,12 +24,6 @@ jest.mock("../context/auth", () => ({
 
 jest.mock("../context/cart", () => ({
   useCart: jest.fn(() => [null, jest.fn()]),
-}));
-
-jest.mock("react-hot-toast", () => ({
-  toast: {
-    success: jest.fn(),
-  },
 }));
 
 Object.defineProperty(window, "localStorage", {
