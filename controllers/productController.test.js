@@ -1964,7 +1964,7 @@ describe("Product controller", () => {
       expect(savedOrder.products).toEqual(productIds);
       expect(savedOrder.payment).toEqual({ amount: 150, paymentMethodNonce: "fake-payment-nonce" });
       expect(savedOrder.buyer).toEqual(new mongoose.Types.ObjectId(req.user._id));
-      expect(savedOrder.status).toEqual("Not Process");
+      expect(savedOrder.status).toEqual("Not Processed");
     });
 
     it("Returns an error if an exception occurs inside the Braintree transaction", async () => {
