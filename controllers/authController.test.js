@@ -22,6 +22,8 @@ jest.unstable_mockModule("../helpers/authHelper", () => ({
 }));
 const {
   registerController,
+  forgotPasswordController,
+  testController,
   updateProfileController,
   getOrdersController,
   getAllOrdersController,
@@ -228,6 +230,184 @@ describe("Auth Controller", () => {
           })
         );
       });
+    });
+  });
+
+  describe("Forget Password Controller", () => {
+    let req, res;
+    const mockHashedPassword = "hashedpassword";
+    const mockUser = {
+      _id: "1",
+      email: "test@test.com",
+      password: "testpassword",
+      answer: "Test Answer",
+    };
+
+    beforeEach(() => {
+      req = {
+        body: {
+          email: mockUser.email,
+          newPassword: mockUser.password,
+          answer: mockUser.answer,
+        },
+      };
+
+      res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+        json: jest.fn(),
+      };
+
+      mockHashPassword.mockResolvedValue(mockHashedPassword);
+      userModel.findOne = jest.fn().mockResolvedValue(mockUser);
+      userModel.findByIdAndUpdate = jest.fn();
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    describe("Success", () => {
+      it("should reset password to new password successfully", async () => {
+        await forgotPasswordController(req, res);
+
+        expect(userModel.findOne).toHaveBeenCalledWith({
+          email: req.body.email,
+          answer: req.body.answer,
+        });
+
+        expect(mockHashPassword).toHaveBeenCalledWith(req.body.newPassword);
+        expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(mockUser._id, {
+          password: mockHashedPassword,
+        });
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.send).toHaveBeenCalledWith({
+          success: true,
+          message: "Password Reset Successfully",
+        });
+      });
+    });
+
+    describe("Field validation", () => {
+      const expectInvalidInput = (errorMsg) => {
+        expect(userModel.findOne).not.toHaveBeenCalled();
+        expect(mockHashPassword).not.toHaveBeenCalled();
+        expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.send).toHaveBeenCalledWith({
+          message: errorMsg,
+        });
+      };
+
+      it("should return an error when the email field is empty", async () => {
+        req.body.email = "";
+        const errorMsg = "Email is required";
+        await forgotPasswordController(req, res);
+        expectInvalidInput(errorMsg);
+      });
+
+      it("should return an error when the answer field is empty", async () => {
+        req.body.answer = "";
+        const errorMsg = "Answer is required";
+        await forgotPasswordController(req, res);
+        expectInvalidInput(errorMsg);
+      });
+
+      it("should return an error when the password field is empty", async () => {
+        req.body.newPassword = "";
+        const errorMsg = "New password is required";
+        await forgotPasswordController(req, res);
+        expectInvalidInput(errorMsg);
+      });
+    });
+
+    describe("Error handling", () => {
+      it("should return an error when the email and answer dont exist or match", async () => {
+        userModel.findOne = jest.fn().mockResolvedValue(null);
+        await forgotPasswordController(req, res);
+
+        expect(userModel.findOne).toHaveBeenCalledWith({
+          email: req.body.email,
+          answer: req.body.answer,
+        });
+
+        expect(mockHashPassword).not.toHaveBeenCalled();
+        expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith({
+          success: false,
+          message: "Wrong email or answer",
+        });
+      });
+
+      it("should return an error when the password hashing function fails", async () => {
+        const errorMsg = "Test Error";
+        mockHashPassword.mockRejectedValue(new Error(errorMsg));
+        await forgotPasswordController(req, res);
+
+        expect(userModel.findOne).toHaveBeenCalledWith({
+          email: req.body.email,
+          answer: req.body.answer,
+        });
+
+        expect(mockHashPassword).toHaveBeenCalledWith(req.body.newPassword);
+        expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith({
+          success: false,
+          message: "Something went wrong",
+          error: expect.objectContaining({ message: errorMsg }),
+        });
+      });
+
+      it("should return an error when there is a problem updating the database", async () => {
+        const errorMsg = "Test Error";
+        mockHashPassword.mockRejectedValue(new Error(errorMsg));
+        await forgotPasswordController(req, res);
+        expect(userModel.findOne).toHaveBeenCalledWith({
+          email: req.body.email,
+          answer: req.body.answer,
+        });
+        expect(mockHashPassword).toHaveBeenCalledWith(req.body.newPassword);
+        expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith({
+          success: false,
+          message: "Something went wrong",
+          error: expect.objectContaining({ message: errorMsg }),
+        });
+      });
+    });
+  });
+
+  describe("Update Profile Controller", () => {
+    let req, res;
+
+    beforeEach(() => {
+      req = {}; 
+      res = {
+        send: jest.fn(),
+      };
+    });
+    it("should send Protected Routes", () => {
+      testController(req, res);
+      expect(res.send).toHaveBeenCalledWith("Protected Routes");
+    });
+
+    it("should gracefully handle error correctly", () => {
+      const error = new Error("Test error");
+      res.send.mockImplementationOnce(() => {
+        throw error;
+      });
+      const consoleSpy = jest
+        .spyOn(console, "log")
+        .mockImplementation(() => {});
+
+      testController(req, res);
+      expect(consoleSpy).toHaveBeenCalledWith(error);
+      expect(res.send).toHaveBeenLastCalledWith({ error });
+
+      consoleSpy.mockRestore();
     });
   });
 
