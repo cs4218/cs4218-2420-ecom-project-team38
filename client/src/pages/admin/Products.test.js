@@ -75,7 +75,7 @@ describe("Products page", () => {
         `/api/v1/product/product-photo/${product._id}`
       );
       expect(productTitle).toBeInTheDocument();
-      expect(productDescription).toBeInTheDocument;
+      expect(productDescription).toBeInTheDocument();
     }
   });
 
