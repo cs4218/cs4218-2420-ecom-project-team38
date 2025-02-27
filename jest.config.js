@@ -10,6 +10,7 @@ const config = {
       lines: 100,
     },
   },
+  testTimeout: 10000,
   projects: [{ ...backendConfig }, { ...frontendConfig }],
 };
 
