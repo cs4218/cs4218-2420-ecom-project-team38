@@ -21,7 +21,6 @@ const ForgotPassword = () => {
         answer,
         newPassword,
       });
-      console.log(res);
       if (res && res.data.success) {
         toast.success("Password Reset Successfully, please login");
         navigate("/login");

@@ -6,13 +6,13 @@ import {
   hashPassword,
   isPasswordValid,
   isPhoneValid,
-  isEmailValid
+  isEmailValid,
 } from "./../helpers/authHelper.js";
 import JWT from "jsonwebtoken";
 
 export const registerController = async (req, res) => {
   try {
-    const { name, email, password, phone, address, answer } = req.body;
+    const { name, email, password, phone, address, DOB, answer } = req.body;
     //validations
     if (!name) {
       return res.status(400).send({ error: "Name is required" });
@@ -23,8 +23,9 @@ export const registerController = async (req, res) => {
 
     const emailValidationResult = isEmailValid(email);
     if (emailValidationResult) {
-      return res.status(400).json({
-        error: emailValidationResult,
+      return res.status(200).json({
+        success: false,
+        message: emailValidationResult,
       });
     }
 
@@ -34,8 +35,9 @@ export const registerController = async (req, res) => {
 
     const passwordValidationResult = isPasswordValid(password);
     if (passwordValidationResult) {
-      return res.status(400).json({
-        error: passwordValidationResult,
+      return res.status(200).json({
+        success: false,
+        message: passwordValidationResult,
       });
     }
 
@@ -45,13 +47,17 @@ export const registerController = async (req, res) => {
 
     const phoneValidationResult = isPhoneValid(phone);
     if (phoneValidationResult) {
-      return res.status(400).json({
-        error: phoneValidationResult,
+      return res.status(200).json({
+        success: false,
+        message: phoneValidationResult,
       });
     }
 
     if (!address) {
       return res.status(400).send({ error: "Address is required" });
+    }
+    if (!email) {
+      return res.status(400).send({ error: "DOB is required" });
     }
     if (!answer) {
       return res.status(400).send({ error: "Answer is required" });
@@ -157,7 +163,8 @@ export const forgotPasswordController = async (req, res) => {
     const emailValidationResult = isEmailValid(email);
     if (emailValidationResult) {
       return res.status(200).json({
-        error: emailValidationResult,
+        success: false,
+        message: emailValidationResult,
       });
     }
 
@@ -171,6 +178,7 @@ export const forgotPasswordController = async (req, res) => {
     const newPasswordValidationResult = isPasswordValid(newPassword);
     if (newPasswordValidationResult) {
       return res.status(200).json({
+        success: false,
         message: newPasswordValidationResult,
       });
     }
@@ -179,11 +187,10 @@ export const forgotPasswordController = async (req, res) => {
     const user = await userModel.findOne({ email, answer });
     //validation
     if (!user) {
-      res.status(200).send({
+      return res.status(200).send({
         success: false,
         message: "Wrong email or answer",
       });
-      return
     }
     const hashed = await hashPassword(newPassword);
     await userModel.findByIdAndUpdate(user._id, { password: hashed });
