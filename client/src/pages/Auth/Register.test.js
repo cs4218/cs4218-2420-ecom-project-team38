@@ -9,6 +9,8 @@ import Register from "./Register";
 jest.mock("axios");
 jest.mock("react-hot-toast");
 
+const mockNavigate = jest.fn();
+
 jest.mock("../../context/auth", () => ({
   useAuth: jest.fn(() => [null, jest.fn()]),
 }));
@@ -19,6 +21,12 @@ jest.mock("../../context/cart", () => ({
 
 jest.mock("../../context/search", () => ({
   useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]),
+}));
+
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useParams: jest.fn(),
+  useNavigate: () => mockNavigate,
 }));
 
 Object.defineProperty(window, "localStorage", {
@@ -103,6 +111,7 @@ describe("Register Component", () => {
     expect(toast.success).toHaveBeenCalledWith(
       "Register Successfully, please login"
     );
+    expect(mockNavigate).toHaveBeenCalledWith("/login");
   });
 
   it("should display error message on failed registration", async () => {
