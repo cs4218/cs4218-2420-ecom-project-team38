@@ -153,6 +153,14 @@ export const forgotPasswordController = async (req, res) => {
     if (!email) {
       return res.status(400).send({ message: "Email is required" });
     }
+
+    const emailValidationResult = isEmailValid(email);
+    if (emailValidationResult) {
+      return res.status(200).json({
+        error: emailValidationResult,
+      });
+    }
+
     if (!answer) {
       return res.status(400).send({ message: "Answer is required" });
     }
