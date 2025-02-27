@@ -42,6 +42,7 @@ describe("Auth Controller", () => {
       password: mockHashedPassword,
       phone: "98765432",
       address: "123 Test Address",
+      DOB: "11/11/2000",
       answer: "Test Answer",
     };
     beforeEach(() => {
@@ -52,6 +53,7 @@ describe("Auth Controller", () => {
           password: mockPassword,
           phone: mockUser.phone,
           address: mockUser.address,
+          DOB: mockUser.DOB,
           answer: mockUser.answer,
         },
       };
@@ -183,6 +185,27 @@ describe("Auth Controller", () => {
         const errorMsg = "Address is required";
         await registerController(req, res);
         expectInvalidInput(errorMsg);
+      });
+
+      it("should return an error when the DOB field is empty", async () => {
+        req.body.DOB = "";
+        const errorMsg = "DOB is required";
+        await registerController(req, res);
+        expectInvalidInput(errorMsg);
+      });
+
+      it("should return an error when the DOB is invalid", async () => {
+        const DOBErrorMsg =
+          "Invalid DOB: Please enter a valid date in the correct format";
+        req.body.DOB = "test";
+        await registerController(req, res);
+        expect(userModel.findOne).not.toHaveBeenCalled();
+        expect(mockHashPassword).not.toHaveBeenCalled();
+        expect(userModel.prototype.save).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.send).toHaveBeenCalledWith({
+          error: DOBErrorMsg,
+        });
       });
 
       it("should return an error when the answer field is empty", async () => {

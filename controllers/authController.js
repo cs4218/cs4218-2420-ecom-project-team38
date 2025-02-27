@@ -56,8 +56,16 @@ export const registerController = async (req, res) => {
     if (!address) {
       return res.status(400).send({ error: "Address is required" });
     }
-    if (!email) {
+    if (!DOB) {
       return res.status(400).send({ error: "DOB is required" });
+    }
+    let formattedDOB = new Date(DOB);
+    if (!formattedDOB instanceof Date || isNaN(formattedDOB)) {
+      return res
+        .status(400)
+        .send({
+          error: "Invalid DOB: Please enter a valid date in the correct format",
+        });
     }
     if (!answer) {
       return res.status(400).send({ error: "Answer is required" });
@@ -71,7 +79,6 @@ export const registerController = async (req, res) => {
         message: "Already registered! Please login.",
       });
     }
-    const formattedDOB = new Date(DOB);
 
     //register user
     const hashedPassword = await hashPassword(password);
