@@ -29,7 +29,9 @@ jest.mock("../models/orderModel");
 describe("Product controller", () => {
   describe("Create product controller", () => {
     it("Creates a new product with a photo if all necessary details are given and within the limit ", async () => {
-      jest.spyOn(fs, "readFileSync").mockReturnValue(Buffer.from("mock-file-data"));
+      jest
+        .spyOn(fs, "readFileSync")
+        .mockReturnValue(Buffer.from("mock-file-data"));
 
       const mockSlug = "test-product";
 
@@ -94,7 +96,9 @@ describe("Product controller", () => {
     });
 
     it("Creates a new product without a photo if all necessary details are given and within the limit ", async () => {
-      jest.spyOn(fs, "readFileSync").mockReturnValue(Buffer.from("mock-file-data"));
+      jest
+        .spyOn(fs, "readFileSync")
+        .mockReturnValue(Buffer.from("mock-file-data"));
 
       const mockSlug = "test-product";
 
@@ -144,7 +148,9 @@ describe("Product controller", () => {
     });
 
     it("Raises an error when an exception occurs from creating a product", async () => {
-      const mockError = new Error("Something went wrong when creating the product");
+      const mockError = new Error(
+        "Something went wrong when creating the product"
+      );
 
       jest.spyOn(productModel.prototype, "save").mockRejectedValue(mockError);
 
@@ -193,7 +199,9 @@ describe("Product controller", () => {
 
       const req = {
         fields: { ...mockProduct },
-        files: { photo: { path: "mock-photo-path", type: "image/png", size: 100 } },
+        files: {
+          photo: { path: "mock-photo-path", type: "image/png", size: 100 },
+        },
       };
 
       const res = {
@@ -221,7 +229,9 @@ describe("Product controller", () => {
 
       const req = {
         fields: { ...mockProduct },
-        files: { photo: { path: "mock-photo-path", type: "image/png", size: 200 } },
+        files: {
+          photo: { path: "mock-photo-path", type: "image/png", size: 200 },
+        },
       };
 
       const res = {
@@ -249,7 +259,9 @@ describe("Product controller", () => {
 
       const req = {
         fields: { ...mockProduct },
-        files: { photo: { path: "mock-photo-path", type: "image/png", size: 200 } },
+        files: {
+          photo: { path: "mock-photo-path", type: "image/png", size: 200 },
+        },
       };
 
       const res = {
@@ -277,7 +289,9 @@ describe("Product controller", () => {
 
       const req = {
         fields: { ...mockProduct },
-        files: { photo: { path: "mock-photo-path", type: "image/jpg", size: 200 } },
+        files: {
+          photo: { path: "mock-photo-path", type: "image/jpg", size: 200 },
+        },
       };
 
       const res = {
@@ -305,7 +319,9 @@ describe("Product controller", () => {
 
       const req = {
         fields: { ...mockProduct },
-        files: { photo: { path: "mock-photo-path", type: "image/jpg", size: 700 } },
+        files: {
+          photo: { path: "mock-photo-path", type: "image/jpg", size: 700 },
+        },
       };
 
       const res = {
@@ -322,7 +338,9 @@ describe("Product controller", () => {
     });
 
     it("Creates a new product if the photo's size is equal to the 1mb size limit and all other necessary details are present", async () => {
-      jest.spyOn(fs, "readFileSync").mockReturnValue(Buffer.from("mock-file-data"));
+      jest
+        .spyOn(fs, "readFileSync")
+        .mockReturnValue(Buffer.from("mock-file-data"));
 
       const mockSlug = "test-product";
 
@@ -390,7 +408,8 @@ describe("Product controller", () => {
       const mockProduct = {
         _id: "67ba0e19b5b64a493c0f08aa",
         name: "test product without category",
-        description: "This is a test product with a photo that is too large in size",
+        description:
+          "This is a test product with a photo that is too large in size",
         price: 60,
         category: "67ba0db37d0621608b2f79e2",
         quantity: 5,
@@ -399,7 +418,9 @@ describe("Product controller", () => {
 
       const req = {
         fields: { ...mockProduct },
-        files: { photo: { path: "mock-photo-path", type: "image/jpg", size: 1000001 } },
+        files: {
+          photo: { path: "mock-photo-path", type: "image/jpg", size: 1000001 },
+        },
       };
 
       const res = {
@@ -419,7 +440,8 @@ describe("Product controller", () => {
       const mockProduct = {
         _id: "67ba0e19b5b64a493c0f08aa",
         name: "test product without category",
-        description: "This is a test product with a photo that is too large in size",
+        description:
+          "This is a test product with a photo that is too large in size",
         price: 60,
         category: "67ba0db37d0621608b2f79e2",
         quantity: 5,
@@ -428,7 +450,9 @@ describe("Product controller", () => {
 
       const req = {
         fields: { ...mockProduct },
-        files: { photo: { path: "mock-photo-path", type: "image/jpg", size: 2000000 } },
+        files: {
+          photo: { path: "mock-photo-path", type: "image/jpg", size: 2000000 },
+        },
       };
 
       const res = {
@@ -447,7 +471,9 @@ describe("Product controller", () => {
 
   describe("Update product controller", () => {
     it("Updates a product if all necessary details are given and within the limit", async () => {
-      jest.spyOn(fs, "readFileSync").mockReturnValue(Buffer.from("mock-file-data"));
+      jest
+        .spyOn(fs, "readFileSync")
+        .mockReturnValue(Buffer.from("mock-file-data"));
 
       const mockProductId = "67bac8f8c3398a1d89886761";
       const mockSlug = "updated-product";
@@ -477,7 +503,9 @@ describe("Product controller", () => {
         },
       };
 
-      productModel.findByIdAndUpdate = jest.fn().mockResolvedValue(mockUpdatedProductResponse);
+      productModel.findByIdAndUpdate = jest
+        .fn()
+        .mockResolvedValue(mockUpdatedProductResponse);
 
       const mockSave = jest.fn().mockResolvedValue(mockUpdatedProductResponse);
       mockUpdatedProductResponse.save = mockSave;
@@ -506,7 +534,9 @@ describe("Product controller", () => {
     });
 
     it("Updates a product without photo if all necessary details are given and within the limit", async () => {
-      jest.spyOn(fs, "readFileSync").mockReturnValue(Buffer.from("mock-file-data"));
+      jest
+        .spyOn(fs, "readFileSync")
+        .mockReturnValue(Buffer.from("mock-file-data"));
 
       const mockProductId = "67bac8f8c3398a1d89886761";
       const mockSlug = "updated-product";
@@ -526,7 +556,9 @@ describe("Product controller", () => {
         slug: mockSlug,
       };
 
-      productModel.findByIdAndUpdate = jest.fn().mockResolvedValue(mockUpdatedProductResponse);
+      productModel.findByIdAndUpdate = jest
+        .fn()
+        .mockResolvedValue(mockUpdatedProductResponse);
 
       const mockSave = jest.fn().mockResolvedValue(mockUpdatedProductResponse);
       mockUpdatedProductResponse.save = mockSave;
@@ -554,7 +586,9 @@ describe("Product controller", () => {
     });
 
     it("Raises an error when an exception occurs from updating a product", async () => {
-      const mockError = new Error("Something went wrong when creating the product");
+      const mockError = new Error(
+        "Something went wrong when creating the product"
+      );
       const mockProductId = "67bac8f8c3398a1d89886761";
 
       const mockUpdatedProduct = {
@@ -776,7 +810,9 @@ describe("Product controller", () => {
     });
 
     it("Updates a product if the photo's size is equal to the 1mb size limit and all other necessary details are present", async () => {
-      jest.spyOn(fs, "readFileSync").mockReturnValue(Buffer.from("mock-file-data"));
+      jest
+        .spyOn(fs, "readFileSync")
+        .mockReturnValue(Buffer.from("mock-file-data"));
 
       const mockProductId = "67bac8f8c3398a1d89886761";
       const mockSlug = "updated-product";
@@ -806,7 +842,9 @@ describe("Product controller", () => {
         },
       };
 
-      productModel.findByIdAndUpdate = jest.fn().mockResolvedValue(mockUpdatedProductResponse);
+      productModel.findByIdAndUpdate = jest
+        .fn()
+        .mockResolvedValue(mockUpdatedProductResponse);
 
       const mockSave = jest.fn().mockResolvedValue(mockUpdatedProductResponse);
       mockUpdatedProductResponse.save = mockSave;
@@ -839,7 +877,8 @@ describe("Product controller", () => {
 
       const mockUpdatedProduct = {
         name: "Updated Product with large photo",
-        description: "This is an updated product with a photo that just exceeds the size limit",
+        description:
+          "This is an updated product with a photo that just exceeds the size limit",
         price: 100,
         category: "67babe1aeae58eb5646d28fb",
         quantity: 15,
@@ -876,7 +915,8 @@ describe("Product controller", () => {
 
       const mockUpdatedProduct = {
         name: "Updated Product with very large photo",
-        description: "This is an updated product with a photo that exceeds the size limit by a lot",
+        description:
+          "This is an updated product with a photo that exceeds the size limit by a lot",
         price: 100,
         category: "67babe1aeae58eb5646d28fb",
         quantity: 10,
@@ -965,12 +1005,17 @@ describe("Product controller", () => {
         },
       ];
 
-      productModel.find = productModel.find = jest.fn().mockImplementation((args) => {
-        if (args.category && args.category.includes("67bb31e722a241a2f70d3f71")) {
-          return Promise.resolve([mockProducts[0]]);
-        }
-        return Promise.resolve(mockProducts);
-      });
+      productModel.find = productModel.find = jest
+        .fn()
+        .mockImplementation((args) => {
+          if (
+            args.category &&
+            args.category.includes("67bb31e722a241a2f70d3f71")
+          ) {
+            return Promise.resolve([mockProducts[0]]);
+          }
+          return Promise.resolve(mockProducts);
+        });
 
       const req = {
         body: {
@@ -985,7 +1030,9 @@ describe("Product controller", () => {
 
       await productFiltersController(req, res);
 
-      expect(productModel.find).toHaveBeenCalledWith({ category: ["67bb31e722a241a2f70d3f71"] });
+      expect(productModel.find).toHaveBeenCalledWith({
+        category: ["67bb31e722a241a2f70d3f71"],
+      });
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
@@ -1015,17 +1062,19 @@ describe("Product controller", () => {
         },
       ];
 
-      productModel.find = productModel.find = jest.fn().mockImplementation((args) => {
-        if (args) {
-          const { $gte, $lte } = args.price;
-          const filteredProducts = mockProducts.filter(
-            (product) => product.price >= $gte && product.price <= $lte
-          );
-          return Promise.resolve(filteredProducts);
-        }
+      productModel.find = productModel.find = jest
+        .fn()
+        .mockImplementation((args) => {
+          if (args) {
+            const { $gte, $lte } = args.price;
+            const filteredProducts = mockProducts.filter(
+              (product) => product.price >= $gte && product.price <= $lte
+            );
+            return Promise.resolve(filteredProducts);
+          }
 
-        return Promise.resolve(mockProducts);
-      });
+          return Promise.resolve(mockProducts);
+        });
 
       const req = {
         body: {
@@ -1092,7 +1141,10 @@ describe("Product controller", () => {
         let currProducts = mockProducts;
 
         if (args) {
-          if (args.category && args.category.includes("67bb31e722a241a2f70d3f71")) {
+          if (
+            args.category &&
+            args.category.includes("67bb31e722a241a2f70d3f71")
+          ) {
             currProducts = currProducts.filter(
               (product) => product.category === "67bb31e722a241a2f70d3f71"
             );
@@ -1143,7 +1195,9 @@ describe("Product controller", () => {
     });
 
     it("Returns an error when an exception is raised from filtering the products", async () => {
-      const mockError = new Error("Something went wrong when filtering the products");
+      const mockError = new Error(
+        "Something went wrong when filtering the products"
+      );
 
       productModel.find = jest.fn().mockRejectedValue(mockError);
 
@@ -1309,7 +1363,9 @@ describe("Product controller", () => {
 
       await deleteProductController(req, res);
 
-      expect(productModel.findByIdAndDelete).toHaveBeenCalledWith("67b8d6e11400470837227a34");
+      expect(productModel.findByIdAndDelete).toHaveBeenCalledWith(
+        "67b8d6e11400470837227a34"
+      );
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
@@ -1332,7 +1388,9 @@ describe("Product controller", () => {
 
       await deleteProductController(req, res);
 
-      expect(productModel.findByIdAndDelete).toHaveBeenCalledWith("67b8ede47f8111e1ce491e93");
+      expect(productModel.findByIdAndDelete).toHaveBeenCalledWith(
+        "67b8ede47f8111e1ce491e93"
+      );
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
@@ -1472,7 +1530,9 @@ describe("Product controller", () => {
       productModel.find = jest.fn().mockReturnValue({
         select: jest.fn().mockReturnThis(),
         limit: jest.fn().mockReturnThis(),
-        populate: jest.fn().mockRejectedValue(new Error("Could not find related products")),
+        populate: jest
+          .fn()
+          .mockRejectedValue(new Error("Could not find related products")),
       });
 
       const req = {
@@ -1538,7 +1598,9 @@ describe("Product controller", () => {
         send: jest.fn(),
       };
 
-      productModel.find = jest.fn().mockReturnValue({ select: jest.fn().mockReturnValue([]) });
+      productModel.find = jest
+        .fn()
+        .mockReturnValue({ select: jest.fn().mockReturnValue([]) });
 
       await searchProductController(req, res);
 
@@ -1615,7 +1677,9 @@ describe("Product controller", () => {
       productModel.find = jest.fn().mockReturnValue({
         estimatedDocumentCount: jest
           .fn()
-          .mockRejectedValue(new Error("Error occurred from fetching product count")),
+          .mockRejectedValue(
+            new Error("Error occurred from fetching product count")
+          ),
       });
 
       const req = {};
@@ -1749,7 +1813,9 @@ describe("Product controller", () => {
     });
 
     it("Returns an error when an exception occurs from fetching the products list", async () => {
-      const mockError = new Error("Something went wrong when getting the products list");
+      const mockError = new Error(
+        "Something went wrong when getting the products list"
+      );
 
       productModel.find = jest.fn().mockReturnValue({
         select: jest.fn().mockReturnThis(),
@@ -1785,8 +1851,16 @@ describe("Product controller", () => {
       };
 
       const mockProducts = [
-        { _id: "67bb20a0db56a21c0c9b7724", name: "Product 1", category: mockCategory._id },
-        { _id: "67bb20a9d5f4d506ccceefef", name: "Product 2", category: mockCategory._id },
+        {
+          _id: "67bb20a0db56a21c0c9b7724",
+          name: "Product 1",
+          category: mockCategory._id,
+        },
+        {
+          _id: "67bb20a9d5f4d506ccceefef",
+          name: "Product 2",
+          category: mockCategory._id,
+        },
       ];
 
       categoryModel.findOne = jest.fn().mockResolvedValue(mockCategory);
@@ -1803,7 +1877,9 @@ describe("Product controller", () => {
 
       await productCategoryController(req, res);
 
-      expect(categoryModel.findOne).toHaveBeenCalledWith({ slug: "test-category" });
+      expect(categoryModel.findOne).toHaveBeenCalledWith({
+        slug: "test-category",
+      });
       expect(productModel.find).toHaveBeenCalledWith({
         category: {
           _id: "67bb20976c8350dfa83934a0",
@@ -1843,7 +1919,9 @@ describe("Product controller", () => {
         slug: "test-category",
         name: "Test Category",
       };
-      const mockError = new Error("Something went wrong while fetching products by category");
+      const mockError = new Error(
+        "Something went wrong while fetching products by category"
+      );
 
       categoryModel.findOne = jest.fn().mockResolvedValue(mockCategory);
 
@@ -1859,7 +1937,9 @@ describe("Product controller", () => {
 
       await productCategoryController(req, res);
 
-      expect(categoryModel.findOne).toHaveBeenCalledWith({ slug: "test-category" });
+      expect(categoryModel.findOne).toHaveBeenCalledWith({
+        slug: "test-category",
+      });
       expect(productModel.find).toHaveBeenCalledWith({
         category: {
           _id: "67bb20976c8350dfa83934a0",
@@ -1880,7 +1960,8 @@ describe("Product controller", () => {
     it("Generates a client token for Braintree", async () => {
       jest.spyOn(braintree, "BraintreeGateway").mockImplementation(() => ({
         clientToken: {
-          generate: (_, callback) => callback(null, { clientToken: "mock-braintree-token" }),
+          generate: (_, callback) =>
+            callback(null, { clientToken: "mock-braintree-token" }),
         },
       }));
 
@@ -1893,7 +1974,9 @@ describe("Product controller", () => {
       await braintreeTokenController(req, res);
 
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.send).toHaveBeenCalledWith({ clientToken: "mock-braintree-token" });
+      expect(res.send).toHaveBeenCalledWith({
+        clientToken: "mock-braintree-token",
+      });
     });
 
     it("Returns an error when an exception occurs from generating the token", async () => {
@@ -1923,7 +2006,10 @@ describe("Product controller", () => {
       jest.spyOn(braintree, "BraintreeGateway").mockImplementation(() => ({
         transaction: {
           sale: (_, callback) =>
-            callback(null, { amount: 150, paymentMethodNonce: "fake-payment-nonce" }),
+            callback(null, {
+              amount: 150,
+              paymentMethodNonce: "fake-payment-nonce",
+            }),
         },
       }));
 
@@ -1957,20 +2043,28 @@ describe("Product controller", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({ ok: true });
 
-      const productIds = req.body.cart.map((p) => new mongoose.Types.ObjectId(p._id));
+      const productIds = req.body.cart.map(
+        (p) => new mongoose.Types.ObjectId(p._id)
+      );
 
       expect(mockSave).toHaveBeenCalled();
       const savedOrder = mockSave.mock.instances[0];
       expect(savedOrder.products).toEqual(productIds);
-      expect(savedOrder.payment).toEqual({ amount: 150, paymentMethodNonce: "fake-payment-nonce" });
-      expect(savedOrder.buyer).toEqual(new mongoose.Types.ObjectId(req.user._id));
-      expect(savedOrder.status).toEqual("Not Process");
+      expect(savedOrder.payment).toEqual({
+        amount: 150,
+        paymentMethodNonce: "fake-payment-nonce",
+      });
+      expect(savedOrder.buyer).toEqual(
+        new mongoose.Types.ObjectId(req.user._id)
+      );
+      expect(savedOrder.status).toEqual("Not Processed");
     });
 
     it("Returns an error if an exception occurs inside the Braintree transaction", async () => {
       jest.spyOn(braintree, "BraintreeGateway").mockImplementation(() => ({
         transaction: {
-          sale: (_, callback) => callback(new Error("Braintree transaction failed"), null),
+          sale: (_, callback) =>
+            callback(new Error("Braintree transaction failed"), null),
         },
       }));
 

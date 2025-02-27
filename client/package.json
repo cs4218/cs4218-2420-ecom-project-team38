@@ -47,6 +47,7 @@
     ]
   },
   "devDependencies": {
-    "identity-obj-proxy": "^3.0.0"
+    "identity-obj-proxy": "^3.0.0",
+    "nwsapi": "^2.2.13"
   }
 }

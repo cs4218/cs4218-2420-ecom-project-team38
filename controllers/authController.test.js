@@ -694,7 +694,7 @@ describe("Auth Controller", () => {
 
       await getAllOrdersController(req, res);
 
-      expect(orderModel.find().sort).toHaveBeenCalledWith({ createdAt: "-1" });
+      expect(orderModel.find().sort).toHaveBeenCalledWith({ createdAt: -1 });
     });
 
     it("should send response with all orders returned from the database find query", async () => {
