@@ -71,6 +71,8 @@ export const registerController = async (req, res) => {
         message: "Already registered! Please login.",
       });
     }
+    const formattedDOB = new Date(DOB);
+
     //register user
     const hashedPassword = await hashPassword(password);
     //save
@@ -80,6 +82,7 @@ export const registerController = async (req, res) => {
       phone,
       address,
       password: hashedPassword,
+      DOB: formattedDOB,
       answer,
     }).save();
 
