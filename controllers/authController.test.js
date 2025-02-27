@@ -124,8 +124,11 @@ describe("Auth Controller", () => {
         expect(userModel.findOne).not.toHaveBeenCalled();
         expect(mockHashPassword).not.toHaveBeenCalled();
         expect(userModel.prototype.save).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: emailErrorMsg });
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+          success: false,
+          message: emailErrorMsg,
+        });
       });
 
       it("should return an error when the password field is empty", async () => {
@@ -145,9 +148,10 @@ describe("Auth Controller", () => {
         expect(userModel.findOne).not.toHaveBeenCalled();
         expect(mockHashPassword).not.toHaveBeenCalled();
         expect(userModel.prototype.save).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
-          error: passwordErrorMsg,
+          success: false,
+          message: passwordErrorMsg,
         });
       });
 
@@ -167,9 +171,10 @@ describe("Auth Controller", () => {
         expect(userModel.findOne).not.toHaveBeenCalled();
         expect(mockHashPassword).not.toHaveBeenCalled();
         expect(userModel.prototype.save).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
-          error: phoneErrorMsg,
+          success: false,
+          message: phoneErrorMsg,
         });
       });
 
@@ -328,7 +333,7 @@ describe("Auth Controller", () => {
         const errorMsg = "Email is required";
         await forgotPasswordController(req, res);
         expectInvalidInput(errorMsg);
-        expect(mockIsEmailValid).not.toHaveBeenCalled();;
+        expect(mockIsEmailValid).not.toHaveBeenCalled();
       });
 
       it("should return an error when the answer field is empty", async () => {
@@ -362,6 +367,7 @@ describe("Auth Controller", () => {
         expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
+          success: false,
           message: passwordErrorMsg,
         });
       });
