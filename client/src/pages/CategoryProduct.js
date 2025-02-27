@@ -10,12 +10,13 @@ const CategoryProduct = () => {
   const params = useParams();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
-  const [cart, setCart] = useCart([]);
+  const [cart, setCart] = useCart();
   const [category, setCategory] = useState([]);
 
   useEffect(() => {
     if (params?.slug) getProductsByCategory();
   }, [params?.slug]);
+
   const getProductsByCategory = async () => {
     try {
       const { data } = await axios.get(

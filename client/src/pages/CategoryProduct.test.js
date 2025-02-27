@@ -148,7 +148,7 @@ describe("CategoryProduct Component", () => {
     expect(screen.queryByText("Test Product 2")).not.toBeInTheDocument();
   });
 
-  it("Should not call getProductByCategory hook when slug is missing", () => {
+  it("Should not call getProductsByCategory hook when slug is missing", () => {
     useParams.mockReturnValue({});
 
     render(
