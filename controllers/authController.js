@@ -159,14 +159,23 @@ export const forgotPasswordController = async (req, res) => {
     if (!newPassword) {
       return res.status(400).send({ message: "New password is required" });
     }
+
+    const newPasswordValidationResult = isPasswordValid(newPassword);
+    if (newPasswordValidationResult) {
+      return res.status(200).json({
+        message: newPasswordValidationResult,
+      });
+    }
+
     //check
     const user = await userModel.findOne({ email, answer });
     //validation
     if (!user) {
-      return res.status(404).send({
+      res.status(200).send({
         success: false,
         message: "Wrong email or answer",
       });
+      return
     }
     const hashed = await hashPassword(newPassword);
     await userModel.findByIdAndUpdate(user._id, { password: hashed });

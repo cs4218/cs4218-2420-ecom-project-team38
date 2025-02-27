@@ -33,7 +33,7 @@ const {
 describe("Auth Controller", () => {
   describe("Registration Controller", () => {
     let req, res;
-    const mockPassword = "testpassword"
+    const mockPassword = "testpassword";
     const mockHashedPassword = "hashedpassword";
     const mockUser = {
       _id: "1",
@@ -80,7 +80,7 @@ describe("Auth Controller", () => {
         expect(userModel.findOne).toHaveBeenCalledWith({
           email: req.body.email,
         });
-        
+
         expect(mockHashPassword).toHaveBeenCalledWith(req.body.password);
         expect(userModel.prototype.save).toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(201);
@@ -278,6 +278,7 @@ describe("Auth Controller", () => {
       };
 
       mockHashPassword.mockResolvedValue(mockHashedPassword);
+      mockIsPasswordValid.mockReturnValue("");
       userModel.findOne = jest.fn().mockResolvedValue(mockUser);
       userModel.findByIdAndUpdate = jest.fn();
     });
@@ -295,6 +296,7 @@ describe("Auth Controller", () => {
           answer: req.body.answer,
         });
 
+        expect(mockIsPasswordValid).toHaveBeenCalledWith(req.body.newPassword);
         expect(mockHashPassword).toHaveBeenCalledWith(req.body.newPassword);
         expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(mockUser._id, {
           password: mockHashedPassword,
@@ -310,6 +312,7 @@ describe("Auth Controller", () => {
     describe("Field validation", () => {
       const expectInvalidInput = (errorMsg) => {
         expect(userModel.findOne).not.toHaveBeenCalled();
+        expect(mockIsPasswordValid).not.toHaveBeenCalled();
         expect(mockHashPassword).not.toHaveBeenCalled();
         expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(400);
@@ -338,6 +341,24 @@ describe("Auth Controller", () => {
         await forgotPasswordController(req, res);
         expectInvalidInput(errorMsg);
       });
+
+      it("should return an error when the provided password does not meet requirements", async () => {
+        const passwordErrorMsg =
+          "Passsword should be at least 6 characters long";
+
+        mockIsPasswordValid.mockReturnValue(passwordErrorMsg);
+        req.body.newPassword = "test";
+        await forgotPasswordController(req, res);
+
+        expect(mockIsPasswordValid).toHaveBeenCalledWith(req.body.newPassword);
+        expect(userModel.findOne).not.toHaveBeenCalled();
+        expect(mockHashPassword).not.toHaveBeenCalled();
+        expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+          message: passwordErrorMsg,
+        });
+      });
     });
 
     describe("Error handling", () => {
@@ -352,7 +373,7 @@ describe("Auth Controller", () => {
 
         expect(mockHashPassword).not.toHaveBeenCalled();
         expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.status).toHaveBeenCalledWith(200);
         expect(res.send).toHaveBeenCalledWith({
           success: false,
           message: "Wrong email or answer",
@@ -403,7 +424,7 @@ describe("Auth Controller", () => {
     let req, res;
 
     beforeEach(() => {
-      req = {}; 
+      req = {};
       res = {
         send: jest.fn(),
       };
