@@ -1564,7 +1564,7 @@ describe("Product controller", () => {
     ];
 
     afterEach(() => {
-      jest.restoreAllMocks();
+      jest.clearAllMocks();
     });
 
     it("Return a list of products that match the search keyword", async () => {
