@@ -7,6 +7,7 @@ import {
   isPhoneValid,
   isEmailValid,
   emailErrorMsg,
+  isDOBValid,
 } from "./authHelper";
 
 jest.mock("bcrypt");
@@ -203,6 +204,37 @@ describe("Auth Helper", () => {
       const result = isEmailValid(email);
 
       expect(result).toBe(emailErrorMsg);
+    });
+  });
+
+  describe("isDOBValid", () => {
+    it("should return an empty string when a valid email is provided", () => {
+      const DOB = new Date("11/11/2000");
+
+      const result = isDOBValid(DOB);
+
+      expect(result).toBe("");
+    });
+
+    it("should return an error when the provided DOB is not a valid date", () => {
+      const DOBErrorMsg =
+        "Invalid DOB: Please enter a valid date in the correct format";
+
+      const DOB = new Date("test");
+
+      const result = isDOBValid(DOB);
+
+      expect(result).toBe(DOBErrorMsg);
+    });
+
+    it("should return an error message when email is empty", () => {
+      const DOBErrorMsg = "Invalid DOB: Date must be before today's date";
+
+      const DOB = new Date("11/11/2026");
+
+      const result = isDOBValid(DOB);
+
+      expect(result).toBe(DOBErrorMsg);
     });
   });
 });

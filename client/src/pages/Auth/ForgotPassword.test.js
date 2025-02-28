@@ -73,9 +73,7 @@ describe("Forgot Password Component", () => {
     expect(toast.success).toHaveBeenCalledWith(
       "Password Reset Successfully, please login"
     );
-    expect(mockNavigate).toHaveBeenCalledWith('/login');
-
-
+    expect(mockNavigate).toHaveBeenCalledWith("/login");
   });
 
   it("should display error message on incorrect email or answer", async () => {

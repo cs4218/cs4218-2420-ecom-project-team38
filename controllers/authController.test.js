@@ -1,7 +1,7 @@
 import { jest } from "@jest/globals";
 import userModel from "../models/userModel";
 import orderModel from "../models/orderModel";
-import { emailErrorMsg } from "../helpers/authHelper";
+import { emailErrorMsg, isDOBValid } from "../helpers/authHelper";
 jest.mock("../models/userModel");
 
 jest.mock("../models/orderModel");
@@ -13,12 +13,14 @@ const mockHashPassword = jest.fn();
 const mockIsPasswordValid = jest.fn();
 const mockIsPhoneValid = jest.fn();
 const mockIsEmailValid = jest.fn();
+const mockIsDOBValid = jest.fn();
 jest.unstable_mockModule("../helpers/authHelper", () => ({
   hashPassword: mockHashPassword,
   comparePassword: jest.fn(),
   isPasswordValid: mockIsPasswordValid,
   isPhoneValid: mockIsPhoneValid,
   isEmailValid: mockIsEmailValid,
+  isDOBValid: mockIsDOBValid,
 }));
 const {
   registerController,
@@ -69,6 +71,7 @@ describe("Auth Controller", () => {
       mockIsEmailValid.mockReturnValue("");
       mockIsPasswordValid.mockReturnValue("");
       mockIsPhoneValid.mockReturnValue("");
+      mockIsDOBValid.mockReturnValue("");
     });
 
     afterEach(() => {
@@ -194,17 +197,34 @@ describe("Auth Controller", () => {
         expectInvalidInput(errorMsg);
       });
 
-      it("should return an error when the DOB is invalid", async () => {
+      it("should return an error when the provided DOB is not a valid date", async () => {
         const DOBErrorMsg =
           "Invalid DOB: Please enter a valid date in the correct format";
+        mockIsDOBValid.mockReturnValue(DOBErrorMsg);
         req.body.DOB = "test";
         await registerController(req, res);
         expect(userModel.findOne).not.toHaveBeenCalled();
         expect(mockHashPassword).not.toHaveBeenCalled();
         expect(userModel.prototype.save).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.send).toHaveBeenCalledWith({
-          error: DOBErrorMsg,
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+          success: false,
+          message: DOBErrorMsg,
+        });
+      });
+
+      it("should return an error when the provided DOB is not before today's date", async () => {
+        const DOBErrorMsg = "Invalid DOB: Date must be before today's date";
+        mockIsDOBValid.mockReturnValue(DOBErrorMsg);
+        req.body.DOB = "11/11/2030";
+        await registerController(req, res);
+        expect(userModel.findOne).not.toHaveBeenCalled();
+        expect(mockHashPassword).not.toHaveBeenCalled();
+        expect(userModel.prototype.save).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+          success: false,
+          message: DOBErrorMsg,
         });
       });
 
@@ -357,6 +377,26 @@ describe("Auth Controller", () => {
         await forgotPasswordController(req, res);
         expectInvalidInput(errorMsg);
         expect(mockIsEmailValid).not.toHaveBeenCalled();
+      });
+
+      it("should return an error when the email field is invalid", async () => {
+        const emailErrorMsg =
+          "Email should be a valid email address in the format example@example.com";
+
+        mockIsEmailValid.mockReturnValue(emailErrorMsg);
+        req.body.email = "test";
+        await forgotPasswordController(req, res);
+
+        expect(mockIsEmailValid).toHaveBeenCalledWith(req.body.email);
+        expect(mockIsPasswordValid).not.toHaveBeenCalled();
+        expect(userModel.findOne).not.toHaveBeenCalled();
+        expect(mockHashPassword).not.toHaveBeenCalled();
+        expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+          success: false,
+          message: emailErrorMsg,
+        });
       });
 
       it("should return an error when the answer field is empty", async () => {

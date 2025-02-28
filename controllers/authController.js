@@ -7,6 +7,7 @@ import {
   isPasswordValid,
   isPhoneValid,
   isEmailValid,
+  isDOBValid,
 } from "./../helpers/authHelper.js";
 import JWT from "jsonwebtoken";
 
@@ -59,14 +60,16 @@ export const registerController = async (req, res) => {
     if (!DOB) {
       return res.status(400).send({ error: "DOB is required" });
     }
+
     let formattedDOB = new Date(DOB);
-    if (!formattedDOB instanceof Date || isNaN(formattedDOB)) {
-      return res
-        .status(400)
-        .send({
-          error: "Invalid DOB: Please enter a valid date in the correct format",
-        });
+    const DOBValidationResult = isDOBValid(formattedDOB);
+    if (DOBValidationResult) {
+      return res.status(200).json({
+        success: false,
+        message: DOBValidationResult,
+      });
     }
+
     if (!answer) {
       return res.status(400).send({ error: "Answer is required" });
     }
