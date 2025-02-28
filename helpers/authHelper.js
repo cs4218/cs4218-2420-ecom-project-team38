@@ -22,7 +22,8 @@ export const isPhoneValid = (phone) => {
     : "Phone should be 8 digits long and begin with 6, 8 or 9";
 };
 
-export const emailErrorMsg = "Email should be a valid email address in the format example@example.com";
+export const emailErrorMsg =
+  "Email should be a valid email address in the format example@example.com";
 
 // Referenced from https://stackoverflow.com/questions/46155/how-can-i-validate-an-email-address-in-javascript
 const validateEmail = (email) => {
@@ -34,7 +35,16 @@ const validateEmail = (email) => {
 };
 
 export const isEmailValid = (email) => {
-  return validateEmail(email)
-    ? ""
-    : emailErrorMsg
+  return validateEmail(email) ? "" : emailErrorMsg;
+};
+
+export const isDOBValid = (formattedDOB) => {
+  if (!formattedDOB instanceof Date || isNaN(formattedDOB)) {
+    return "Invalid DOB: Please enter a valid date in the correct format";
+  }
+  const today = new Date();
+  if (formattedDOB >= today) {
+    return "Invalid DOB: Date must be before today's date";
+  }
+  return "";
 };

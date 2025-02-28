@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    DOB: {
+      type: Date,
+      required: true,
+    },
     role: {
       type: Number,
       default: 0,
