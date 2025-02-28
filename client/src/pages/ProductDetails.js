@@ -20,7 +20,15 @@ const ProductDetails = () => {
   //getProduct
   const getProduct = async () => {
     try {
-      const { data } = await axios.get(`/api/v1/product/get-product/${params.slug}`);
+      const { data } = await axios.get(
+        `/api/v1/product/get-product/${params.slug}`
+      );
+
+      if (data?.product === null) {
+        navigate("/404");
+        return;
+      }
+
       setProduct(data?.product);
       getSimilarProduct(data?.product._id, data?.product.category._id);
     } catch (error) {

@@ -6,6 +6,7 @@ import {
   hashPassword,
   isPasswordValid,
   isPhoneValid,
+  isEmailValid
 } from "./../helpers/authHelper.js";
 import JWT from "jsonwebtoken";
 
@@ -14,38 +15,46 @@ export const registerController = async (req, res) => {
     const { name, email, password, phone, address, answer } = req.body;
     //validations
     if (!name) {
-      return res.send({ error: "Name is required" });
+      return res.status(400).send({ error: "Name is required" });
     }
     if (!email) {
-      return res.send({ message: "Email is required" });
+      return res.status(400).send({ error: "Email is required" });
     }
+
+    const emailValidationResult = isEmailValid(email);
+    if (emailValidationResult) {
+      return res.status(400).json({
+        error: emailValidationResult,
+      });
+    }
+
     if (!password) {
-      return res.send({ message: "Password is required" });
+      return res.status(400).send({ error: "Password is required" });
     }
 
     const passwordValidationResult = isPasswordValid(password);
     if (passwordValidationResult) {
-      return res.json({
+      return res.status(400).json({
         error: passwordValidationResult,
       });
     }
 
     if (!phone) {
-      return res.send({ message: "Phone number is required" });
+      return res.status(400).send({ error: "Phone number is required" });
     }
 
     const phoneValidationResult = isPhoneValid(phone);
     if (phoneValidationResult) {
-      return res.json({
+      return res.status(400).json({
         error: phoneValidationResult,
       });
     }
 
     if (!address) {
-      return res.send({ message: "Address is required" });
+      return res.status(400).send({ error: "Address is required" });
     }
     if (!answer) {
-      return res.send({ message: "Answer is required" });
+      return res.status(400).send({ error: "Answer is required" });
     }
     //check user
     const exisitingUser = await userModel.findOne({ email });
@@ -189,8 +198,6 @@ export const testController = (req, res) => {
 export const updateProfileController = async (req, res) => {
   try {
     let { name, email, password, address, phone } = req.body;
-    const user = await userModel.findById(req.user._id);
-
     name = name?.trim();
     password = password?.trim();
     address = address?.trim();
@@ -221,12 +228,25 @@ export const updateProfileController = async (req, res) => {
       });
     }
 
-    const hashedPassword = password ? await hashPassword(password) : undefined;
+    let newHashedPassword, currentHashedPassword;
+    if (password) {
+      newHashedPassword = await hashPassword(password);
+    } else {
+      const user = await userModel.findById(req.user._id);
+      if (!user) {
+        return res.status(404).send({
+          success: false,
+          message: "User not found",
+        });
+      }
+      currentHashedPassword = user.password;
+    }
+
     const updatedUser = await userModel.findByIdAndUpdate(
       req.user._id,
       {
         name: name,
-        password: hashedPassword || user.password,
+        password: newHashedPassword || currentHashedPassword,
         phone: phone,
         address: address,
       },
@@ -289,12 +309,20 @@ export const orderStatusController = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { status } = req.body;
-    const orders = await orderModel.findByIdAndUpdate(
+    const order = await orderModel.findByIdAndUpdate(
       orderId,
       { status },
       { new: true }
     );
-    res.json(orders);
+
+    if (!order) {
+      return res.status(404).send({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    res.json(order);
   } catch (error) {
     console.log(error);
     res.status(500).send({
