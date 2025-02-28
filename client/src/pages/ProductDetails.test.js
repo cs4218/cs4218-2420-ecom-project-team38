@@ -27,10 +27,6 @@ jest.mock("../context/cart", () => ({
 
 jest.mock("../components/Form/SearchInput", () => () => <div>Mocked SearchInput</div>);
 
-jest.mock("react-hot-toast", () => ({
-  success: jest.fn(),
-}));
-
 Object.defineProperty(window, "localStorage", {
   value: {
     setItem: jest.fn(),
