@@ -65,7 +65,7 @@ describe("CategoryProduct Component", () => {
               {
                 _id: "12346",
                 name: "Test Product 2",
-                description: "This is another test product",
+                description: "This is another test product with an insanely long description",
                 price: 20.0,
                 category: { _id: "10", name: "Test Category" },
                 slug: "test-product-2",
@@ -93,12 +93,16 @@ describe("CategoryProduct Component", () => {
     });
 
     await waitFor(() => {
-      const firstTruncatedDescription = "This is a test product".substring(0, 60) + "...";
-      expect(screen.getByText(firstTruncatedDescription)).toBeInTheDocument();
+      expect(screen.getByText("This is a test product")).toBeInTheDocument();
     });
 
     await waitFor(() => {
       expect(screen.getByText("Test Product 2")).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      const truncatedDescription = "This is another test product with an insanely long description".substring(0, 60) + "...";
+      expect(screen.getByText(truncatedDescription)).toBeInTheDocument();
     });
 
     await waitFor(() => {
