@@ -5,6 +5,7 @@ import { screen, render } from "@testing-library/react";
 import Header from "./Header";
 import { MemoryRouter } from "react-router-dom";
 import { useAuth } from "../context/auth";
+import toast from "react-hot-toast";
 
 jest.mock("react-hot-toast");
 
@@ -199,6 +200,7 @@ describe("Header Component", () => {
       await user.click(screen.getByText("Logout"));
       expect(localStorage.removeItem).toHaveBeenCalledWith("auth");
       expect(mockSetAuth).toHaveBeenCalledWith({ user: null, token: "" });
+      expect(toast.success).toHaveBeenCalledWith("Logout successfully!");
     });
 
     describe("When user is an admin", () => {
