@@ -25,7 +25,7 @@ describe("Spinner component", () => {
       </MemoryRouter>
     );
     expect(
-      screen.getByText(/redirecting to you in 3 second/i)
+      screen.getByText("Redirecting to you in 3 seconds")
     ).toBeInTheDocument();
     expect(screen.getByRole("status")).toBeInTheDocument();
   });
@@ -55,6 +55,9 @@ describe("Spinner component", () => {
       </MemoryRouter>
     );
     act(() => jest.advanceTimersByTime(2000));
+    expect(
+      screen.getByText("Redirecting to you in 1 second")
+    ).toBeInTheDocument();
     expect(mockUseNavigate).not.toHaveBeenCalled();
   });
 });
