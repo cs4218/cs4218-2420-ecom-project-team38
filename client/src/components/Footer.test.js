@@ -5,6 +5,15 @@ import Footer from "./Footer";
 import { MemoryRouter } from "react-router-dom";
 
 describe("Footer component", () => {
+  it("Should render footer heading text", () => {
+    render(
+      <MemoryRouter>
+        <Footer />
+      </MemoryRouter>
+    );
+    expect(screen.getByText(/all rights reserved/i)).toBeInTheDocument();
+  });
+
   it("Should render about link", () => {
     render(
       <MemoryRouter>
