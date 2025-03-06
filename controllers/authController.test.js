@@ -375,7 +375,7 @@ describe("Auth Controller", () => {
 
         expect(userModel.findOne).not.toHaveBeenCalled();
         expect(mockComparePassword).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.status).toHaveBeenCalledWith(400);
         expect(res.send).toHaveBeenCalledWith({
           success: false,
           message: "Invalid email or password",
@@ -387,7 +387,7 @@ describe("Auth Controller", () => {
 
         expect(userModel.findOne).not.toHaveBeenCalled();
         expect(mockComparePassword).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.status).toHaveBeenCalledWith(400);
         expect(res.send).toHaveBeenCalledWith({
           success: false,
           message: "Invalid email or password",
