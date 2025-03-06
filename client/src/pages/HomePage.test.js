@@ -110,7 +110,7 @@ const mockProductsPageTwo = [
   },
 ];
 
-const mockPriceOption = "$0 to 19";
+const mockPriceOption = "$0 to $19.99";
 
 const CATEGORY_URL = "/api/v1/category/get-category";
 const PRODUCT_URL = "/api/v1/product/product-list/1";
@@ -185,6 +185,30 @@ describe("Home Page", () => {
     it("should render all the products in the home page", async () => {
       renderHomePage();
       await validateProductsRendered();
+    });
+
+    it("should render products with long description correctly", async () => {
+      const expectedDescription =
+        "This is a very very very very long description Test Descript...";
+      const mockProduct = {
+        _id: "1",
+        name: "Test Product 1",
+        slug: "Test-Product-1",
+        description:
+          "This is a very very very very long description Test Description 3",
+        price: 1.99,
+      };
+      axios.get.mockResolvedValue({
+        data: { success: true, products: [mockProduct] },
+      });
+      renderHomePage();
+      await waitFor(() => {
+        expect(axios.get).toHaveBeenCalledWith(PRODUCT_URL);
+        const productList = screen.getByTestId("product-list");
+        expect(
+          within(productList).getByText(expectedDescription)
+        ).toBeInTheDocument();
+      });
     });
 
     it("should navigate to the product details page when it is clicked", async () => {
@@ -338,7 +362,7 @@ describe("Home Page", () => {
       await waitFor(() => {
         expect(axios.post).toHaveBeenCalledWith(FILTER_URL, {
           checked: [],
-          radio: [0, 19],
+          radio: [0, 19.99],
         });
       });
 
@@ -398,7 +422,7 @@ describe("Home Page", () => {
       await waitFor(() => {
         expect(axios.post).toHaveBeenCalledWith(FILTER_URL, {
           checked: [mockCategories[0]._id],
-          radio: [0, 19],
+          radio: [0, 19.99],
         });
       });
 
