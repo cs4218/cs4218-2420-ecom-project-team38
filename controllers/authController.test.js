@@ -1,10 +1,16 @@
 import { jest } from "@jest/globals";
 import userModel from "../models/userModel";
 import orderModel from "../models/orderModel";
-import { emailErrorMsg, isDOBValid } from "../helpers/authHelper";
+import { emailErrorMsg } from "../helpers/authHelper";
+
 jest.mock("../models/userModel");
 
 jest.mock("../models/orderModel");
+
+process.env.JWT_SECRET = "test-secret";
+jest.mock("jsonwebtoken", () => ({
+  sign: jest.fn(() => Promise.resolve("test-token")),
+}));
 
 jest.spyOn(console, "log").mockImplementation(() => {});
 
@@ -14,6 +20,7 @@ const mockIsPasswordValid = jest.fn();
 const mockIsPhoneValid = jest.fn();
 const mockIsEmailValid = jest.fn();
 const mockIsDOBValid = jest.fn();
+const mockComparePassword = jest.fn();
 jest.unstable_mockModule("../helpers/authHelper", () => ({
   hashPassword: mockHashPassword,
   comparePassword: jest.fn(),
@@ -21,9 +28,11 @@ jest.unstable_mockModule("../helpers/authHelper", () => ({
   isPhoneValid: mockIsPhoneValid,
   isEmailValid: mockIsEmailValid,
   isDOBValid: mockIsDOBValid,
+  comparePassword: mockComparePassword,
 }));
 const {
   registerController,
+  loginController,
   forgotPasswordController,
   testController,
   updateProfileController,
@@ -296,6 +305,142 @@ describe("Auth Controller", () => {
             error: expect.objectContaining({ message: mockErrorMsg }),
           })
         );
+      });
+    });
+  });
+
+  describe("Login Controller", () => {
+    let req, res;
+    const mockUser = {
+      _id: "1",
+      name: "Test User",
+      email: "test@test.com",
+      password: "testpassword",
+      phone: "98765432",
+      address: "123 Test Address",
+      DOB: "11/11/2000",
+      answer: "Test Answer",
+      role: "0",
+    };
+    beforeEach(() => {
+      req = {
+        body: {
+          email: mockUser.email,
+          password: mockUser.password,
+        },
+      };
+      res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+        json: jest.fn(),
+      };
+      userModel.findOne = jest.fn().mockResolvedValue(mockUser);
+      mockComparePassword.mockReturnValue(true);
+    });
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+    describe("Success", () => {
+      it("should authenticate a user successfully", async () => {
+        await loginController(req, res);
+
+        expect(userModel.findOne).toHaveBeenCalledWith({
+          email: req.body.email,
+        });
+
+        expect(mockComparePassword).toHaveBeenCalledWith(
+          req.body.password,
+          mockUser.password
+        );
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.send).toHaveBeenCalledWith({
+          success: true,
+          message: "Login successfully!",
+          user: {
+            _id: mockUser._id,
+            name: mockUser.name,
+            email: mockUser.email,
+            phone: mockUser.phone,
+            address: mockUser.address,
+            role: mockUser.role,
+          },
+          token: "test-token",
+        });
+      });
+    });
+    describe("Field validation", () => {
+      it("should return an error when the password field is empty", async () => {
+        req.body.password = "";
+        await loginController(req, res);
+
+        expect(userModel.findOne).not.toHaveBeenCalled();
+        expect(mockComparePassword).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith({
+          success: false,
+          message: "Invalid email or password",
+        });
+      });
+      it("should return an error when the email field is empty", async () => {
+        req.body.email = "";
+        await loginController(req, res);
+
+        expect(userModel.findOne).not.toHaveBeenCalled();
+        expect(mockComparePassword).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith({
+          success: false,
+          message: "Invalid email or password",
+        });
+      });
+      it("should return an error when the email does not exist", async () => {
+        req.body.email = "test@test.com";
+        userModel.findOne = jest.fn().mockResolvedValue("");
+        await loginController(req, res);
+
+        expect(userModel.findOne).toHaveBeenCalledWith({
+          email: req.body.email,
+        });
+        expect(mockComparePassword).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.send).toHaveBeenCalledWith({
+          success: false,
+          message: "Invalid email or password",
+        });
+      });
+      it("should return an error when the password is invalid", async () => {
+        req.body.password = "invalidpassword";
+        mockComparePassword.mockReturnValue(false);
+        await loginController(req, res);
+
+        expect(userModel.findOne).toHaveBeenCalledWith({
+          email: req.body.email,
+        });
+        expect(mockComparePassword).toHaveBeenCalledWith(
+          req.body.password,
+          mockUser.password
+        );
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.send).toHaveBeenCalledWith({
+          success: false,
+          message: "Invalid email or password",
+        });
+      });
+      it("should throw an error when the JWT signing function is invalid", async () => {
+        const mockError = new Error("Test Error");
+        userModel.findOne.mockRejectedValueOnce(mockError);
+        await loginController(req, res);
+
+        expect(userModel.findOne).toHaveBeenCalledWith({
+          email: req.body.email,
+        });
+        expect(mockComparePassword).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith({
+          success: false,
+          message: "Error in login",
+          error: mockError,
+        });
       });
     });
   });
