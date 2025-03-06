@@ -102,6 +102,7 @@ const HomePage = () => {
         radio,
       });
       setProducts(data?.products);
+      setTotal(data?.total);
     } catch (error) {
       console.log(error);
     }
@@ -170,7 +171,9 @@ const HomePage = () => {
                     </h5>
                   </div>
                   <p className="card-text ">
-                    {p.description.substring(0, 60)}...
+                    {p.description.length > 60
+                      ? `${p.description.substring(0, 60)}...`
+                      : p.description}
                   </p>
                   <div className="card-name-price">
                     <button
