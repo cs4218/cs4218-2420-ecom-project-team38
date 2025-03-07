@@ -52,15 +52,15 @@ describe("Dashboard Page", () => {
   it("should display the authenticated user's name, email and address", () => {
     renderDashboardPage();
 
-    expect(screen.getByTestId("dashboard-name")).toHaveTextContent(
-      mockUser.name
-    );
-    expect(screen.getByTestId("dashboard-email")).toHaveTextContent(
-      mockUser.email
-    );
-    expect(screen.getByTestId("dashboard-address")).toHaveTextContent(
-      mockUser.address
-    );
+    expect(
+      screen.getByText(`User Name : ${mockUser.name}`)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(`User Email : ${mockUser.email}`)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(`User Address : ${mockUser.address}`)
+    ).toBeInTheDocument();
   });
 
   it("should not display any name, email or address when the user is unauthenticated", () => {
@@ -68,8 +68,8 @@ describe("Dashboard Page", () => {
 
     renderDashboardPage();
 
-    expect(screen.getByTestId("dashboard-name")).toHaveTextContent("");
-    expect(screen.getByTestId("dashboard-email")).toHaveTextContent("");
-    expect(screen.getByTestId("dashboard-address")).toHaveTextContent("");
+    expect(screen.getByText("User Name :")).toBeInTheDocument();
+    expect(screen.getByText("User Email :")).toBeInTheDocument();
+    expect(screen.getByText("User Address :")).toBeInTheDocument();
   });
 });
