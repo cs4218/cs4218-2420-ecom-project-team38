@@ -1,5 +1,5 @@
 import React from "react";
-import { render, fireEvent, waitFor } from "@testing-library/react";
+import { screen, render, fireEvent, waitFor } from "@testing-library/react";
 import axios from "axios";
 import { MemoryRouter } from "react-router-dom";
 import "@testing-library/jest-dom";
@@ -40,26 +40,22 @@ const renderForgotPasswordPage = () => {
     </MemoryRouter>
   );
 };
-
-const fillAndSubmitForgotPasswordForm = (
-  getByPlaceholderText,
-  getByText,
-  {
-    email = "test@example.com",
-    newPassword = "password123",
-    answer = "Football",
-  } = {}
-) => {
-  fireEvent.change(getByPlaceholderText("Enter Your Email"), {
+const fillAndSubmitForgotPasswordForm = (email = "test@example.com") => {
+  const newPassword = "password123";
+  const answer = "Football";
+  fireEvent.change(screen.getByPlaceholderText("Enter Your Email"), {
     target: { value: email },
   });
-  fireEvent.change(getByPlaceholderText("What is Your Favorite sports"), {
-    target: { value: answer },
-  });
-  fireEvent.change(getByPlaceholderText("Enter Your New Password"), {
+  fireEvent.change(
+    screen.getByPlaceholderText("What is Your Favorite sports"),
+    {
+      target: { value: answer },
+    }
+  );
+  fireEvent.change(screen.getByPlaceholderText("Enter Your New Password"), {
     target: { value: newPassword },
   });
-  fireEvent.click(getByText("RESET PASSWORD"));
+  fireEvent.click(screen.getByText("RESET PASSWORD"));
 };
 
 describe("Forgot Password Component", () => {
@@ -70,8 +66,8 @@ describe("Forgot Password Component", () => {
   it("should reset password successfully", async () => {
     axios.post.mockResolvedValueOnce({ data: { success: true } });
 
-    const { getByText, getByPlaceholderText } = renderForgotPasswordPage();
-    fillAndSubmitForgotPasswordForm(getByPlaceholderText, getByText, {});
+    renderForgotPasswordPage();
+    fillAndSubmitForgotPasswordForm();
 
     await waitFor(() => expect(axios.post).toHaveBeenCalled());
     expect(toast.success).toHaveBeenCalledWith(
@@ -89,27 +85,23 @@ describe("Forgot Password Component", () => {
       },
     });
 
-    const { getByText, getByPlaceholderText } = renderForgotPasswordPage();
-    fillAndSubmitForgotPasswordForm(getByPlaceholderText, getByText, {});
+    renderForgotPasswordPage();
+    fillAndSubmitForgotPasswordForm();
 
     await waitFor(() => expect(axios.post).toHaveBeenCalled());
     expect(toast.error).toHaveBeenCalledWith(errorMessage);
   });
 
   it("should not allow form submission on empty field", async () => {
-    const { getByText, getByPlaceholderText } = renderForgotPasswordPage();
-    fillAndSubmitForgotPasswordForm(getByPlaceholderText, getByText, {
-      email: "",
-    });
+    renderForgotPasswordPage();
+    fillAndSubmitForgotPasswordForm("");
 
     await waitFor(() => expect(axios.post).not.toHaveBeenCalled());
   });
 
   it("should not allow form submission on invalid field", async () => {
-    const { getByText, getByPlaceholderText } = renderForgotPasswordPage();
-    fillAndSubmitForgotPasswordForm(getByPlaceholderText, getByText, {
-      email: "test.com",
-    });
+    renderForgotPasswordPage();
+    fillAndSubmitForgotPasswordForm("test.com");
 
     await waitFor(() => expect(axios.post).not.toHaveBeenCalled());
   });
@@ -123,8 +115,8 @@ describe("Forgot Password Component", () => {
       },
     });
 
-    const { getByText, getByPlaceholderText } = renderForgotPasswordPage();
-    fillAndSubmitForgotPasswordForm(getByPlaceholderText, getByText, {});
+    renderForgotPasswordPage();
+    fillAndSubmitForgotPasswordForm();
 
     await waitFor(() => expect(axios.post).toHaveBeenCalled());
     expect(toast.error).toHaveBeenCalledWith(errorMessage);
