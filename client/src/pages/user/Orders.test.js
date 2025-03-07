@@ -46,15 +46,10 @@ describe("Orders Page", () => {
     jest.clearAllMocks();
   });
 
-  it("should render the user menu", () => {
+  it("should display the user menu and orders page header", () => {
     renderOrdersPage();
 
     expect(screen.getByText("Mock User Menu")).toBeInTheDocument();
-  });
-
-  it("should display the orders page header", () => {
-    renderOrdersPage();
-
     expect(screen.getByText("All Orders")).toBeInTheDocument();
   });
 

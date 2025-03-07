@@ -52,15 +52,10 @@ describe("Admin Orders Page", () => {
     jest.clearAllMocks();
   });
 
-  it("should render the admin menu", () => {
+  it("should display the admin menu and the orders page header", () => {
     renderAdminOrdersPage();
 
     expect(screen.getByText("Mock Admin Menu")).toBeInTheDocument();
-  });
-
-  it("should display the orders page header", () => {
-    renderAdminOrdersPage();
-
     expect(screen.getByText("All Orders")).toBeInTheDocument();
   });
 
