@@ -23,6 +23,10 @@ jest.mock("../../context/search", () => ({
   useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]),
 }));
 
+jest.mock("../../hooks/useCategory", () => jest.fn(() => []));
+
+jest.spyOn(console, "log").mockImplementation(() => {});
+
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
   useParams: jest.fn(),

@@ -23,11 +23,15 @@ jest.mock("../../context/search", () => ({
   useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]),
 }));
 
+jest.mock("../../hooks/useCategory", () => jest.fn(() => []));
+
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
   useParams: jest.fn(),
   useNavigate: () => mockNavigate,
 }));
+
+jest.spyOn(console, "log").mockImplementation(() => {});
 
 Object.defineProperty(window, "localStorage", {
   value: {
@@ -124,7 +128,6 @@ describe("Login Component", () => {
       },
     });
     // expect(mockNavigate).toHaveBeenCalledWith(location.state || '/');
-
   });
 
   it("should display error message on failed login", async () => {

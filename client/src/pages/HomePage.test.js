@@ -33,6 +33,8 @@ jest.mock("../context/search", () => ({
   useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]),
 }));
 
+jest.mock("../hooks/useCategory", () => jest.fn(() => []));
+
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
   useParams: jest.fn(),
@@ -119,10 +121,11 @@ const COUNT_URL = "/api/v1/product/product-count";
 const FILTER_URL = "/api/v1/product/product-filters";
 
 describe("Home Page", () => {
+  let consoleSpy;
   const axiosError = new AxiosError("Axios error");
-  const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
 
   beforeEach(() => {
+    consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
     jest.clearAllMocks();
   });
 
