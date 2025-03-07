@@ -17,6 +17,8 @@ jest.mock("../../components/Layout", () => ({ children }) => (
   <div>{children}</div>
 ));
 
+jest.mock("../../components/AdminMenu", () => () => <div>Admin Menu</div>);
+
 const TestComponent = () => {
   const location = useLocation();
   return <div>{location.pathname}</div>;
@@ -42,6 +44,16 @@ describe("Products page", () => {
       },
     ];
     axios.get.mockResolvedValue({ data: { products: mockProducts } });
+  });
+
+  it("Should render admin menu", () => {
+    render(
+      <MemoryRouter>
+        <Products />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("Admin Menu")).toBeInTheDocument();
   });
 
   it("Should render all products", async () => {
