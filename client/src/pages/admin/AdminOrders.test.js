@@ -22,15 +22,13 @@ jest.mock("../../context/auth", () => ({
   useAuth: jest.fn(() => [null, jest.fn()]),
 }));
 
-jest.mock("../../context/cart", () => ({
-  useCart: jest.fn(() => [null, jest.fn()]),
-}));
+jest.mock("../../components/Layout", () => ({ children }) => (
+  <div>{children}</div>
+));
 
-jest.mock("../../context/search", () => ({
-  useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]),
-}));
-
-jest.mock("../../hooks/useCategory", () => jest.fn(() => []));
+jest.mock("../../components/AdminMenu", () =>
+  jest.fn(() => <div>Mock Admin Menu</div>)
+);
 
 const mockFromNow = jest.fn();
 jest.mock("moment", () => {
@@ -52,6 +50,12 @@ describe("Admin Orders Page", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  it("should render the admin menu", () => {
+    renderAdminOrdersPage();
+
+    expect(screen.getByText("Mock Admin Menu")).toBeInTheDocument();
   });
 
   it("should display the orders page header", () => {
