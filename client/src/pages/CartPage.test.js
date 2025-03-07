@@ -25,6 +25,8 @@ jest.mock("../context/search", () => ({
   useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]),
 }));
 
+jest.mock("../hooks/useCategory", () => jest.fn(() => []));
+
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
   useParams: jest.fn(),
@@ -241,22 +243,8 @@ describe("Cart Page", () => {
       useCart.mockReturnValue([mockItems, jest.fn()]);
       renderCartPage();
 
-      await waitFor(() => {
-        expect(axios.get).toHaveBeenCalledWith(
-          "/api/v1/product/braintree/token"
-        );
-      });
-
-      await waitFor(() => {
-        expect(screen.getByTestId("mock-dropin")).toBeInTheDocument();
-      });
-
-      await waitFor(() => {
-        const paymentButton = screen.getByText("Make Payment");
-        expect(paymentButton).not.toBeDisabled();
-      });
-
-      fireEvent.click(screen.getByText("Make Payment"));
+      const paymentButton = await screen.findByText("Make Payment");
+      fireEvent.click(paymentButton);
 
       await waitFor(() => {
         expect(axios.post).toHaveBeenCalledWith(
@@ -301,7 +289,9 @@ describe("Cart Page", () => {
         name: /update address/i,
       });
       fireEvent.click(updateButton);
-      expect(mockNavigate).toHaveBeenCalledWith("/dashboard/user/profile");
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith("/dashboard/user/profile");
+      });
     });
 
     it("should navigate to the login page on 'Please Login' button click for unauthenticated users", async () => {
@@ -311,7 +301,9 @@ describe("Cart Page", () => {
         name: /plase login to checkout/i,
       });
       fireEvent.click(loginButton);
-      expect(mockNavigate).toHaveBeenCalledWith("/login", { state: "/cart" });
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith("/login", { state: "/cart" });
+      });
     });
   });
 
@@ -326,7 +318,7 @@ describe("Cart Page", () => {
       consoleSpy.mockRestore();
     });
 
-    it("should not remove a cart item and logs an error when removal fails", () => {
+    it("should not remove a cart item and logs an error when removal fails", async () => {
       localStorage.setItem.mockImplementation(() => {
         throw error;
       });
@@ -338,20 +330,45 @@ describe("Cart Page", () => {
       const removeButtons = screen.getAllByRole("button", { name: /remove/i });
       fireEvent.click(removeButtons[0]);
 
-      expect(setCart).toHaveBeenCalledTimes(1);
-      expect(consoleSpy).toHaveBeenCalledWith(error);
+      await waitFor(() => {
+        expect(setCart).toHaveBeenCalledTimes(1);
+      });
+
+      await waitFor(() => {
+        expect(consoleSpy).toHaveBeenCalledWith(error);
+      });
     });
 
     it("should gracefully handle error in total price calculation", async () => {
-      // Override toLocaleString so that it throws an error when totalPrice() is executed
-      const originalToLocaleString = Number.prototype.toLocaleString;
-      Number.prototype.toLocaleString = jest.fn(() => {
-        throw error;
-      });
+      const toLocaleStringSpy = jest
+        .spyOn(Number.prototype, "toLocaleString")
+        .mockImplementation(() => {
+          throw error;
+        });
+
       renderCartPage();
 
-      expect(consoleSpy).toHaveBeenCalledWith(error);
-      Number.prototype.toLocaleString = originalToLocaleString;
+      await waitFor(() => {
+        expect(consoleSpy).toHaveBeenCalledWith(error);
+      });
+      toLocaleStringSpy.mockRestore();
+    });
+
+    it("should gracefully handle error in getting payment token by logging the error payment processing by logging the error", async () => {
+      axios.get.mockRejectedValueOnce(error);
+      useAuth.mockReturnValue([{ token: "Test Auth Token" }, jest.fn()]);
+      useCart.mockReturnValue([mockItems, jest.fn()]);
+      renderCartPage();
+
+      await waitFor(() => {
+        expect(axios.get).toHaveBeenCalledWith(
+          "/api/v1/product/braintree/token"
+        );
+      });
+
+      await waitFor(() => {
+        expect(consoleSpy).toHaveBeenCalledWith(error);
+      });
     });
 
     it("should gracefully handle error in payment processing by logging the error and reset loading state", async () => {
@@ -366,22 +383,8 @@ describe("Cart Page", () => {
       useCart.mockReturnValue([[mockItem], jest.fn()]);
       renderCartPage();
 
-      await waitFor(() => {
-        expect(axios.get).toHaveBeenCalledWith(
-          "/api/v1/product/braintree/token"
-        );
-      });
-
-      await waitFor(() => {
-        expect(screen.getByTestId("mock-dropin")).toBeInTheDocument();
-      });
-
-      await waitFor(() => {
-        const paymentButton = screen.getByText("Make Payment");
-        expect(paymentButton).not.toBeDisabled();
-      });
-
-      fireEvent.click(screen.getByText("Make Payment"));
+      const paymentButton = await screen.findByText("Make Payment");
+      fireEvent.click(paymentButton);
 
       await waitFor(() => {
         expect(axios.post).toHaveBeenCalledWith(

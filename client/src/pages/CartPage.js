@@ -48,8 +48,10 @@ const CartPage = () => {
   //get payment gateway token
   const getToken = async () => {
     try {
-      const { data } = await axios.get("/api/v1/product/braintree/token");
-      setClientToken(data?.clientToken);
+      const response = await axios.get("/api/v1/product/braintree/token");
+      if (response && response.data) {
+        setClientToken(response.data.clientToken);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -78,7 +80,7 @@ const CartPage = () => {
       setLoading(false);
     }
   };
-  
+
   return (
     <Layout>
       <div className=" cart-page">
