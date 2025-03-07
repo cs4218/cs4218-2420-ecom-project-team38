@@ -9,15 +9,9 @@ jest.mock("../../context/auth", () => ({
   useAuth: jest.fn(),
 }));
 
-jest.mock("../../context/cart", () => ({
-  useCart: jest.fn(() => [null, jest.fn()]),
-}));
-
-jest.mock("../../context/search", () => ({
-  useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]),
-}));
-
-jest.mock("../../hooks/useCategory", () => jest.fn(() => []));
+jest.mock("../../components/Layout", () => ({ children }) => (
+  <div>{children}</div>
+));
 
 jest.mock("../../components/UserMenu", () =>
   jest.fn(() => <div>Mock User Menu</div>)
@@ -43,7 +37,10 @@ describe("Dashboard Page", () => {
       address: "123 Test Address",
     };
 
-    useAuth.mockReturnValue([{ user: mockUser, token: "" }, jest.fn()]);
+    useAuth.mockReturnValue([
+      { user: mockUser, token: "testtoken" },
+      jest.fn(),
+    ]);
   });
 
   it("should render the user menu", () => {
@@ -67,7 +64,7 @@ describe("Dashboard Page", () => {
   });
 
   it("should not display any name, email or address when the user is unauthenticated", () => {
-    useAuth.mockReturnValue([{ user: null, token: "" }, jest.fn()]);
+    useAuth.mockReturnValue([null, jest.fn()]);
 
     renderDashboardPage();
 

@@ -15,15 +15,9 @@ jest.mock("../../context/auth", () => ({
   useAuth: jest.fn(),
 }));
 
-jest.mock("../../context/cart", () => ({
-  useCart: jest.fn(() => [null, jest.fn()]),
-}));
-
-jest.mock("../../context/search", () => ({
-  useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]),
-}));
-
-jest.mock("../../hooks/useCategory", () => jest.fn(() => []));
+jest.mock("../../components/Layout", () => ({ children }) => (
+  <div>{children}</div>
+));
 
 jest.mock("../../components/UserMenu", () =>
   jest.fn(() => <div>Mock User Menu</div>)
