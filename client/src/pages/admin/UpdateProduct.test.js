@@ -67,6 +67,8 @@ jest.mock("../../components/Layout", () => ({ children }) => (
   <div>{children}</div>
 ));
 
+jest.mock("../../components/AdminMenu", () => () => <div>Admin Menu</div>);
+
 jest.spyOn(console, "log").mockImplementation(() => {});
 
 const deletePopup = jest.spyOn(window, "confirm");
@@ -113,6 +115,24 @@ describe("UpdateProduct page", () => {
           return Promise.resolve({});
       }
     });
+  });
+
+  it("Should render admin menu", async () => {
+    render(
+      <MemoryRouter>
+        <UpdateProduct />
+      </MemoryRouter>
+    );
+
+    await waitFor(() =>
+      expect(axios.get).toHaveBeenCalledWith(
+        "/api/v1/product/get-product/phone"
+      )
+    );
+    await waitFor(() =>
+      expect(axios.get).toHaveBeenCalledWith("/api/v1/category/get-category")
+    );
+    expect(screen.getByText("Admin Menu")).toBeInTheDocument();
   });
 
   describe("Get all categories", () => {
