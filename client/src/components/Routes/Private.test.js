@@ -35,7 +35,7 @@ describe("PrivateRoute", () => {
     useAuth.mockReturnValue([[], jest.fn()]);
   });
 
-  test("renders Outlet when authentication is successful", async () => {
+  it("should render Outlet when authentication is successful", async () => {
     useAuth.mockReturnValue([{ token: "valid-token" }, jest.fn()]);
     axios.get.mockResolvedValueOnce({ data: { ok: true } });
 
@@ -46,7 +46,7 @@ describe("PrivateRoute", () => {
     });
   });
 
-  test("renders Spinner when authentication fails", async () => {
+  it("should render Spinner when authentication fails", async () => {
     useAuth.mockReturnValue([{ token: "valid-token" }, jest.fn()]);
     axios.get.mockResolvedValueOnce({ data: { ok: false } });
 
@@ -57,9 +57,18 @@ describe("PrivateRoute", () => {
     });
   });
 
-  test("renders Spinner immediately when no auth token is provided", () => {
+  it("should render Spinner immediately when no auth token is provided", () => {
     useAuth.mockReturnValue([{ token: null }, jest.fn()]);
     renderPrivate();
     expect(screen.getByText("Spinner rendered")).toBeInTheDocument();
+  });
+
+  it("should render Spinner when user authentication API call fails", async () => {
+    useAuth.mockReturnValue([{ token: "valid-token" }, jest.fn()]);
+    axios.get.mockRejectedValueOnce(new Error("Test Error"));
+    renderPrivate();
+    await waitFor(() => {
+      expect(screen.getByText("Spinner rendered")).toBeInTheDocument();
+    });
   });
 });
