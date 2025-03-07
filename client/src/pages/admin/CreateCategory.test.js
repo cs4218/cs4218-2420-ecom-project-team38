@@ -27,6 +27,12 @@ jest.mock("../../hooks/useCategory", () =>
   jest.fn(() => [{ name: "test", slug: "test" }])
 );
 
+jest.mock("../../components/Layout", () => ({ children }) => (
+  <div>{children}</div>
+));
+
+jest.mock("../../components/AdminMenu", () => () => <div>Admin Menu</div>);
+
 describe("CreateCategory page", () => {
   describe("Create category", () => {
     beforeEach(() => {
