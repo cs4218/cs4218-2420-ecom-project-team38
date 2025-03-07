@@ -12,8 +12,6 @@ jest.mock("jsonwebtoken", () => ({
   sign: jest.fn(() => Promise.resolve("test-token")),
 }));
 
-jest.spyOn(console, "log").mockImplementation(() => {});
-
 // module mocking in ESM
 const mockHashPassword = jest.fn();
 const mockIsPasswordValid = jest.fn();
@@ -42,6 +40,15 @@ const {
 } = await import("./authController");
 
 describe("Auth Controller", () => {
+  let consoleSpy;
+
+  beforeEach(() => {
+    consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleSpy.mockRestore();
+  });
   describe("Registration Controller", () => {
     let req, res;
     const mockPassword = "testpassword";
@@ -666,15 +673,10 @@ describe("Auth Controller", () => {
       res.send.mockImplementationOnce(() => {
         throw mockError;
       });
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
 
       testController(req, res);
       expect(consoleSpy).toHaveBeenCalledWith(mockError);
       expect(res.send).toHaveBeenLastCalledWith({ error: mockError });
-
-      consoleSpy.mockRestore();
     });
   });
 
