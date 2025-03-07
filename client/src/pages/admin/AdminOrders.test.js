@@ -1,12 +1,18 @@
 import React from "react";
-import { screen, render, waitFor, within } from "@testing-library/react";
+import {
+  fireEvent,
+  screen,
+  render,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import moment from "moment";
 import { MemoryRouter } from "react-router-dom";
 import "@testing-library/jest-dom";
 import { useAuth } from "../../context/auth";
-import Orders from "./Orders";
+import AdminOrders from "./AdminOrders";
 
 jest.mock("axios");
 
@@ -26,10 +32,6 @@ jest.mock("../../context/search", () => ({
 
 jest.mock("../../hooks/useCategory", () => jest.fn(() => []));
 
-jest.mock("../../components/UserMenu", () =>
-  jest.fn(() => <div>Mock User Menu</div>)
-);
-
 const mockFromNow = jest.fn();
 jest.mock("moment", () => {
   return jest.fn(() => ({
@@ -39,11 +41,11 @@ jest.mock("moment", () => {
 
 jest.spyOn(console, "log").mockImplementation(() => {});
 
-describe("Orders Page", () => {
-  const renderOrdersPage = () => {
+describe("Admin Orders Page", () => {
+  const renderAdminOrdersPage = () => {
     render(
       <MemoryRouter>
-        <Orders />
+        <AdminOrders />
       </MemoryRouter>
     );
   };
@@ -52,14 +54,8 @@ describe("Orders Page", () => {
     jest.clearAllMocks();
   });
 
-  it("should render the user menu", () => {
-    renderOrdersPage();
-
-    expect(screen.getByText("Mock User Menu")).toBeInTheDocument();
-  });
-
   it("should display the orders page header", () => {
-    renderOrdersPage();
+    renderAdminOrdersPage();
 
     expect(screen.getByText("All Orders")).toBeInTheDocument();
   });
@@ -74,20 +70,20 @@ describe("Orders Page", () => {
       ]);
     });
 
-    it("should make API call to get the user's orders", async () => {
+    it("should make API call to get all orders", async () => {
       axios.get.mockResolvedValue({ data: [] });
 
-      renderOrdersPage();
+      renderAdminOrdersPage();
 
       await waitFor(() =>
-        expect(axios.get).toHaveBeenCalledWith("/api/v1/auth/orders")
+        expect(axios.get).toHaveBeenCalledWith("/api/v1/auth/all-orders")
       );
     });
 
-    it("should display error message when API call to get orders fails", async () => {
+    it("should display error message when API call to get all orders fails", async () => {
       axios.get.mockRejectedValue(new Error("Backend error"));
 
-      renderOrdersPage();
+      renderAdminOrdersPage();
 
       await waitFor(() =>
         expect(toast.error).toHaveBeenCalledWith("Something went wrong")
@@ -136,7 +132,7 @@ describe("Orders Page", () => {
         it("should render a table for each order", async () => {
           axios.get.mockResolvedValue({ data: [mockOrder1, mockOrder2] });
 
-          renderOrdersPage();
+          renderAdminOrdersPage();
 
           const tables = await screen.findAllByRole("table");
           expect(tables).toHaveLength(2);
@@ -145,7 +141,7 @@ describe("Orders Page", () => {
         it("should render column headers for the order table", async () => {
           axios.get.mockResolvedValue({ data: [mockOrder1] });
 
-          renderOrdersPage();
+          renderAdminOrdersPage();
 
           expect(
             await screen.findByRole("columnheader", { name: "#" })
@@ -170,7 +166,7 @@ describe("Orders Page", () => {
         it("should display sequential order number for each order table", async () => {
           axios.get.mockResolvedValue({ data: [mockOrder1, mockOrder2] });
 
-          renderOrdersPage();
+          renderAdminOrdersPage();
 
           const tables = await screen.findAllByRole("table");
           const table1Rows = within(tables[0]).getAllByRole("row");
@@ -189,7 +185,7 @@ describe("Orders Page", () => {
         it("should display order status in order table", async () => {
           axios.get.mockResolvedValue({ data: [mockOrder1] });
 
-          renderOrdersPage();
+          renderAdminOrdersPage();
 
           const table = await screen.findByRole("table");
           const tableRows = within(table).getAllByRole("row");
@@ -201,7 +197,7 @@ describe("Orders Page", () => {
         it("should display buyer name in order table", async () => {
           axios.get.mockResolvedValue({ data: [mockOrder1] });
 
-          renderOrdersPage();
+          renderAdminOrdersPage();
 
           const table = await screen.findByRole("table");
           const tableRows = within(table).getAllByRole("row");
@@ -215,7 +211,7 @@ describe("Orders Page", () => {
           mockFromNow.mockReturnValue(mockOrderTime);
           axios.get.mockResolvedValue({ data: [mockOrder1] });
 
-          renderOrdersPage();
+          renderAdminOrdersPage();
 
           const table = await screen.findByRole("table");
           const tableRows = within(table).getAllByRole("row");
@@ -229,7 +225,7 @@ describe("Orders Page", () => {
         it("should display payment as 'Success' in order table when it is successful", async () => {
           axios.get.mockResolvedValue({ data: [mockOrder1] });
 
-          renderOrdersPage();
+          renderAdminOrdersPage();
 
           const table = await screen.findByRole("table");
           const tableRows = within(table).getAllByRole("row");
@@ -241,7 +237,7 @@ describe("Orders Page", () => {
         it("should display payment as 'Failed' in order table when it is unsuccessful", async () => {
           axios.get.mockResolvedValue({ data: [mockOrder2] });
 
-          renderOrdersPage();
+          renderAdminOrdersPage();
 
           const table = await screen.findByRole("table");
           const tableRows = within(table).getAllByRole("row");
@@ -253,7 +249,7 @@ describe("Orders Page", () => {
         it("should display product quantity in order table", async () => {
           axios.get.mockResolvedValue({ data: [mockOrder1] });
 
-          renderOrdersPage();
+          renderAdminOrdersPage();
 
           const table = await screen.findByRole("table");
           const tableRows = within(table).getAllByRole("row");
@@ -267,7 +263,7 @@ describe("Orders Page", () => {
         it("should not render any tables when there are no orders", async () => {
           axios.get.mockResolvedValue({ data: [] });
 
-          renderOrdersPage();
+          renderAdminOrdersPage();
 
           await waitFor(() =>
             expect(screen.queryAllByRole("table")).toHaveLength(0)
@@ -279,16 +275,18 @@ describe("Orders Page", () => {
         it("should render all products of an order", async () => {
           axios.get.mockResolvedValue({ data: [mockOrder1] });
 
-          renderOrdersPage();
+          renderAdminOrdersPage();
 
-          const products = await screen.findAllByTestId("orders-product-card");
+          const products = await screen.findAllByTestId(
+            "admin-orders-product-card"
+          );
           expect(products).toHaveLength(2);
         });
 
         it("should display product photo, name, description and price", async () => {
           axios.get.mockResolvedValue({ data: [mockOrder1] });
 
-          renderOrdersPage();
+          renderAdminOrdersPage();
 
           const imgElement = await screen.findByRole("img", {
             name: mockProduct1.name,
@@ -311,7 +309,7 @@ describe("Orders Page", () => {
         it("should truncate product description when it is longer than 30 characters", async () => {
           axios.get.mockResolvedValue({ data: [mockOrder1] });
 
-          renderOrdersPage();
+          renderAdminOrdersPage();
 
           expect(
             await screen.findByText(
@@ -323,14 +321,114 @@ describe("Orders Page", () => {
         it("should not render any products when there are no orders", async () => {
           axios.get.mockResolvedValue({ data: [] });
 
-          renderOrdersPage();
+          renderAdminOrdersPage();
 
           await waitFor(() =>
-            expect(screen.queryAllByTestId("orders-product-card")).toHaveLength(
-              0
-            )
+            expect(
+              screen.queryAllByTestId("admin-orders-product-card")
+            ).toHaveLength(0)
           );
         });
+      });
+    });
+
+    describe("Changing of order status", () => {
+      let mockOrderId, mockOrder;
+
+      beforeEach(() => {
+        mockOrderId = "test_orderid";
+
+        mockOrder = {
+          _id: mockOrderId,
+          status: "Not Processed",
+          buyer: { name: mockUserName },
+          createdAt: "2025-01-13T17:02:55.129Z",
+          payment: { success: true },
+          products: [
+            {
+              _id: "test_productid",
+              name: "Test Product Name",
+              description: "Test Product Description",
+              price: 4.99,
+            },
+          ],
+        };
+      });
+
+      it("should render all order statuses as options in the dropdown", async () => {
+        axios.get.mockResolvedValue({ data: [mockOrder] });
+
+        renderAdminOrdersPage();
+        fireEvent.mouseDown(await screen.findByRole("combobox"));
+
+        const options = screen.getAllByTestId("status-option");
+        expect(options).toHaveLength(5);
+        expect(options[0]).toHaveTextContent("Not Processed");
+        expect(options[1]).toHaveTextContent("Processing");
+        expect(options[2]).toHaveTextContent("Shipped");
+        expect(options[3]).toHaveTextContent("Delivered");
+        expect(options[4]).toHaveTextContent("Cancelled");
+      });
+
+      it("should make API call to update the order status selected in the dropdown", async () => {
+        const updatedStatus = "Processing";
+        axios.get.mockResolvedValue({ data: [mockOrder] });
+        axios.put = jest.fn();
+
+        renderAdminOrdersPage();
+        fireEvent.mouseDown(await screen.findByRole("combobox"));
+        fireEvent.click(screen.getByTitle(updatedStatus));
+
+        expect(axios.put).toHaveBeenCalledWith(
+          `/api/v1/auth/order-status/${mockOrderId}`,
+          { status: updatedStatus }
+        );
+      });
+
+      it("should make API call to get all orders after updating the order status", async () => {
+        const updatedStatus = "Processing";
+        axios.get
+          .mockResolvedValueOnce({ data: [mockOrder] })
+          .mockResolvedValue({
+            data: [{ ...mockOrder, status: updatedStatus }],
+          });
+        axios.put = jest.fn();
+
+        renderAdminOrdersPage();
+        fireEvent.mouseDown(await screen.findByRole("combobox"));
+        fireEvent.click(screen.getByTitle(updatedStatus));
+
+        await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(2));
+        expect(axios.get.mock.calls[1][0]).toBe("/api/v1/auth/all-orders"); // second call to axios.get
+
+        const getOrdersCallOrder = axios.get.mock.invocationCallOrder[1]; // second call to axios.get
+        const updateStatusCallOrder = axios.put.mock.invocationCallOrder[0]; // first call to axios.put
+        expect(getOrdersCallOrder).toBeGreaterThan(updateStatusCallOrder);
+      });
+
+      it("should display error message when API call to get all orders fails", async () => {
+        axios.get.mockRejectedValue(new Error("Backend error"));
+
+        renderAdminOrdersPage();
+
+        await waitFor(() =>
+          expect(toast.error).toHaveBeenCalledWith("Something went wrong")
+        );
+      });
+
+      it("should display error message when API call to update order status fails", async () => {
+        const updatedStatus = "Processing";
+        axios.get.mockResolvedValue({ data: [mockOrder] });
+        axios.put.mockRejectedValue(new Error("Backend error"));
+
+        renderAdminOrdersPage();
+        fireEvent.mouseDown(await screen.findByRole("combobox"));
+        fireEvent.click(screen.getByTitle(updatedStatus));
+
+        await waitFor(() =>
+          expect(toast.error).toHaveBeenCalledWith("Something went wrong")
+        );
+        await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
       });
     });
   });
@@ -340,11 +438,11 @@ describe("Orders Page", () => {
       useAuth.mockReturnValue([null, jest.fn()]);
     });
 
-    it("should not make API call to get the user's orders", async () => {
-      renderOrdersPage();
+    it("should not make API call to get all orders", async () => {
+      renderAdminOrdersPage();
 
       await waitFor(() =>
-        expect(axios.get).not.toHaveBeenCalledWith("/api/v1/auth/orders")
+        expect(axios.get).not.toHaveBeenCalledWith("/api/v1/auth/all-orders")
       );
     });
   });
