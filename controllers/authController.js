@@ -6,13 +6,14 @@ import {
   hashPassword,
   isPasswordValid,
   isPhoneValid,
-  isEmailValid
+  isEmailValid,
+  isDOBValid,
 } from "./../helpers/authHelper.js";
 import JWT from "jsonwebtoken";
 
 export const registerController = async (req, res) => {
   try {
-    const { name, email, password, phone, address, answer } = req.body;
+    const { name, email, password, phone, address, DOB, answer } = req.body;
     //validations
     if (!name) {
       return res.status(400).send({ error: "Name is required" });
@@ -23,8 +24,9 @@ export const registerController = async (req, res) => {
 
     const emailValidationResult = isEmailValid(email);
     if (emailValidationResult) {
-      return res.status(400).json({
-        error: emailValidationResult,
+      return res.status(200).json({
+        success: false,
+        message: emailValidationResult,
       });
     }
 
@@ -34,8 +36,9 @@ export const registerController = async (req, res) => {
 
     const passwordValidationResult = isPasswordValid(password);
     if (passwordValidationResult) {
-      return res.status(400).json({
-        error: passwordValidationResult,
+      return res.status(200).json({
+        success: false,
+        message: passwordValidationResult,
       });
     }
 
@@ -45,14 +48,28 @@ export const registerController = async (req, res) => {
 
     const phoneValidationResult = isPhoneValid(phone);
     if (phoneValidationResult) {
-      return res.status(400).json({
-        error: phoneValidationResult,
+      return res.status(200).json({
+        success: false,
+        message: phoneValidationResult,
       });
     }
 
     if (!address) {
       return res.status(400).send({ error: "Address is required" });
     }
+    if (!DOB) {
+      return res.status(400).send({ error: "DOB is required" });
+    }
+
+    let formattedDOB = new Date(DOB);
+    const DOBValidationResult = isDOBValid(formattedDOB);
+    if (DOBValidationResult) {
+      return res.status(200).json({
+        success: false,
+        message: DOBValidationResult,
+      });
+    }
+
     if (!answer) {
       return res.status(400).send({ error: "Answer is required" });
     }
@@ -65,6 +82,7 @@ export const registerController = async (req, res) => {
         message: "Already registered! Please login.",
       });
     }
+
     //register user
     const hashedPassword = await hashPassword(password);
     //save
@@ -74,6 +92,7 @@ export const registerController = async (req, res) => {
       phone,
       address,
       password: hashedPassword,
+      DOB: formattedDOB,
       answer,
     }).save();
 
@@ -98,7 +117,7 @@ export const loginController = async (req, res) => {
     const { email, password } = req.body;
     //validation
     if (!email || !password) {
-      return res.status(404).send({
+      return res.status(400).send({
         success: false,
         message: "Invalid email or password",
       });
@@ -106,16 +125,16 @@ export const loginController = async (req, res) => {
     //check user
     const user = await userModel.findOne({ email });
     if (!user) {
-      return res.status(404).send({
+      return res.status(200).send({
         success: false,
-        message: "Email is not registered",
+        message: "Invalid email or password",
       });
     }
     const match = await comparePassword(password, user.password);
     if (!match) {
       return res.status(200).send({
         success: false,
-        message: "Invalid Password",
+        message: "Invalid email or password",
       });
     }
     //token
@@ -151,19 +170,37 @@ export const forgotPasswordController = async (req, res) => {
   try {
     const { email, answer, newPassword } = req.body;
     if (!email) {
-      res.status(400).send({ message: "Email is required" });
+      return res.status(400).send({ message: "Email is required" });
     }
+
+    const emailValidationResult = isEmailValid(email);
+    if (emailValidationResult) {
+      return res.status(200).json({
+        success: false,
+        message: emailValidationResult,
+      });
+    }
+
     if (!answer) {
-      res.status(400).send({ message: "Answer is required" });
+      return res.status(400).send({ message: "Answer is required" });
     }
     if (!newPassword) {
-      res.status(400).send({ message: "New password is required" });
+      return res.status(400).send({ message: "New password is required" });
     }
+
+    const newPasswordValidationResult = isPasswordValid(newPassword);
+    if (newPasswordValidationResult) {
+      return res.status(200).json({
+        success: false,
+        message: newPasswordValidationResult,
+      });
+    }
+
     //check
     const user = await userModel.findOne({ email, answer });
     //validation
     if (!user) {
-      return res.status(404).send({
+      return res.status(200).send({
         success: false,
         message: "Wrong email or answer",
       });
@@ -292,7 +329,7 @@ export const getAllOrdersController = async (req, res) => {
       .find({})
       .populate("products", "-photo")
       .populate("buyer", "name")
-      .sort({ createdAt: "-1" });
+      .sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
     console.log(error);
