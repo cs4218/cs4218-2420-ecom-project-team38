@@ -46,13 +46,16 @@ describe("Products page", () => {
     axios.get.mockResolvedValue({ data: { products: mockProducts } });
   });
 
-  it("Should render admin menu", () => {
+  it("Should render admin menu", async () => {
     render(
       <MemoryRouter>
         <Products />
       </MemoryRouter>
     );
 
+    await waitFor(() =>
+      expect(axios.get).toHaveBeenCalledWith("/api/v1/product/get-product")
+    );
     expect(screen.getByText("Admin Menu")).toBeInTheDocument();
   });
 
