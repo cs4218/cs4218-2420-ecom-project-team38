@@ -59,7 +59,7 @@ describe("Auth Controller", () => {
       email: "test@test.com",
       password: mockHashedPassword,
       phone: "98765432",
-      address: "123 Test Address",
+      address: "21 Lower Kent Ridge Rd",
       DOB: "11/11/2000",
       answer: "Test Answer",
     };
@@ -324,7 +324,7 @@ describe("Auth Controller", () => {
       email: "test@test.com",
       password: "testpassword",
       phone: "98765432",
-      address: "123 Test Address",
+      address: "21 Lower Kent Ridge Rd",
       DOB: "11/11/2000",
       answer: "Test Answer",
       role: "0",
@@ -694,7 +694,7 @@ describe("Auth Controller", () => {
         email: "testuser@gmail.com",
         password: "testpassword123",
         phone: "98765432",
-        address: "123 Test Address",
+        address: "21 Lower Kent Ridge Rd",
       };
 
       validUpdatedProfile = {
@@ -797,6 +797,21 @@ describe("Auth Controller", () => {
         expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
         expect(res.json).toHaveBeenCalledWith({ error: phoneErrorMsg });
       });
+
+      test.skip("should send response with error message when address is non-empty and invalid", async () => {
+        const newAddress = "invalid address";
+        const addressErrorMsg = "Address is invalid";
+        const req = {
+          body: { ...mockUser, password: "", address: newAddress },
+          user: { _id: mockUserId },
+        };
+        userModel.findByIdAndUpdate = jest.fn();
+
+        await updateProfileController(req, res);
+
+        expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
+        expect(res.json).toHaveBeenCalledWith({ error: addressErrorMsg });
+      });
     });
 
     describe("Database update", () => {
@@ -807,7 +822,7 @@ describe("Auth Controller", () => {
             email: "testuser@gmail.com",
             password: "",
             phone: "98765432  ",
-            address: "  123 Test Address  ",
+            address: "  21 Lower Kent Ridge Rd  ",
           },
           user: { _id: mockUserId },
         };
@@ -822,7 +837,7 @@ describe("Auth Controller", () => {
             name: "Test User",
             password: mockUser.password,
             phone: "98765432",
-            address: "123 Test Address",
+            address: "21 Lower Kent Ridge Rd",
           },
           { new: true }
         );

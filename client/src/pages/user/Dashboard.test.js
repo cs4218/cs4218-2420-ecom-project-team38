@@ -9,15 +9,9 @@ jest.mock("../../context/auth", () => ({
   useAuth: jest.fn(),
 }));
 
-jest.mock("../../context/cart", () => ({
-  useCart: jest.fn(() => [null, jest.fn()]),
-}));
-
-jest.mock("../../context/search", () => ({
-  useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]),
-}));
-
-jest.mock("../../hooks/useCategory", () => jest.fn(() => []));
+jest.mock("../../components/Layout", () => ({ children }) => (
+  <div>{children}</div>
+));
 
 jest.mock("../../components/UserMenu", () =>
   jest.fn(() => <div>Mock User Menu</div>)
@@ -43,7 +37,10 @@ describe("Dashboard Page", () => {
       address: "123 Test Address",
     };
 
-    useAuth.mockReturnValue([{ user: mockUser, token: "" }, jest.fn()]);
+    useAuth.mockReturnValue([
+      { user: mockUser, token: "testtoken" },
+      jest.fn(),
+    ]);
   });
 
   it("should render the user menu", () => {
@@ -55,24 +52,24 @@ describe("Dashboard Page", () => {
   it("should display the authenticated user's name, email and address", () => {
     renderDashboardPage();
 
-    expect(screen.getByTestId("dashboard-name")).toHaveTextContent(
-      mockUser.name
-    );
-    expect(screen.getByTestId("dashboard-email")).toHaveTextContent(
-      mockUser.email
-    );
-    expect(screen.getByTestId("dashboard-address")).toHaveTextContent(
-      mockUser.address
-    );
+    expect(
+      screen.getByText(`User Name : ${mockUser.name}`)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(`User Email : ${mockUser.email}`)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(`User Address : ${mockUser.address}`)
+    ).toBeInTheDocument();
   });
 
   it("should not display any name, email or address when the user is unauthenticated", () => {
-    useAuth.mockReturnValue([{ user: null, token: "" }, jest.fn()]);
+    useAuth.mockReturnValue([null, jest.fn()]);
 
     renderDashboardPage();
 
-    expect(screen.getByTestId("dashboard-name")).toHaveTextContent("");
-    expect(screen.getByTestId("dashboard-email")).toHaveTextContent("");
-    expect(screen.getByTestId("dashboard-address")).toHaveTextContent("");
+    expect(screen.getByText("User Name :")).toBeInTheDocument();
+    expect(screen.getByText("User Email :")).toBeInTheDocument();
+    expect(screen.getByText("User Address :")).toBeInTheDocument();
   });
 });
