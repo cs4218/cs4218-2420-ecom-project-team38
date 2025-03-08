@@ -1,5 +1,5 @@
 import React from "react";
-import { render, fireEvent, waitFor } from "@testing-library/react";
+import { screen, render, fireEvent, waitFor } from "@testing-library/react";
 import axios from "axios";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import "@testing-library/jest-dom";
@@ -22,6 +22,10 @@ jest.mock("../../context/cart", () => ({
 jest.mock("../../context/search", () => ({
   useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]),
 }));
+
+jest.mock("../../hooks/useCategory", () => jest.fn(() => []));
+
+jest.spyOn(console, "log").mockImplementation(() => {});
 
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
@@ -58,42 +62,38 @@ const renderRegistrationPage = () => {
   );
 };
 
-const fillAndSubmitRegistrationForm = (
-  getByPlaceholderText,
-  getByText,
-  {
-    name = "John Doe",
-    email = "test@example.com",
-    password = "password123",
-    phone = "1234567890",
-    address = "123 Street",
-    dob = "2000-01-01",
-    sport = "Football",
-  } = {}
-) => {
-  fireEvent.change(getByPlaceholderText("Enter Your Name"), {
+const fillAndSubmitRegistrationForm = (email = "test@example.com", name = "John Doe") => {
+  const password = "password123";
+  const phone = "1234567890";
+  const address = "123 Street";
+  const dob = "2000-01-01";
+  const sport = "Football";
+  fireEvent.change(screen.getByPlaceholderText("Enter Your Name"), {
     target: { value: name },
   });
-  fireEvent.change(getByPlaceholderText("Enter Your Email"), {
+  fireEvent.change(screen.getByPlaceholderText("Enter Your Email"), {
     target: { value: email },
   });
-  fireEvent.change(getByPlaceholderText("Enter Your Password"), {
+  fireEvent.change(screen.getByPlaceholderText("Enter Your Password"), {
     target: { value: password },
   });
-  fireEvent.change(getByPlaceholderText("Enter Your Phone"), {
+  fireEvent.change(screen.getByPlaceholderText("Enter Your Phone"), {
     target: { value: phone },
   });
-  fireEvent.change(getByPlaceholderText("Enter Your Address"), {
+  fireEvent.change(screen.getByPlaceholderText("Enter Your Address"), {
     target: { value: address },
   });
-  fireEvent.change(getByPlaceholderText("Enter Your DOB"), {
+  fireEvent.change(screen.getByPlaceholderText("Enter Your DOB"), {
     target: { value: dob },
   });
-  fireEvent.change(getByPlaceholderText("What is Your Favorite sports"), {
-    target: { value: sport },
-  });
+  fireEvent.change(
+    screen.getByPlaceholderText("What is Your Favorite sports"),
+    {
+      target: { value: sport },
+    }
+  );
 
-  fireEvent.click(getByText("REGISTER"));
+  fireEvent.click(screen.getByText("REGISTER"));
 };
 
 describe("Register Component", () => {
@@ -104,8 +104,8 @@ describe("Register Component", () => {
   it("should register the user successfully", async () => {
     axios.post.mockResolvedValueOnce({ data: { success: true } });
 
-    const { getByText, getByPlaceholderText } = renderRegistrationPage();
-    fillAndSubmitRegistrationForm(getByPlaceholderText, getByText, {});
+    renderRegistrationPage();
+    fillAndSubmitRegistrationForm();
 
     await waitFor(() => expect(axios.post).toHaveBeenCalled());
     expect(toast.success).toHaveBeenCalledWith(
@@ -117,27 +117,23 @@ describe("Register Component", () => {
   it("should display error message on failed registration", async () => {
     axios.post.mockRejectedValueOnce({ message: "User already exists" });
 
-    const { getByText, getByPlaceholderText } = renderRegistrationPage();
-    fillAndSubmitRegistrationForm(getByPlaceholderText, getByText, {});
+    renderRegistrationPage();
+    fillAndSubmitRegistrationForm();
 
     await waitFor(() => expect(axios.post).toHaveBeenCalled());
     expect(toast.error).toHaveBeenCalledWith("Something went wrong");
   });
 
   it("should not allow form submission on empty field", async () => {
-    const { getByText, getByPlaceholderText } = renderRegistrationPage();
-    fillAndSubmitRegistrationForm(getByPlaceholderText, getByText, {
-      name: "",
-    });
+    renderRegistrationPage();
+    fillAndSubmitRegistrationForm(undefined, "");
 
     await waitFor(() => expect(axios.post).not.toHaveBeenCalled());
   });
 
   it("should not allow form submission on invalid field", async () => {
-    const { getByText, getByPlaceholderText } = renderRegistrationPage();
-    fillAndSubmitRegistrationForm(getByPlaceholderText, getByText, {
-      email: "test.com",
-    });
+    renderRegistrationPage();
+    fillAndSubmitRegistrationForm("test.com");
 
     await waitFor(() => expect(axios.post).not.toHaveBeenCalled());
   });
@@ -151,8 +147,8 @@ describe("Register Component", () => {
       },
     });
 
-    const { getByText, getByPlaceholderText } = renderRegistrationPage();
-    fillAndSubmitRegistrationForm(getByPlaceholderText, getByText, {});
+    renderRegistrationPage();
+    fillAndSubmitRegistrationForm();
 
     await waitFor(() => expect(axios.post).toHaveBeenCalled());
     expect(toast.error).toHaveBeenCalledWith(errorMessage);
