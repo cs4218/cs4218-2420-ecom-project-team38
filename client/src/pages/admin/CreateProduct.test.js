@@ -56,6 +56,8 @@ jest.mock("../../components/Layout", () => ({ children }) => (
   <div>{children}</div>
 ));
 
+jest.mock("../../components/AdminMenu", () => () => <div>Admin Menu</div>);
+
 jest.spyOn(console, "log").mockImplementation(() => {});
 
 window.matchMedia =
@@ -80,6 +82,15 @@ const createMockFile = (filename, filesize, fileType) => {
 describe("CreateProduct page", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  it("Should render admin menu", () => {
+    render(
+      <MemoryRouter>
+        <CreateProduct />
+      </MemoryRouter>
+    );
+    expect(screen.getByText("Admin Menu")).toBeInTheDocument();
   });
 
   it("Should create a product and redirect user to products page", async () => {
