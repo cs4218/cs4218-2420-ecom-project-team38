@@ -33,6 +33,8 @@ jest.mock("../context/search", () => ({
   useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]),
 }));
 
+jest.mock("../hooks/useCategory", () => jest.fn(() => []));
+
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
   useParams: jest.fn(),
@@ -110,7 +112,7 @@ const mockProductsPageTwo = [
   },
 ];
 
-const mockPriceOption = "$0 to 19";
+const mockPriceOption = "$0 to $19.99";
 
 const CATEGORY_URL = "/api/v1/category/get-category";
 const PRODUCT_URL = "/api/v1/product/product-list/1";
@@ -119,10 +121,11 @@ const COUNT_URL = "/api/v1/product/product-count";
 const FILTER_URL = "/api/v1/product/product-filters";
 
 describe("Home Page", () => {
+  let consoleSpy;
   const axiosError = new AxiosError("Axios error");
-  const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
 
   beforeEach(() => {
+    consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
     jest.clearAllMocks();
   });
 
@@ -153,13 +156,14 @@ describe("Home Page", () => {
 
       await waitFor(() => {
         expect(axios.get).toHaveBeenCalledWith(CATEGORY_URL);
-        expect(
-          screen.queryByText(mockCategories[0].name)
-        ).not.toBeInTheDocument();
-        expect(
-          screen.queryByText(mockCategories[1].name)
-        ).not.toBeInTheDocument();
       });
+
+      expect(
+        screen.queryByText(mockCategories[0].name)
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(mockCategories[1].name)
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -185,6 +189,30 @@ describe("Home Page", () => {
     it("should render all the products in the home page", async () => {
       renderHomePage();
       await validateProductsRendered();
+    });
+
+    it("should render products with long description correctly", async () => {
+      const expectedDescription =
+        "This is a very very very very long description Test Descript...";
+      const mockProduct = {
+        _id: "1",
+        name: "Test Product 1",
+        slug: "Test-Product-1",
+        description:
+          "This is a very very very very long description Test Description 3",
+        price: 1.99,
+      };
+      axios.get.mockResolvedValue({
+        data: { success: true, products: [mockProduct] },
+      });
+      renderHomePage();
+      await waitFor(() => {
+        expect(axios.get).toHaveBeenCalledWith(PRODUCT_URL);
+      });
+      const productList = screen.getByTestId("product-list");
+      expect(
+        within(productList).getByText(expectedDescription)
+      ).toBeInTheDocument();
     });
 
     it("should navigate to the product details page when it is clicked", async () => {
@@ -238,6 +266,9 @@ describe("Home Page", () => {
 
       await waitFor(() => {
         expect(axios.get).toHaveBeenCalledWith(COUNT_URL);
+      });
+
+      await waitFor(() => {
         expect(axios.get).toHaveBeenCalledWith(PRODUCT_URL);
       });
 
@@ -252,6 +283,9 @@ describe("Home Page", () => {
 
       await waitFor(() => {
         expect(axios.get).toHaveBeenCalledWith(COUNT_URL);
+      });
+
+      await waitFor(() => {
         expect(axios.get).toHaveBeenCalledWith(PRODUCT_URL);
       });
 
@@ -299,10 +333,6 @@ describe("Home Page", () => {
           });
         }
       });
-      renderHomePage();
-      await waitFor(() => {
-        expect(axios.get).toHaveBeenCalledWith(CATEGORY_URL);
-      });
     });
 
     it("should render the filtered products based on category in the home page", async () => {
@@ -310,7 +340,9 @@ describe("Home Page", () => {
         data: { products: [mockProducts[0]] },
       });
 
-      const categoryCheckbox = screen.getByLabelText(mockCategories[0].name);
+      renderHomePage();
+
+      const categoryCheckbox = await screen.findByText(mockCategories[0].name);
       fireEvent.click(categoryCheckbox);
 
       await waitFor(() => {
@@ -332,13 +364,15 @@ describe("Home Page", () => {
         data: { products: [mockProducts[0]] },
       });
 
-      const priceCheckbox = screen.getByLabelText(mockPriceOption);
+      renderHomePage();
+
+      const priceCheckbox = await screen.findByText(mockPriceOption);
       fireEvent.click(priceCheckbox);
 
       await waitFor(() => {
         expect(axios.post).toHaveBeenCalledWith(FILTER_URL, {
           checked: [],
-          radio: [0, 19],
+          radio: [0, 19.99],
         });
       });
 
@@ -353,8 +387,9 @@ describe("Home Page", () => {
       axios.post.mockResolvedValue({
         data: { products: [mockProducts[0]] },
       });
+      renderHomePage();
 
-      const categoryCheckbox = screen.getByLabelText(mockCategories[0].name);
+      const categoryCheckbox = await screen.findByText(mockCategories[0].name);
       fireEvent.click(categoryCheckbox);
 
       await waitFor(() => {
@@ -388,8 +423,9 @@ describe("Home Page", () => {
       axios.post.mockResolvedValue({
         data: { products: [mockProducts[0]] },
       });
+      renderHomePage();
 
-      const categoryCheckbox = screen.getByLabelText(mockCategories[0].name);
+      const categoryCheckbox = await screen.findByText(mockCategories[0].name);
       fireEvent.click(categoryCheckbox);
 
       const priceCheckbox = screen.getByLabelText(mockPriceOption);
@@ -398,7 +434,7 @@ describe("Home Page", () => {
       await waitFor(() => {
         expect(axios.post).toHaveBeenCalledWith(FILTER_URL, {
           checked: [mockCategories[0]._id],
-          radio: [0, 19],
+          radio: [0, 19.99],
         });
       });
 
@@ -409,7 +445,9 @@ describe("Home Page", () => {
 
     it("should gracefully handle error in retrieving filtered products", async () => {
       axios.post.mockRejectedValue(axiosError);
-      const categoryCheckbox = screen.getByLabelText(mockCategories[0].name);
+      renderHomePage();
+
+      const categoryCheckbox = await screen.findByText(mockCategories[0].name);
       fireEvent.click(categoryCheckbox);
 
       await waitFor(() => {

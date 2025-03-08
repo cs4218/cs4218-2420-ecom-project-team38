@@ -48,8 +48,10 @@ const CartPage = () => {
   //get payment gateway token
   const getToken = async () => {
     try {
-      const { data } = await axios.get("/api/v1/product/braintree/token");
-      setClientToken(data?.clientToken);
+      const response = await axios.get("/api/v1/product/braintree/token");
+      if (response && response.data) {
+        setClientToken(response.data.clientToken);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -78,7 +80,7 @@ const CartPage = () => {
       setLoading(false);
     }
   };
-  
+
   return (
     <Layout>
       <div className=" cart-page">
@@ -90,7 +92,7 @@ const CartPage = () => {
                 : `Hello  ${auth?.token && auth?.user?.name}`}
               <p className="text-center">
                 {cart?.length
-                  ? `You Have ${cart.length} items in your cart ${
+                  ? `You have ${cart.length} items in your cart ${
                       auth?.token ? "" : "please login to checkout !"
                     }`
                   : " Your Cart Is Empty"}
@@ -168,7 +170,7 @@ const CartPage = () => {
                         })
                       }
                     >
-                      Plase Login to checkout
+                      Plase login to checkout
                     </button>
                   )}
                 </div>

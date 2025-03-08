@@ -23,9 +23,9 @@ const HomePage = () => {
   //get all cat
   const getAllCategory = async () => {
     try {
-      const { data } = await axios.get("/api/v1/category/get-category");
-      if (data?.success) {
-        setCategories(data?.category);
+      const response = await axios.get("/api/v1/category/get-category");
+      if (response && response.data && response.data.success) {
+        setCategories(response.data.category);
       }
     } catch (error) {
       console.log(error);
@@ -36,13 +36,16 @@ const HomePage = () => {
     getAllCategory();
     getTotal();
   }, []);
+
   //get products
   const getAllProducts = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get(`/api/v1/product/product-list/${page}`);
+      const response = await axios.get(`/api/v1/product/product-list/${page}`);
       setLoading(false);
-      setProducts(data.products);
+      if (response && response.data) {
+        setProducts(response.data.products);
+      }
     } catch (error) {
       setLoading(false);
       console.log(error);
@@ -52,8 +55,10 @@ const HomePage = () => {
   //getTotal Count
   const getTotal = async () => {
     try {
-      const { data } = await axios.get("/api/v1/product/product-count");
-      setTotal(data?.total);
+      const response = await axios.get("/api/v1/product/product-count");
+      if (response && response.data) {
+        setTotal(response.data.total);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -102,6 +107,7 @@ const HomePage = () => {
         radio,
       });
       setProducts(data?.products);
+      setTotal(data?.total);
     } catch (error) {
       console.log(error);
     }
@@ -170,7 +176,9 @@ const HomePage = () => {
                     </h5>
                   </div>
                   <p className="card-text ">
-                    {p.description.substring(0, 60)}...
+                    {p.description.length > 60
+                      ? `${p.description.substring(0, 60)}...`
+                      : p.description}
                   </p>
                   <div className="card-name-price">
                     <button
