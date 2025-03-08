@@ -45,6 +45,10 @@ window.matchMedia =
     };
   };
 
+jest.mock("../components/Layout", () => ({ children }) => (
+  <div>{children}</div>
+));
+
 describe("Search page", () => {
   describe("No products found", () => {
     afterEach(() => {
