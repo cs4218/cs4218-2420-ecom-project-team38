@@ -1782,7 +1782,6 @@ describe("Product controller", () => {
         { name: "Test product 5", description: "Test product 5" },
         { name: "Test product 6", description: "Test product 6" },
         { name: "Test product 7", description: "Test product 7" },
-        { name: "Test product 8", description: "Test product 8" },
       ];
 
       productModel.find = jest.fn().mockReturnValue({
