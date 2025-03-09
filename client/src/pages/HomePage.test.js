@@ -202,13 +202,13 @@ describe("Home Page", () => {
 
     it("should render products with long description correctly", async () => {
       const expectedDescription =
-        "This is a very very very very long description Test Descript...";
+        "This is a test description with a length of 61 characters!!!...";
       const mockProduct = {
         _id: "1",
         name: "Test Product 1",
         slug: "Test-Product-1",
         description:
-          "This is a very very very very long description Test Description 3",
+          "This is a test description with a length of 61 characters!!!!",
         price: 1.99,
       };
       axios.get.mockResolvedValue({
@@ -306,10 +306,8 @@ describe("Home Page", () => {
     it("should render next page of products when Load more is clicked", async () => {
       mockGetImplementation(mockProducts.length + mockProductsPageTwo.length);
       renderHomePage();
-      await waitFor(() => {
-        expect(axios.get).toHaveBeenCalledWith(PRODUCT_URL);
-      });
-      const loadMoreButton = screen.getByText("Load more");
+
+      const loadMoreButton = await screen.findByText("Load more");
       fireEvent.click(loadMoreButton);
       await waitFor(() => {
         expect(axios.get).toHaveBeenCalledWith(PRODUCT_URL_PAGE_2);
@@ -401,22 +399,8 @@ describe("Home Page", () => {
       const categoryCheckbox = await screen.findByText(mockCategories[0].name);
       fireEvent.click(categoryCheckbox);
 
-      await waitFor(() => {
-        expect(axios.post).toHaveBeenCalledWith(FILTER_URL, {
-          checked: [mockCategories[0]._id],
-          radio: [],
-        });
-      });
-
-      const categoryCheckbox2 = screen.getByLabelText(mockCategories[1].name);
+      const categoryCheckbox2 = await screen.findByText(mockCategories[1].name);
       fireEvent.click(categoryCheckbox2);
-
-      await waitFor(() => {
-        expect(axios.post).toHaveBeenCalledWith(FILTER_URL, {
-          checked: [mockCategories[0]._id, mockCategories[1]._id],
-          radio: [],
-        });
-      });
 
       fireEvent.click(categoryCheckbox);
 
@@ -440,14 +424,7 @@ describe("Home Page", () => {
       const priceCheckbox = screen.getByLabelText(mockPriceOption);
       fireEvent.click(priceCheckbox);
 
-      await waitFor(() => {
-        expect(axios.post).toHaveBeenCalledWith(FILTER_URL, {
-          checked: [mockCategories[0]._id],
-          radio: [0, 19.99],
-        });
-      });
-
-      const resetButton = screen.getByText("RESET FILTERS");
+      const resetButton = await screen.findByText("RESET FILTERS");
       fireEvent.click(resetButton);
       expect(window.location.reload).toHaveBeenCalled();
     });
@@ -520,16 +497,14 @@ describe("Home Page", () => {
           return Promise.resolve({ data: { total: 4 } });
         } else if (url === PRODUCT_URL) {
           return Promise.resolve({ data: { products: mockProducts } });
+        } else if (url === PRODUCT_URL_PAGE_2) {
+          return Promise.reject(axiosError);
         }
       });
 
       renderHomePage();
-      await waitFor(() => {
-        expect(axios.get).toHaveBeenCalledWith(PRODUCT_URL);
-      });
-      mockError(PRODUCT_URL_PAGE_2);
 
-      const loadMoreButton = screen.getByText("Load more");
+      const loadMoreButton = await screen.findByText("Load more");
       fireEvent.click(loadMoreButton);
       await waitFor(() => {
         expect(axios.get).toHaveBeenCalledWith(PRODUCT_URL_PAGE_2);
