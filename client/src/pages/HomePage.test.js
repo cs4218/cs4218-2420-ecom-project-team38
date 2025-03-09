@@ -83,7 +83,7 @@ const mockProducts = [
     _id: "1",
     name: "Test Product 1",
     slug: "Test-Product-1",
-    description: "Test Description 1",
+    description: "This is a test description with a length of 60 characters!!!", // BVA: For descriptions of 60 characters or less, products should be rendered without "..."
     price: 1.99,
   },
   {
@@ -177,10 +177,19 @@ describe("Home Page", () => {
     const validateProductsRendered = async () => {
       await waitFor(() => {
         expect(axios.get).toHaveBeenCalledWith(PRODUCT_URL);
-        const productList = screen.getByTestId("product-list");
+      });
+      const productList = screen.getByTestId("product-list");
+      await waitFor(() => {
         mockProducts.forEach((product) => {
           expect(
             within(productList).getByText(product.name)
+          ).toBeInTheDocument();
+        });
+      });
+      await waitFor(() => {
+        mockProducts.forEach((product) => {
+          expect(
+            within(productList).getByText(product.description)
           ).toBeInTheDocument();
         });
       });

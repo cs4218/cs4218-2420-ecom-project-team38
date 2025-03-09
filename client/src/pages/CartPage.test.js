@@ -84,7 +84,7 @@ const mockItems = [
   {
     _id: "2",
     name: "Test Product 2",
-    description: "This is another test product",
+    description: "This description is 30 chars!!", // BVA: For descriptions of 30 characters or less, products should be rendered without "..."
     price: 69,
   },
 ];
