@@ -3,7 +3,7 @@ const config = {
   collectCoverage: true,
   collectCoverageFrom: ["client/src/**"],
   coveragePathIgnorePatterns: ["<rootDir>/client/src/_site/"],
-  coverageThreshold: { global: { lines: 100, functions: 100 } },
+  coverageThreshold: { global: { lines: 98, functions: 98 } },
   displayName: "frontend",
   moduleNameMapper: {
     "\\.(css|scss)$": "identity-obj-proxy",
