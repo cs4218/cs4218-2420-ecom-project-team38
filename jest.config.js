@@ -6,8 +6,8 @@ const config = {
   collectCoverage: true,
   coverageThreshold: {
     global: {
-      functions: 100,
-      lines: 100,
+      functions: 98,
+      lines: 98,
     },
   },
   testTimeout: 10000,

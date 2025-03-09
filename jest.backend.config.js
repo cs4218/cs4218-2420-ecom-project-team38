@@ -7,7 +7,7 @@ const config = {
     "middlewares/**",
     "config/**",
   ],
-  coverageThreshold: { global: { lines: 98, functions: 98 } },
+  coverageThreshold: { global: { lines: 100, functions: 100 } },
   displayName: "backend",
   testEnvironment: "node",
   testMatch: [
