@@ -117,11 +117,11 @@ describe("Cart Page", () => {
       });
 
       it("should render cart item with with long description correctly", () => {
-        const expectedDescription = "This is a very long Test Descr...";
+        const expectedDescription = "This description is 31 chars!!...";
         const longMockItem = {
           _id: "1",
           name: "Test Product 1",
-          description: "This is a very long Test Description",
+          description: "This description is 31 chars!!!",
           price: 1,
         };
         useCart.mockReturnValue([[longMockItem], jest.fn()]);
