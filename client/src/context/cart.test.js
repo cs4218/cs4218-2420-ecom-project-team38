@@ -48,6 +48,8 @@ describe("Cart Context", () => {
 
     await waitFor(() => {
       expect(localStorage.getItem).toHaveBeenCalledWith("cart");
+    });
+    await waitFor(() => {
       expect(screen.getByTestId("cart-items").textContent).toBe("[]");
     });
   });
@@ -58,6 +60,8 @@ describe("Cart Context", () => {
 
     await waitFor(() => {
       expect(localStorage.getItem).toHaveBeenCalledWith("cart");
+    });
+    await waitFor(() => {
       expect(screen.getByTestId("cart-items")).toHaveTextContent(JSON.stringify(mockItem));
     });
   });
@@ -69,6 +73,8 @@ describe("Cart Context", () => {
     fireEvent.click(screen.getByText("Add Item"));
     await waitFor(() => {
       expect(localStorage.getItem).toHaveBeenCalledWith("cart");
+    });
+    await waitFor(() => {
       expect(screen.getByTestId("cart-items")).toHaveTextContent(JSON.stringify([mockItem]));
     });
   });
