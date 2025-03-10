@@ -277,6 +277,37 @@ describe("Product controller", () => {
       });
     });
 
+    it("Does not create a product if the price is negative", async () => {
+      const mockProduct = {
+        _id: "67ba0ef4eb3e31ba78754958",
+        name: "test product with negative price",
+        description: "This is a test product with a negative price",
+        price: -10,
+        category: "67ba0eec6cc1ffa6d221791f",
+        quantity: 6,
+        shipping: true,
+      };
+
+      const req = {
+        fields: { ...mockProduct },
+        files: {
+          photo: { path: "mock-photo-path", type: "image/png", size: 200 },
+        },
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+
+      await createProductController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        error: "Price should not be negative",
+      });
+    });
+
     it("Does not create a product if the category is missing", async () => {
       const mockProduct = {
         _id: "67ba0e19b5b64a493c0f08aa",
@@ -334,6 +365,37 @@ describe("Product controller", () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith({
         error: "Quantity is Required",
+      });
+    });
+
+    it("Does not create a product if the quantity is negative", async () => {
+      const mockProduct = {
+        _id: "67ba0ef4eb3e31ba78754958",
+        name: "test product with negative quantity",
+        description: "This is a test product with a negative quantity",
+        price: 20,
+        category: "67ba0eec6cc1ffa6d221791f",
+        quantity: -5,
+        shipping: false,
+      };
+
+      const req = {
+        fields: { ...mockProduct },
+        files: {
+          photo: { path: "mock-photo-path", type: "image/png", size: 500 },
+        },
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+
+      await createProductController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        error: "Quantity should not be negative",
       });
     });
 
@@ -773,6 +835,43 @@ describe("Product controller", () => {
       });
     });
 
+    it("Does not update product if the price is negative", async () => {
+      const mockProductId = "67bac8f8c3398a1d89886761";
+
+      const mockUpdatedProduct = {
+        name: "Updated Product with negative price",
+        description: "This is an updated product with negative price",
+        category: "67babe1aeae58eb5646d28fb",
+        price: -25,
+        quantity: 3,
+        shipping: false,
+      };
+
+      const mockPhoto = {
+        path: "updated-photo-path",
+        size: 2500,
+        type: "image/png",
+      };
+
+      const req = {
+        params: { pid: mockProductId },
+        fields: mockUpdatedProduct,
+        files: { photo: mockPhoto },
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+
+      await updateProductController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        error: "Price should not be negative",
+      });
+    });
+
     it("Does not update product if the quantity is missing", async () => {
       const mockProductId = "67bac8f8c3398a1d89886761";
 
@@ -806,6 +905,43 @@ describe("Product controller", () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith({
         error: "Quantity is Required",
+      });
+    });
+
+    it("Does not update product if the quantity is negative", async () => {
+      const mockProductId = "67bac8f8c3398a1d89886761";
+
+      const mockUpdatedProduct = {
+        name: "Updated Product with negative quantity",
+        description: "This is an updated product with negative quantity",
+        category: "67babe1aeae58eb5646d28fb",
+        price: 30,
+        quantity: -7,
+        shipping: false,
+      };
+
+      const mockPhoto = {
+        path: "updated-photo-path",
+        size: 2500,
+        type: "image/png",
+      };
+
+      const req = {
+        params: { pid: mockProductId },
+        fields: mockUpdatedProduct,
+        files: { photo: mockPhoto },
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+
+      await updateProductController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        error: "Quantity should not be negative",
       });
     });
 
