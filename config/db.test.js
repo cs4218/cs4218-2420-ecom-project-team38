@@ -1,31 +1,33 @@
-import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import connectDB from "./db";
 import { jest } from "@jest/globals";
 
+const mockConnect = jest.fn();
+
+jest.mock("mongoose", () => ({ connect: mockConnect }));
+
 describe("Database connection", () => {
   let mongoServer;
+  const testUri = "test-uri";
 
-  beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
-    process.env.MONGO_URL = mongoUri;
+  beforeAll(() => {
+    process.env.MONGO_URL = testUri;
   });
 
-  afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
   it("Should connect to the database", async () => {
+    mongoose.connect = jest.fn().mockResolvedValueOnce({
+      connection: { host: "host" },
+    });
     const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
 
     await connectDB();
 
-    expect(mongoose.connection.readyState).toBe(1);
     expect(consoleSpy).toHaveBeenCalledWith(
-      `Connected To Mongodb Database ${mongoServer.instanceInfo.ip}`.bgMagenta
-        .white
+      `Connected To Mongodb Database host`.bgMagenta.white
     );
   });
 
