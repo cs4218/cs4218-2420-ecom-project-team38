@@ -2,6 +2,7 @@ import Express from "express";
 import productRoutes from "./productRoutes";
 import request from "supertest";
 import productModel from "../models/productModel";
+import categoryModel from "../models/categoryModel";
 import mongoose from "mongoose";
 import { beforeAll, afterAll, expect } from "@jest/globals";
 import { MongoMemoryServer } from "mongodb-memory-server";
@@ -126,6 +127,94 @@ describe("Product Routes", () => {
 
       const { product } = response.body;
       expect(product).toBeNull();
+    });
+  });
+
+  describe("GET /api/v1/product/related-product", () => {
+    let cid;
+    let pid;
+
+    beforeEach(async () => {
+      await productModel.deleteMany({});
+      await categoryModel.deleteMany({});
+
+      const category = await categoryModel.create({
+        name: "Electronics",
+        slug: "electronics",
+      });
+      cid = category._id;
+
+      const products = await productModel.create([
+        {
+          name: "phone",
+          slug: "phone",
+          description: "phone description",
+          price: 1000,
+          category: cid,
+          quantity: 10,
+        },
+        {
+          name: "laptop",
+          slug: "laptop",
+          description: "laptop description",
+          price: 2000,
+          category: cid,
+          quantity: 20,
+        },
+      ]);
+
+      pid = products[0]._id;
+    });
+
+    it("Should return related products", async () => {
+      const response = await request(app).get(`/api/v1/product/related-product/${pid}/${cid}`);
+      expect(response.status).toBe(200);
+
+      const { products } = response.body;
+      expect(products).toHaveLength(1);
+      expect(products[0]).toHaveProperty("name", "laptop");
+    });
+
+    it("Should return no related products if category does not exist", async () => {
+      const fakeCategoryId = new mongoose.Types.ObjectId();
+
+      const response = await request(app).get(
+        `/api/v1/product/related-product/${pid}/${fakeCategoryId}`
+      );
+
+      expect(response.status).toBe(200);
+
+      const { products } = response.body;
+      expect(products).toHaveLength(0);
+    });
+
+    it("Should return related products to the category if product ID does not exist", async () => {
+      const fakeProductId = new mongoose.Types.ObjectId();
+
+      const response = await request(app).get(
+        `/api/v1/product/related-product/${fakeProductId}/${cid}`
+      );
+
+      expect(response.status).toBe(200);
+
+      const { products } = response.body;
+      expect(products).toHaveLength(2);
+      expect(products[0]).toHaveProperty("name", "phone");
+      expect(products[1]).toHaveProperty("name", "laptop");
+    });
+
+    it("Should return no related products if both product ID and category does not exist", async () => {
+      const fakeProductId = new mongoose.Types.ObjectId();
+      const fakeCategoryId = new mongoose.Types.ObjectId();
+
+      const response = await request(app).get(
+        `/api/v1/product/related-product/${fakeProductId}/${fakeCategoryId}`
+      );
+
+      expect(response.status).toBe(200);
+
+      const { products } = response.body;
+      expect(products).toHaveLength(0);
     });
   });
 });
