@@ -173,6 +173,11 @@ describe("Product Routes", () => {
       const { products } = response.body;
       expect(products).toHaveLength(1);
       expect(products[0]).toHaveProperty("name", "laptop");
+      expect(products[0]).toHaveProperty("slug", "laptop");
+      expect(products[0]).toHaveProperty("description", "laptop description");
+      expect(products[0]).toHaveProperty("price", 2000);
+      expect(products[0]).toHaveProperty("category");
+      expect(products[0]).toHaveProperty("quantity", 20);
     });
 
     it("Should return no related products when category does not exist", async () => {
@@ -225,13 +230,16 @@ describe("Product Routes", () => {
       await productModel.deleteMany({});
       await categoryModel.deleteMany({});
 
-      const categories = await categoryModel.create([{
-        name: "Electronics",
-        slug: "electronics",
-      }, {
-        name: "Furniture",
-        slug: "furniture",
-      }]);
+      const categories = await categoryModel.create([
+        {
+          name: "Electronics",
+          slug: "electronics",
+        },
+        {
+          name: "Furniture",
+          slug: "furniture",
+        },
+      ]);
       cid = categories[0]._id;
 
       await productModel.create([
@@ -272,7 +280,10 @@ describe("Product Routes", () => {
 
       const { products } = response.body;
       expect(products[0]).toHaveProperty("name", "laptop");
+      expect(products[0]).toHaveProperty("slug", "laptop");
+
       expect(products[1]).toHaveProperty("name", "phone");
+      expect(products[1]).toHaveProperty("slug", "phone");
     });
 
     it("Should return an empty list when there are no products in the category", async () => {
