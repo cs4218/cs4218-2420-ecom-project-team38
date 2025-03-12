@@ -3,6 +3,7 @@ const config = {
   collectCoverage: true,
   collectCoverageFrom: [
     "controllers/**",
+    "routes/**",
     "helpers/**",
     "middlewares/**",
     "config/**",
@@ -12,6 +13,7 @@ const config = {
   testEnvironment: "node",
   testMatch: [
     "<rootDir>/controllers/**/*.test.js",
+    "<rootDir>/routes/**/*.test.js",
     "<rootDir>/helpers/**/*.test.js",
     "<rootDir>/middlewares/**/*.test.js",
     "<rootDir>/config/**/*.test.js",
