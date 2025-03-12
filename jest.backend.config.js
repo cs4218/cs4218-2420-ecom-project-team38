@@ -10,7 +10,6 @@ const config = {
   ],
   coverageThreshold: { global: { lines: 100, functions: 100 } },
   displayName: "backend",
-  setupFilesAfterEnv: ["<rootDir>/setup.js"],
   testEnvironment: "node",
   testMatch: [
     "<rootDir>/controllers/**/*.test.js",
