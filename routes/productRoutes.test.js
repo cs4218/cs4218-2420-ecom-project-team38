@@ -116,7 +116,7 @@ describe("Product Routes", () => {
       expect(product).toHaveProperty("quantity", 20);
     });
 
-    it("Should return no product if slug does not exist", async () => {
+    it("Should return no product when slug does not exist", async () => {
       const slug = "camera";
       const response = await request(app).get(`/api/v1/product/get-product/${slug}`);
 
@@ -175,7 +175,7 @@ describe("Product Routes", () => {
       expect(products[0]).toHaveProperty("name", "laptop");
     });
 
-    it("Should return no related products if category does not exist", async () => {
+    it("Should return no related products when category does not exist", async () => {
       const fakeCategoryId = new mongoose.Types.ObjectId();
 
       const response = await request(app).get(
@@ -188,7 +188,7 @@ describe("Product Routes", () => {
       expect(products).toHaveLength(0);
     });
 
-    it("Should return related products to the category if product ID does not exist", async () => {
+    it("Should return related products to the category when product ID does not exist", async () => {
       const fakeProductId = new mongoose.Types.ObjectId();
 
       const response = await request(app).get(
@@ -203,7 +203,7 @@ describe("Product Routes", () => {
       expect(products[1]).toHaveProperty("name", "laptop");
     });
 
-    it("Should return no related products if both product ID and category does not exist", async () => {
+    it("Should return no related products when both product ID and category does not exist", async () => {
       const fakeProductId = new mongoose.Types.ObjectId();
       const fakeCategoryId = new mongoose.Types.ObjectId();
 
@@ -215,6 +215,84 @@ describe("Product Routes", () => {
 
       const { products } = response.body;
       expect(products).toHaveLength(0);
+    });
+  });
+
+  describe("GET /api/v1/product/product-category", () => {
+    let cid;
+
+    beforeEach(async () => {
+      await productModel.deleteMany({});
+      await categoryModel.deleteMany({});
+
+      const categories = await categoryModel.create([{
+        name: "Electronics",
+        slug: "electronics",
+      }, {
+        name: "Furniture",
+        slug: "furniture",
+      }]);
+      cid = categories[0]._id;
+
+      await productModel.create([
+        {
+          name: "book",
+          slug: "book",
+          description: "book description",
+          price: 10,
+          category: new mongoose.Types.ObjectId("67d18a47b92dddc71c78f644"),
+          quantity: 20,
+        },
+        {
+          name: "laptop",
+          slug: "laptop",
+          description: "laptop description",
+          price: 2000,
+          category: cid,
+          quantity: 25,
+        },
+        {
+          name: "phone",
+          slug: "phone",
+          description: "phone description",
+          price: 1200,
+          category: cid,
+          quantity: 10,
+        },
+      ]);
+    });
+
+    it("Should return products of the given category", async () => {
+      const slug = "electronics";
+      const response = await request(app).get(`/api/v1/product/product-category/${slug}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("products");
+      expect(response.body.products).toHaveLength(2);
+
+      const { products } = response.body;
+      expect(products[0]).toHaveProperty("name", "laptop");
+      expect(products[1]).toHaveProperty("name", "phone");
+    });
+
+    it("Should return an empty list when there are no products in the category", async () => {
+      const slug = "furniture";
+      const response = await request(app).get(`/api/v1/product/product-category/${slug}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("products");
+      expect(response.body.products).toHaveLength(0);
+    });
+
+    it("Should return an error message if category does not exist", async () => {
+      const slug = "does-not-exist";
+      const response = await request(app).get(`/api/v1/product/product-category/${slug}`);
+
+      expect(response.status).toBe(404);
+
+      const { success, message } = response.body;
+      expect(success).toBe(false);
+      expect(message).toBe("Category Not Found");
     });
   });
 });
