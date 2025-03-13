@@ -146,10 +146,8 @@ describe("Product Routes", () => {
     });
 
     it("Should delete a product", async () => {
-      const deletedProduct = await productModel.deleteOne(pid);
       const response = await request(app).delete(`/api/v1/product/delete-product/${pid}`);
 
-      expect(deletedProduct).not.toBeNull();
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("success", true);
       expect(response.body).toHaveProperty("message", "Product Deleted successfully");
@@ -157,17 +155,11 @@ describe("Product Routes", () => {
 
     it("Should not delete anything if the product does not exist", async () => {
       const fakePid = new mongoose.Types.ObjectId();
-
-      const deletedProduct = await productModel.deleteOne(fakePid);
       const response = await request(app).delete(`/api/v1/product/delete-product/${fakePid}`);
-
-      expect(deletedProduct).not.toBeNull();
-      const { acknowledged, deletedCount } = deletedProduct;
-      expect(acknowledged).toBe(true);
-      expect(deletedCount).toBe(0);
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("success", true);
+      expect(response.body).toHaveProperty("message", "Product Deleted successfully");
     });
   });
 
