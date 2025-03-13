@@ -32,7 +32,7 @@ afterAll(async () => {
 
 describe("Product Routes", () => {
   describe("POST /api/v1/product/create-product", () => {
-    it("Should create a new product if the user is an admin", async () => {
+    it("Should create a new product if the user is authenticated and is also an admin", async () => {
       const adminUser = await userModel.create({
         name: "Admin User",
         email: "admin@example.com",
@@ -77,6 +77,19 @@ describe("Product Routes", () => {
       await userModel.findByIdAndDelete(adminUser._id);
     });
 
+    it("Should not create a new product if user is not authenticated", async () => {
+      const response = await request(app).post("/api/v1/product/create-product");
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("success", false);
+      expect(response.body).toHaveProperty("message", "Unauthorized Access");
+      expect(response.body).toHaveProperty("error");
+
+      const { error } = response.body;
+      expect(error).toHaveProperty("name", "JsonWebTokenError");
+      expect(error).toHaveProperty("message", "jwt must be provided");
+    });
+
     it("Should not create a new product if user is not an admin", async () => {
       const normalUser = await userModel.create({
         name: "Normal User",
@@ -111,6 +124,49 @@ describe("Product Routes", () => {
       expect(response.body).toHaveProperty("message", "Unauthorized Access");
 
       await userModel.findByIdAndDelete(normalUser._id);
+    });
+  });
+
+  describe("DELETE /api/v1/product/delete-product/:pid", () => {
+    let pid;
+
+    beforeEach(async () => {
+      await productModel.deleteMany({});
+      const product = await productModel.create({
+        name: "book",
+        slug: "book",
+        description: "book description",
+        price: 10,
+        category: new mongoose.Types.ObjectId("67d18a47b92dddc71c78f644"),
+        quantity: 20,
+      });
+
+      pid = product._id;
+    });
+
+    it("Should delete a product", async () => {
+      const deletedProduct = await productModel.deleteOne(pid);
+      const response = await request(app).delete(`/api/v1/product/delete-product/${pid}`);
+
+      expect(deletedProduct).not.toBeNull();
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("success", true);
+      expect(response.body).toHaveProperty("message", "Product Deleted successfully");
+    });
+
+    it("Should not delete anything if the product does not exist", async () => {
+      const fakePid = new mongoose.Types.ObjectId();
+
+      const deletedProduct = await productModel.deleteOne(fakePid);
+      const response = await request(app).delete(`/api/v1/product/delete-product/${fakePid}`);
+
+      expect(deletedProduct).not.toBeNull();
+      const { acknowledged, deletedCount } = deletedProduct;
+      expect(acknowledged).toBe(true);
+      expect(deletedCount).toBe(0);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("success", true);
     });
   });
 
@@ -364,6 +420,8 @@ describe("Product Routes", () => {
       expect(response.body.products).toHaveLength(2);
 
       const { products } = response.body;
+      products.sort((a, b) => a.name.localeCompare(b.name));
+
       expect(products[0]).toHaveProperty("name", "laptop");
       expect(products[0]).toHaveProperty("slug", "laptop");
 
