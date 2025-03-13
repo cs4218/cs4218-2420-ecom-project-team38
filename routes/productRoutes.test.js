@@ -306,4 +306,104 @@ describe("Product Routes", () => {
       expect(message).toBe("Category Not Found");
     });
   });
+
+  describe("GET /api/v1/product/product-count", () => {
+    beforeEach(async () => {
+      await productModel.deleteMany({});
+      await productModel.create([
+        {
+          name: "watch",
+          slug: "watch",
+          description: "watch description",
+          price: 100,
+          category: new mongoose.Types.ObjectId("67d18a47b92dddc71c78f644"),
+          quantity: 5,
+        },
+        {
+          name: "sofa",
+          slug: "sofa",
+          description: "sofa description",
+          price: 500,
+          category: new mongoose.Types.ObjectId("67d18a5fe08b3e56cc31552c"),
+          quantity: 10,
+        },
+      ]);
+    });
+
+    it("Should return the count of all products", async () => {
+      const response = await request(app).get("/api/v1/product/product-count");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("success", true);
+      expect(response.body).toHaveProperty("total", 2);
+    });
+  });
+
+  describe("GET /api/v1/product/product-list", () => {
+    beforeEach(async () => {
+      await productModel.deleteMany({});
+      await productModel.create([
+        {
+          name: "table",
+          slug: "table",
+          description: "table description",
+          price: 100,
+          category: new mongoose.Types.ObjectId("67d2e2bbd287b473192ea731"),
+          quantity: 20,
+        },
+        {
+          name: "lamp",
+          slug: "lamp",
+          description: " description",
+          price: 50,
+          category: new mongoose.Types.ObjectId("67d2e2b0ca8e90f3e42e1c77"),
+          quantity: 100,
+        },
+        {
+          name: "chair",
+          slug: "chair",
+          description: "chair description",
+          price: 150,
+          category: new mongoose.Types.ObjectId("67d2e29a1213c588a91f0ad4"),
+          quantity: 50,
+        },
+        {
+          name: "sofa",
+          slug: "sofa",
+          description: "sofa description",
+          price: 500,
+          category: new mongoose.Types.ObjectId("67d18a5fe08b3e56cc31552c"),
+          quantity: 10,
+        },
+        {
+          name: "watch",
+          slug: "watch",
+          description: "watch description",
+          price: 100,
+          category: new mongoose.Types.ObjectId("67d2e29a1213c588a91f0ad4"),
+          quantity: 5,
+        },
+        {
+          name: "phone",
+          slug: "phone",
+          description: "phone description",
+          price: 1200,
+          category: new mongoose.Types.ObjectId("67d2e29156a5fa0c85fa5796"),
+          quantity: 24,
+        },
+      ]);
+    });
+
+    it("Should return the list of products on the current page", async () => {
+      const page = 1;
+      const response = await request(app).get(`/api/v1/product/product-list/${page}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("success", true);
+      expect(response.body).toHaveProperty("products");
+
+      const { products } = response.body;
+      expect(products).toHaveLength(6);
+    });
+  });
 });
