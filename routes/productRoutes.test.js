@@ -8,6 +8,7 @@ import categoryModel from "../models/categoryModel";
 import mongoose from "mongoose";
 import { beforeAll, afterAll, expect } from "@jest/globals";
 import { MongoMemoryServer } from "mongodb-memory-server";
+import e from "express";
 
 const app = Express();
 app.use("/api/v1/product", productRoutes);
@@ -127,7 +128,7 @@ describe("Product Routes", () => {
     });
   });
 
-  describe("DELETE /api/v1/product/delete-product/:pid", () => {
+  describe("DELETE /api/v1/product/delete-product", () => {
     let pid;
 
     beforeEach(async () => {
@@ -236,6 +237,22 @@ describe("Product Routes", () => {
           quantity: 25,
         },
       ]);
+    });
+
+    it("Should return a list of all products when no slug is provided", async () => {
+      const response = await request(app).get("/api/v1/product/get-product");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("products");
+      expect(response.body.products).toHaveLength(2);
+      
+      const { products } = response.body;
+      products.sort((a, b) => a.name.localeCompare(b.name));
+      expect(products[0]).toHaveProperty("name", "book");
+      expect(products[0]).toHaveProperty("slug", "book");
+
+      expect(products[1]).toHaveProperty("name", "laptop");
+      expect(products[1]).toHaveProperty("slug", "laptop");
     });
 
     it("Should return product with the given slug", async () => {
