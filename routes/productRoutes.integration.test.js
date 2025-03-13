@@ -79,7 +79,13 @@ describe("Product Routes", () => {
     });
 
     it("Should not create a new product if user is not authenticated", async () => {
-      const response = await request(app).post("/api/v1/product/create-product");
+      const response = await request(app)
+        .post("/api/v1/product/create-product")
+        .field("name", "updated book")
+        .field("description", "updated book description")
+        .field("price", 20)
+        .field("category", "67d18a47b92dddc71c78f644")
+        .field("quantity", 25);
 
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty("success", false);
@@ -125,6 +131,122 @@ describe("Product Routes", () => {
       expect(response.body).toHaveProperty("message", "Unauthorized Access");
 
       await userModel.findByIdAndDelete(normalUser._id);
+    });
+  });
+
+  describe("PUT /api/v1/product/update-product", () => {
+    let adminUser, adminToken, normalUser, normalToken, pid;
+
+    beforeEach(async () => {
+      await userModel.deleteMany({});
+      await productModel.deleteMany({});
+
+      adminUser = await userModel.create({
+        name: "Admin User",
+        email: "admin@example.com",
+        password: "password",
+        phone: "1234567890",
+        address: {
+          street: "Jurong East Street 21",
+          city: "Singapore",
+          zip: "123456",
+        },
+        answer: "answer",
+        DOB: new Date("2000-01-01"),
+        role: 1,
+      });
+
+      adminToken = JWT.sign({ _id: adminUser._id }, process.env.JWT_SECRET, {
+        expiresIn: "7d",
+      });
+
+      normalUser = await userModel.create({
+        name: "Normal User",
+        email: "user@example.com",
+        password: "password",
+        phone: "1234567890",
+        address: {
+          street: "Jurong West Street 21",
+          city: "Singapore",
+          zip: "123456",
+        },
+        answer: "idk",
+        DOB: new Date("2000-02-02"),
+        role: 0,
+      });
+
+      normalToken = JWT.sign({ _id: normalUser._id }, process.env.JWT_SECRET, {
+        expiresIn: "7d",
+      });
+
+      const product = await productModel.create({
+        name: "book",
+        slug: "book",
+        description: "book description",
+        price: 10,
+        category: new mongoose.Types.ObjectId("67d18a47b92dddc71c78f644"),
+        quantity: 20,
+      });
+
+      pid = product._id;
+    });
+
+    it("Should update a product if the user is authenticated and is also an admin", async () => {
+      const response = await request(app)
+        .put(`/api/v1/product/update-product/${pid}`)
+        .set("Authorization", `${adminToken}`)
+        .field("name", "updated book")
+        .field("description", "updated book description")
+        .field("price", 20)
+        .field("category", "67d18a47b92dddc71c78f644")
+        .field("quantity", 25);
+
+      expect(response.status).toBe(201);
+      expect(response.body).toHaveProperty("success", true);
+      expect(response.body).toHaveProperty("message", "Product Updated Successfully");
+      expect(response.body).toHaveProperty("products");
+
+      const { products } = response.body;
+      expect(products).toHaveProperty("name", "updated book");
+      expect(products).toHaveProperty("slug", "updated-book");
+      expect(products).toHaveProperty("description", "updated book description");
+      expect(products).toHaveProperty("price", 20);
+      expect(products).toHaveProperty("category");
+      expect(products).toHaveProperty("quantity", 25);
+    });
+
+    it("Should not update a product if user is not authenticated", async () => {
+      const response = await request(app)
+        .put(`/api/v1/product/update-product/${pid}`)
+        .field("name", "updated book")
+        .field("description", "updated book description")
+        .field("price", 20)
+        .field("category", "67d18a47b92dddc71c78f644")
+        .field("quantity", 25);
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("success", false);
+      expect(response.body).toHaveProperty("message", "Unauthorized Access");
+      expect(response.body).toHaveProperty("error");
+
+      const { error } = response.body;
+      expect(error).toHaveProperty("name", "JsonWebTokenError");
+      expect(error).toHaveProperty("message", "jwt must be provided");
+    });
+
+    it("Should not update a product if user is not an admin", async () => {
+      const response = await request(app)
+        .put(`/api/v1/product/update-product/${pid}`)
+        .set("Authorization", `${normalToken}`)
+        .field("name", "updated book")
+        .field("description", "updated book description")
+        .field("price", 20)
+        .field("category", "67d18a47b92dddc71c78f644")
+        .field("quantity", 25);
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("success", false);
+      expect(response.body).toHaveProperty("message", "Unauthorized Access");
     });
   });
 
@@ -237,7 +359,7 @@ describe("Product Routes", () => {
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("products");
       expect(response.body.products).toHaveLength(2);
-      
+
       const { products } = response.body;
       products.sort((a, b) => a.name.localeCompare(b.name));
       expect(products[0]).toHaveProperty("name", "book");
