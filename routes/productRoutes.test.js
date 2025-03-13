@@ -1,6 +1,8 @@
 import Express from "express";
+import JWT from "jsonwebtoken";
 import productRoutes from "./productRoutes";
 import request from "supertest";
+import userModel from "../models/userModel";
 import productModel from "../models/productModel";
 import categoryModel from "../models/categoryModel";
 import mongoose from "mongoose";
@@ -29,6 +31,89 @@ afterAll(async () => {
 });
 
 describe("Product Routes", () => {
+  describe("POST /api/v1/product/create-product", () => {
+    it("Should create a new product if the user is an admin", async () => {
+      const adminUser = await userModel.create({
+        name: "Admin User",
+        email: "admin@example.com",
+        password: "password",
+        phone: "1234567890",
+        address: {
+          street: "Jurong East Street 21",
+          city: "Singapore",
+          zip: "123456",
+        },
+        answer: "answer",
+        DOB: new Date("2000-01-01"),
+        role: 1,
+      });
+
+      const token = JWT.sign({ _id: adminUser._id }, process.env.JWT_SECRET, {
+        expiresIn: "7d",
+      });
+
+      const response = await request(app)
+        .post("/api/v1/product/create-product")
+        .set("Authorization", `${token}`)
+        .field("name", "new product")
+        .field("description", "new product description")
+        .field("price", 1000)
+        .field("category", "67d30c089053b3cfffe5de9e")
+        .field("quantity", 10);
+
+      expect(response.status).toBe(201);
+      expect(response.body).toHaveProperty("success", true);
+      expect(response.body).toHaveProperty("message", "Product Created Successfully");
+      expect(response.body).toHaveProperty("products");
+
+      const { products } = response.body;
+      expect(products).toHaveProperty("name", "new product");
+      expect(products).toHaveProperty("slug", "new-product");
+      expect(products).toHaveProperty("description", "new product description");
+      expect(products).toHaveProperty("price", 1000);
+      expect(products).toHaveProperty("category");
+      expect(products).toHaveProperty("quantity", 10);
+
+      await userModel.findByIdAndDelete(adminUser._id);
+    });
+
+    it("Should not create a new product if user is not an admin", async () => {
+      const normalUser = await userModel.create({
+        name: "Normal User",
+        email: "user@example.com",
+        password: "password",
+        phone: "1234567890",
+        address: {
+          street: "Jurong West Street 21",
+          city: "Singapore",
+          zip: "123456",
+        },
+        answer: "idk",
+        DOB: new Date("2000-02-02"),
+        role: 0,
+      });
+
+      const token = JWT.sign({ _id: normalUser._id }, process.env.JWT_SECRET, {
+        expiresIn: "7d",
+      });
+
+      const response = await request(app)
+        .post("/api/v1/product/create-product")
+        .set("Authorization", `${token}`)
+        .field("name", "new product")
+        .field("description", "new product description")
+        .field("price", 1000)
+        .field("category", "67d30c089053b3cfffe5de9e")
+        .field("quantity", 10);
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("success", false);
+      expect(response.body).toHaveProperty("message", "Unauthorized Access");
+
+      await userModel.findByIdAndDelete(normalUser._id);
+    });
+  });
+
   describe("GET /api/v1/product/search", () => {
     beforeEach(async () => {
       await productModel.deleteMany({});
