@@ -289,8 +289,7 @@ describe("Product Routes", () => {
   });
 
   describe("GET /api/v1/product/related-product", () => {
-    let cid;
-    let pid;
+    let cid, pid;
 
     beforeEach(async () => {
       await productModel.deleteMany({});
@@ -564,6 +563,45 @@ describe("Product Routes", () => {
 
       const { products } = response.body;
       expect(products).toHaveLength(6);
+    });
+  });
+
+  describe("GET /api/v1/product/braintree/token", () => {
+    let originalMerchantId, originalPublicKey, originalPrivateKey;
+
+    beforeEach(() => {
+      originalMerchantId = process.env.BRAINTREE_MERCHANT_ID;
+      originalPublicKey = process.env.BRAINTREE_PUBLIC_KEY;
+      originalPrivateKey = process.env.BRAINTREE_PRIVATE_KEY;
+    });
+
+    afterEach(() => {
+      process.env.BRAINTREE_MERCHANT_ID = originalMerchantId;
+      process.env.BRAINTREE_PUBLIC_KEY = originalPublicKey;
+      process.env.BRAINTREE_PRIVATE_KEY = originalPrivateKey;
+    });
+
+    it("Should return a Braintree client token", async () => {
+      const response = await request(app).get("/api/v1/product/braintree/token");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("clientToken");
+
+      const { clientToken } = response.body;
+      expect(typeof clientToken).toBe("string");
+    });
+
+    it("Should return an error message if Braintree client token generation fails", async () => {
+      // override credentials with invalid values to simulate a failure
+      process.env.BRAINTREE_MERCHANT_ID = "invalid-merchant-id";
+      process.env.BRAINTREE_PUBLIC_KEY = "invalid-public-key";
+      process.env.BRAINTREE_PRIVATE_KEY = "invalid-private-key";
+
+      const response = await request(app).get("/api/v1/product/braintree/token");
+
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty("name", "authenticationError");
+      expect(response.body).toHaveProperty("type", "authenticationError");
     });
   });
 });
