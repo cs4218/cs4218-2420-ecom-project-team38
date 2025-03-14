@@ -402,6 +402,54 @@ describe("Product Routes", () => {
     });
   });
 
+  describe("GET /api/v1/product-filters", () => {
+    beforeEach(async () => {
+      await productModel.deleteMany({});
+      await productModel.create([
+        {
+          name: "book",
+          slug: "book",
+          description: "book description",
+          price: 10,
+          category: new mongoose.Types.ObjectId("67d18a47b92dddc71c78f644"),
+          quantity: 20,
+        },
+        {
+          name: "laptop",
+          slug: "laptop",
+          description: "laptop description",
+          price: 2000,
+          category: new mongoose.Types.ObjectId("67d18a5fe08b3e56cc31552c"),
+          quantity: 25,
+        },
+      ]);
+    });
+  
+    it("Should return a list of products based on the filters", async () => {
+      const filters = {
+        checked: ["67d18a47b92dddc71c78f644"],
+        radio: [5, 15], 
+      };
+ 
+      const response = await request(app)
+        .post("/api/v1/product/product-filters")
+        .set("Content-Type", "application/json")
+        .send(filters);
+  
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("products");
+      expect(response.body.products).toHaveLength(1); 
+  
+      const { products } = response.body;
+      expect(products[0]).toHaveProperty("name", "book");
+      expect(products[0]).toHaveProperty("slug", "book");
+      expect(products[0]).toHaveProperty("description", "book description");
+      expect(products[0]).toHaveProperty("price", 10);
+      expect(products[0]).toHaveProperty("category", "67d18a47b92dddc71c78f644");
+      expect(products[0]).toHaveProperty("quantity", 20);
+    });
+  });
+
   describe("GET /api/v1/product/related-product", () => {
     let cid, pid;
 
