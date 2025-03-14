@@ -5,10 +5,10 @@ import request from "supertest";
 import userModel from "../models/userModel";
 import productModel from "../models/productModel";
 import categoryModel from "../models/categoryModel";
+import orderModel from "../models/orderModel";
 import mongoose from "mongoose";
 import { beforeAll, afterAll, expect } from "@jest/globals";
 import { MongoMemoryServer } from "mongodb-memory-server";
-import e from "express";
 
 const app = Express();
 app.use("/api/v1/product", productRoutes);
@@ -33,7 +33,7 @@ afterAll(async () => {
 
 describe("Product Routes", () => {
   describe("POST /api/v1/product/create-product", () => {
-    it("Should create a new product if the user is authenticated and is also an admin", async () => {
+    it("Should create a new product when the user is authenticated and is also an admin", async () => {
       const adminUser = await userModel.create({
         name: "Admin User",
         email: "admin@example.com",
@@ -78,7 +78,7 @@ describe("Product Routes", () => {
       await userModel.findByIdAndDelete(adminUser._id);
     });
 
-    it("Should not create a new product if user is not authenticated", async () => {
+    it("Should not create a new product when user is not authenticated", async () => {
       const response = await request(app)
         .post("/api/v1/product/create-product")
         .field("name", "updated book")
@@ -816,5 +816,84 @@ describe("Product Routes", () => {
       expect(response.body).toHaveProperty("name", "authenticationError");
       expect(response.body).toHaveProperty("type", "authenticationError");
     });
+  });
+
+  describe("POST /api/v1/product/braintree/payment", () => {
+    let token, pid;
+
+    beforeEach(async () => {
+      await userModel.deleteMany({});
+      await productModel.deleteMany({});
+      await orderModel.deleteMany({});
+
+      const user = await userModel.create({
+        name: "Normal User",
+        email: "user@example.com",
+        password: "password",
+        phone: "1234567890",
+        address: {
+          street: "Jurong West Street 21",
+          city: "Singapore",
+          zip: "123456",
+        },
+        answer: "idk",
+        DOB: new Date("2000-02-02"),
+        role: 0,
+      });
+
+      const product = await productModel.create({
+        name: "book",
+        slug: "book",
+        description: "book description",
+        price: 10,
+        category: new mongoose.Types.ObjectId("67d18a47b92dddc71c78f644"),
+        quantity: 20,
+      });
+
+      pid = product._id;
+
+      token = JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
+        expiresIn: "7d",
+      });
+    });
+
+    it("Should process a payment when user is authenticated", async () => {
+      const response = await request(app)
+        .post("/api/v1/product/braintree/payment")
+        .set("Authorization", `${token}`)
+        .send({
+          nonce: "fake-valid-nonce",
+          cart: [{ _id: pid, price: 10 }],
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("ok", true);
+    });
+
+    it("Should not process payment if user is not authenticated", async () => {
+      const response = await request(app)
+        .post("/api/v1/product/braintree/payment")
+        .send({
+          nonce: "fake-valid-nonce",
+          cart: [{ _id: pid, price: 10 }],
+        });
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("success", false);
+      expect(response.body).toHaveProperty("message", "Unauthorized Access");
+    });
+
+    // it("Should not process payment if error occurs during payment processing", async () => {
+    //   const response = await request(app)
+    //     .post("/api/v1/product/braintree/payment")
+    //     .set("Authorization", `${token}`)
+    //     .send({
+    //       nonce: "fake-processor-declined-visa-nonce",
+    //       cart: [{ _id: pid, price: 10 }],
+    //     });
+
+    //   expect(response.status).toBe(500);
+    //   expect(response.body).toHaveProperty("ok", false);
+    // });
   });
 });
