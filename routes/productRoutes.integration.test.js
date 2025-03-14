@@ -424,22 +424,22 @@ describe("Product Routes", () => {
         },
       ]);
     });
-  
+
     it("Should return a list of products based on the filters", async () => {
       const filters = {
         checked: ["67d18a47b92dddc71c78f644"],
-        radio: [5, 15], 
+        radio: [5, 15],
       };
- 
+
       const response = await request(app)
         .post("/api/v1/product/product-filters")
         .set("Content-Type", "application/json")
         .send(filters);
-  
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("products");
-      expect(response.body.products).toHaveLength(1); 
-  
+      expect(response.body.products).toHaveLength(1);
+
       const { products } = response.body;
       expect(products[0]).toHaveProperty("name", "book");
       expect(products[0]).toHaveProperty("slug", "book");
@@ -539,6 +539,57 @@ describe("Product Routes", () => {
 
       const { products } = response.body;
       expect(products).toHaveLength(0);
+    });
+  });
+
+  describe("GET /api/v1/product/product-photo", () => {
+    let pid, pidPhoto, pidNoPhoto;
+
+    beforeEach(async () => {
+      await productModel.deleteMany({});
+      const productWithPhoto = await productModel.create({
+        name: "book",
+        slug: "book",
+        description: "book description",
+        price: 10,
+        category: new mongoose.Types.ObjectId("67d18a47b92dddc71c78f644"),
+        quantity: 20,
+      });
+
+      productWithPhoto.photo.data = Buffer.from("photo data");
+      productWithPhoto.photo.contentType = "image/jpeg";
+      await productWithPhoto.save();
+
+      pidPhoto = productWithPhoto._id;
+
+      const productWithoutPhoto = await productModel.create({
+        name: "laptop",
+        slug: "laptop",
+        description: "laptop description",
+        price: 2000,
+        category: new mongoose.Types.ObjectId("67d18a5fe08b3e56cc31552c"),
+        quantity: 25,
+      });
+
+      pidNoPhoto = productWithoutPhoto._id;
+    });
+
+    it("Should return the photo of the product", async () => {
+      pid = pidPhoto;
+      const response = await request(app).get(`/api/v1/product/product-photo/${pid}`);
+
+      expect(response.status).toBe(200);
+      expect(response.headers["content-type"]).toBe("image/jpeg");
+      expect(response.body).toEqual(Buffer.from("photo data"));
+    });
+
+    it("Should return an error if no photo can be found", async () => {
+      pid = pidNoPhoto;
+      const response = await request(app).get(`/api/v1/product/product-photo/${pid}`);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("success", false);
+      expect(response.body).toHaveProperty("message", "No photo found");
     });
   });
 
