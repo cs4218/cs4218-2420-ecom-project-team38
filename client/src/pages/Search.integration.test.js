@@ -11,6 +11,7 @@ import axios from "axios";
 import { AuthProvider } from "../context/auth";
 import toast from "react-hot-toast";
 import CartPage from "./CartPage";
+import { CategoryProvider } from "../context/category";
 
 jest.mock("axios");
 
@@ -48,10 +49,12 @@ describe("Search page integration test", () => {
         <AuthProvider>
           <SearchProvider>
             <CartProvider>
-              <Routes>
-                <Route path="/" element={<SearchInput />} />
-                <Route path="/search" element={<Search />} />
-              </Routes>
+              <CategoryProvider>
+                <Routes>
+                  <Route path="/" element={<SearchInput />} />
+                  <Route path="/search" element={<Search />} />
+                </Routes>
+              </CategoryProvider>
             </CartProvider>
           </SearchProvider>
         </AuthProvider>
@@ -75,11 +78,13 @@ describe("Search page integration test", () => {
         <AuthProvider>
           <SearchProvider>
             <CartProvider>
-              <Routes>
-                <Route path="/" element={<SearchInput />} />
-                <Route path="/search" element={<Search />} />
-                <Route path="/cart" element={<CartPage />} />
-              </Routes>
+              <CategoryProvider>
+                <Routes>
+                  <Route path="/" element={<SearchInput />} />
+                  <Route path="/search" element={<Search />} />
+                  <Route path="/cart" element={<CartPage />} />
+                </Routes>
+              </CategoryProvider>
             </CartProvider>
           </SearchProvider>
         </AuthProvider>
