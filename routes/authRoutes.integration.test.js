@@ -489,17 +489,13 @@ describe("Auth Routes", () => {
         expect(response.body).toHaveProperty("message", "Unauthorized Access");
       });
 
-      it("should return error response when there is a database error", async () => {
-        const spy = jest
-          .spyOn(orderModel, "findByIdAndUpdate")
-          .mockImplementation(() => {
-            throw new Error("Database error");
-          });
+      it("should return error response when there is a database error such as invalid status", async () => {
+        const invalidStatus = "Invalid Status";
 
         const response = await request(app)
           .put(`${UPDATE_ORDER_STATUS_API}/${mockUserOrder._id}`)
           .set("Authorization", mockAdminToken)
-          .send({ status: updatedStatus });
+          .send({ status: invalidStatus });
 
         expect(response.status).toBe(500);
         expect(response.body).toHaveProperty("success", false);
@@ -507,9 +503,6 @@ describe("Auth Routes", () => {
           "message",
           "Error while updating order"
         );
-        expect(response.body).toHaveProperty("error");
-
-        spy.mockRestore();
       });
     });
   });

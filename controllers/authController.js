@@ -350,7 +350,7 @@ export const orderStatusController = async (req, res) => {
     const order = await orderModel.findByIdAndUpdate(
       orderId,
       { status },
-      { new: true }
+      { new: true, runValidators: true }
     );
 
     if (!order) {
