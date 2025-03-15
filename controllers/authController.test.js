@@ -1033,7 +1033,9 @@ describe("Auth Controller", () => {
     });
 
     it("should get all orders where the buyer is the user from the database", async () => {
-      orderModel.find = jest.fn();
+      orderModel.find = jest.fn().mockReturnValue({
+        populate: jest.fn().mockReturnThis(),
+      });
 
       await getOrdersController(req, res);
 
@@ -1124,7 +1126,10 @@ describe("Auth Controller", () => {
     });
 
     it("should get all orders from the database", async () => {
-      orderModel.find = jest.fn();
+      orderModel.find = jest.fn().mockReturnValue({
+        populate: jest.fn().mockReturnThis(),
+        sort: jest.fn(),
+      });
 
       await getAllOrdersController(req, res);
 
@@ -1134,6 +1139,7 @@ describe("Auth Controller", () => {
     it("should exclude the product photos when getting orders from the database", async () => {
       orderModel.find = jest.fn().mockReturnValue({
         populate: jest.fn().mockReturnThis(),
+        sort: jest.fn(),
       });
 
       await getAllOrdersController(req, res);
@@ -1147,6 +1153,7 @@ describe("Auth Controller", () => {
     it("should include the buyers' names when getting orders from the database", async () => {
       orderModel.find = jest.fn().mockReturnValue({
         populate: jest.fn().mockReturnThis(),
+        sort: jest.fn(),
       });
 
       await getAllOrdersController(req, res);
@@ -1242,7 +1249,7 @@ describe("Auth Controller", () => {
       expect(orderModel.findByIdAndUpdate).toHaveBeenCalledWith(
         mockOrderId,
         { status: mockOrderStatus },
-        { new: true }
+        { new: true, runValidators: true }
       );
     });
 
