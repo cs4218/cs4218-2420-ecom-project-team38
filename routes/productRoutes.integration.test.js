@@ -740,6 +740,7 @@ describe("Product Routes", () => {
       const { products } = response.body;
       products.sort((a, b) => a.name.localeCompare(b.name));
 
+      expect(products).toHaveLength(2);
       expect(products[0]).toHaveProperty("name", "laptop");
       expect(products[0]).toHaveProperty("slug", "laptop");
 
