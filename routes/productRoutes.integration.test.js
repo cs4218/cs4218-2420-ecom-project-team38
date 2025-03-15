@@ -310,12 +310,17 @@ describe("Product Routes", () => {
 
     it("Should return a list of products containing matching keyword", async () => {
       const keyword = "phone";
-      const response = await request(app).get(`/api/v1/product/search/${keyword}`);
+      const response = await request(app).get(
+        `/api/v1/product/search/${keyword}`
+      );
       expect(response.status).toBe(200);
       expect(response.body).toHaveLength(1);
       expect(response.body[0]).toHaveProperty("name", "phone");
       expect(response.body[0]).toHaveProperty("slug", "phone");
-      expect(response.body[0]).toHaveProperty("description", "phone description");
+      expect(response.body[0]).toHaveProperty(
+        "description",
+        "phone description"
+      );
       expect(response.body[0]).toHaveProperty("price", 1000);
       expect(response.body[0]).toHaveProperty("category");
       expect(response.body[0]).toHaveProperty("quantity", 10);
@@ -323,7 +328,9 @@ describe("Product Routes", () => {
 
     it("Should return an empty list when keyword does not match products", async () => {
       const keyword = "non-existent";
-      const response = await request(app).get(`/api/v1/product/search/${keyword}`);
+      const response = await request(app).get(
+        `/api/v1/product/search/${keyword}`
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual([]);

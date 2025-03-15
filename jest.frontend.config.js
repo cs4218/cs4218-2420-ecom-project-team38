@@ -1,6 +1,6 @@
 /** @type {import("jest").Config} */
 const config = {
-  collectCoverage: true,
+  // collectCoverage: true,
   collectCoverageFrom: ["client/src/**"],
   coveragePathIgnorePatterns: ["<rootDir>/client/src/_site/"],
   coverageThreshold: { global: { lines: 100, functions: 100 } },

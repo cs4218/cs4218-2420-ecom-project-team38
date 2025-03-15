@@ -265,17 +265,18 @@ export const updateProfileController = async (req, res) => {
       });
     }
 
+    const user = await userModel.findById(req.user._id);
+    if (!user) {
+      return res.status(404).send({
+        success: false,
+        message: "User not found",
+      });
+    }
+
     let newHashedPassword, currentHashedPassword;
     if (password) {
       newHashedPassword = await hashPassword(password);
     } else {
-      const user = await userModel.findById(req.user._id);
-      if (!user) {
-        return res.status(404).send({
-          success: false,
-          message: "User not found",
-        });
-      }
       currentHashedPassword = user.password;
     }
 
