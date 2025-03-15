@@ -268,7 +268,7 @@ describe("Auth Routes", () => {
     describe("GET /api/v1/auth/orders", () => {
       const GET_ORDERS_API = "/api/v1/auth/orders";
 
-      it("should return successful response with order details when get orders is successful", async () => {
+      it("should return successful response with order details when request is successful", async () => {
         const response = await request(app)
           .get(GET_ORDERS_API)
           .set("Authorization", mockToken);
@@ -289,7 +289,7 @@ describe("Auth Routes", () => {
         expect(response.body[0].products).toHaveLength(1);
       });
 
-      it("should return successful response with product details when get orders is successful", async () => {
+      it("should return successful response with product details when request is successful", async () => {
         const response = await request(app)
           .get(GET_ORDERS_API)
           .set("Authorization", mockToken);
@@ -346,7 +346,7 @@ describe("Auth Routes", () => {
     describe("GET /api/v1/auth/all-orders", () => {
       const GET_ALL_ORDERS_API = "/api/v1/auth/all-orders";
 
-      it("should return successful response with order details when get all orders is successful", async () => {
+      it("should return successful response with order details when request is successful", async () => {
         const response = await request(app)
           .get(GET_ALL_ORDERS_API)
           .set("Authorization", mockAdminToken);
@@ -389,7 +389,7 @@ describe("Auth Routes", () => {
         expect(response.body[1].products).toHaveLength(1);
       });
 
-      it("should return successful response with product details when get all orders is successful", async () => {
+      it("should return successful response with product details when request is successful", async () => {
         const response = await request(app)
           .get(GET_ALL_ORDERS_API)
           .set("Authorization", mockAdminToken);
@@ -438,6 +438,74 @@ describe("Auth Routes", () => {
         expect(response.body).toHaveProperty(
           "message",
           "Error while getting all orders"
+        );
+        expect(response.body).toHaveProperty("error");
+
+        spy.mockRestore();
+      });
+    });
+
+    describe("PUT /api/v1/auth/order-status", () => {
+      const UPDATE_ORDER_STATUS_API = "/api/v1/auth/order-status";
+      const updatedStatus = "Processing";
+
+      it("should return successful response with updated order when request is successful", async () => {
+        const response = await request(app)
+          .put(`${UPDATE_ORDER_STATUS_API}/${mockUserOrder._id}`)
+          .set("Authorization", mockAdminToken)
+          .send({ status: updatedStatus });
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty(
+          "_id",
+          mockUserOrder._id.toString()
+        );
+        expect(response.body).toHaveProperty("status", updatedStatus);
+      });
+
+      it("should return error response when order is not found", async () => {
+        const invalidOrderId = new mongoose.Types.ObjectId(
+          "67c3d42a5b9f8c8c5a7e2f62"
+        );
+
+        const response = await request(app)
+          .put(`${UPDATE_ORDER_STATUS_API}/${invalidOrderId}`)
+          .set("Authorization", mockAdminToken)
+          .send({ status: updatedStatus });
+
+        expect(response.status).toBe(404);
+        expect(response.body).toHaveProperty("success", false);
+        expect(response.body).toHaveProperty("message", "Order not found");
+      });
+
+      it("should return error response when request is unauthorized", async () => {
+        const response = await request(app)
+          .put(`${UPDATE_ORDER_STATUS_API}/${mockUserOrder._id}`)
+          .set("Authorization", mockToken)
+          .send({ status: updatedStatus });
+
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("success", false);
+        expect(response.body).toHaveProperty("message", "Unauthorized Access");
+      });
+
+      it("should return error response when there is a database error", async () => {
+        const spy = jest
+          .spyOn(orderModel, "findByIdAndUpdate")
+          .mockImplementation(() => {
+            throw new Error("Database error");
+          });
+
+        const response = await request(app)
+          .put(`${UPDATE_ORDER_STATUS_API}/${mockUserOrder._id}`)
+          .set("Authorization", mockAdminToken)
+          .send({ status: updatedStatus });
+
+        expect(response.status).toBe(500);
+        expect(response.body).toHaveProperty("success", false);
+        expect(response.body).toHaveProperty(
+          "message",
+          "Error while updating order"
         );
         expect(response.body).toHaveProperty("error");
 
