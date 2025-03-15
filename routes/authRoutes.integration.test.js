@@ -32,11 +32,12 @@ afterAll(async () => {
   await mongo.stop();
 });
 
+process.env.JWT_SECRET = "test-secret";
+
 jest.spyOn(console, "log").mockImplementation(() => {});
 
 describe("Auth Routes", () => {
-  describe("PUT /api/v1/auth/profile", () => {
-    const UPDATE_PROFILE_API = "/api/v1/auth/profile";
+  describe("Profile", () => {
     const mockUser = {
       _id: new mongoose.Types.ObjectId("65d21b4667d0d8992e610c85"),
       name: "Test User",
@@ -47,7 +48,6 @@ describe("Auth Routes", () => {
       answer: "Software Testing",
       DOB: new Date("01/23/2004"),
     };
-    process.env.JWT_SECRET = "test-secret";
 
     let mockToken;
 
@@ -57,144 +57,146 @@ describe("Auth Routes", () => {
       mockToken = JWT.sign({ _id: mockUser._id }, process.env.JWT_SECRET);
     });
 
-    it("should return successful response with updated profile when request is successful", async () => {
-      const updatedUser = {
-        name: "New User",
-        email: "testuser@gmail.com",
-        password: "newpassword456",
-        phone: "87654321",
-        address: "13 Computing Drive",
-      };
+    describe("PUT /api/v1/auth/profile", () => {
+      const UPDATE_PROFILE_API = "/api/v1/auth/profile";
 
-      const response = await request(app)
-        .put(UPDATE_PROFILE_API)
-        .set("Authorization", mockToken)
-        .send(updatedUser);
+      it("should return successful response with updated profile when request is successful", async () => {
+        const updatedUser = {
+          name: "New User",
+          email: "testuser@gmail.com",
+          password: "newpassword456",
+          phone: "87654321",
+          address: "13 Computing Drive",
+        };
 
-      expect(response.status).toBe(200);
-      expect(response.body).not.toHaveProperty("error");
-      expect(response.body).toHaveProperty("updatedUser");
-      expect(response.body.updatedUser.name).toBe(updatedUser.name);
-      expect(response.body.updatedUser.email).toBe(mockUser.email);
-      expect(
-        await comparePassword(
-          updatedUser.password,
-          response.body.updatedUser.password
-        )
-      ).toBe(true);
-      expect(response.body.updatedUser.phone).toBe(updatedUser.phone);
-      expect(response.body.updatedUser.address).toBe(updatedUser.address);
-    });
+        const response = await request(app)
+          .put(UPDATE_PROFILE_API)
+          .set("Authorization", mockToken)
+          .send(updatedUser);
 
-    it("should return response with error message when required values are missing", async () => {
-      const updatedUser = {
-        name: "  ", // missing
-        email: "testuser@gmail.com",
-        password: "newpassword456",
-        phone: "87654321",
-        address: "13 Computing Drive",
-      };
+        expect(response.status).toBe(200);
+        expect(response.body).not.toHaveProperty("error");
+        expect(response.body).toHaveProperty("updatedUser");
+        expect(response.body.updatedUser.name).toBe(updatedUser.name);
+        expect(response.body.updatedUser.email).toBe(mockUser.email);
+        expect(
+          await comparePassword(
+            updatedUser.password,
+            response.body.updatedUser.password
+          )
+        ).toBe(true);
+        expect(response.body.updatedUser.phone).toBe(updatedUser.phone);
+        expect(response.body.updatedUser.address).toBe(updatedUser.address);
+      });
 
-      const response = await request(app)
-        .put(UPDATE_PROFILE_API)
-        .set("Authorization", mockToken)
-        .send(updatedUser);
+      it("should return response with error message when required values are missing", async () => {
+        const updatedUser = {
+          name: "  ", // missing
+          email: "testuser@gmail.com",
+          password: "newpassword456",
+          phone: "87654321",
+          address: "13 Computing Drive",
+        };
 
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty("error");
-    });
+        const response = await request(app)
+          .put(UPDATE_PROFILE_API)
+          .set("Authorization", mockToken)
+          .send(updatedUser);
 
-    it("should return response with error message when values are invalid", async () => {
-      const updatedUser = {
-        name: "New User",
-        email: "testuser@gmail.com",
-        password: "newpassword456",
-        phone: "NaN", // invalid
-        address: "13 Computing Drive",
-      };
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("error");
+      });
 
-      const response = await request(app)
-        .put(UPDATE_PROFILE_API)
-        .set("Authorization", mockToken)
-        .send(updatedUser);
+      it("should return response with error message when values are invalid", async () => {
+        const updatedUser = {
+          name: "New User",
+          email: "testuser@gmail.com",
+          password: "newpassword456",
+          phone: "NaN", // invalid
+          address: "13 Computing Drive",
+        };
 
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty("error");
-    });
+        const response = await request(app)
+          .put(UPDATE_PROFILE_API)
+          .set("Authorization", mockToken)
+          .send(updatedUser);
 
-    it("should return error response when request is unauthorized", async () => {
-      const updatedUser = {
-        name: "New User",
-        email: "testuser@gmail.com",
-        password: "newpassword456",
-        phone: "87654321",
-        address: "13 Computing Drive",
-      };
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("error");
+      });
 
-      const response = await request(app)
-        .put(UPDATE_PROFILE_API)
-        .send(updatedUser);
+      it("should return error response when request is unauthorized", async () => {
+        const updatedUser = {
+          name: "New User",
+          email: "testuser@gmail.com",
+          password: "newpassword456",
+          phone: "87654321",
+          address: "13 Computing Drive",
+        };
 
-      expect(response.status).toBe(401);
-      expect(response.body).toHaveProperty("success", false);
-      expect(response.body).toHaveProperty("message", "Unauthorized Access");
-    });
+        const response = await request(app)
+          .put(UPDATE_PROFILE_API)
+          .send(updatedUser);
 
-    it("should return error response when user is not found", async () => {
-      const invalidUserToken = JWT.sign(
-        { _id: new mongoose.Types.ObjectId("6714c2a30e8ea8335e4104ff") },
-        process.env.JWT_SECRET
-      );
-      const updatedUser = {
-        name: "New User",
-        email: "testuser@gmail.com",
-        password: "newpassword456",
-        phone: "87654321",
-        address: "13 Computing Drive",
-      };
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("success", false);
+        expect(response.body).toHaveProperty("message", "Unauthorized Access");
+      });
 
-      const response = await request(app)
-        .put(UPDATE_PROFILE_API)
-        .set("Authorization", invalidUserToken)
-        .send(updatedUser);
+      it("should return error response when user is not found", async () => {
+        const invalidUserToken = JWT.sign(
+          { _id: new mongoose.Types.ObjectId("6714c2a30e8ea8335e4104ff") },
+          process.env.JWT_SECRET
+        );
+        const updatedUser = {
+          name: "New User",
+          email: "testuser@gmail.com",
+          password: "newpassword456",
+          phone: "87654321",
+          address: "13 Computing Drive",
+        };
 
-      expect(response.status).toBe(404);
-      expect(response.body).toHaveProperty("success", false);
-      expect(response.body).toHaveProperty("message", "User not found");
-    });
+        const response = await request(app)
+          .put(UPDATE_PROFILE_API)
+          .set("Authorization", invalidUserToken)
+          .send(updatedUser);
 
-    it("should return error response when there is a database error", async () => {
-      await mongoose.disconnect();
-      const updatedUser = {
-        name: "New User",
-        email: "testuser@gmail.com",
-        password: "newpassword456",
-        phone: "87654321",
-        address: "13 Computing Drive",
-      };
+        expect(response.status).toBe(404);
+        expect(response.body).toHaveProperty("success", false);
+        expect(response.body).toHaveProperty("message", "User not found");
+      });
 
-      const response = await request(app)
-        .put(UPDATE_PROFILE_API)
-        .set("Authorization", mockToken)
-        .send(updatedUser);
+      it("should return error response when there is a database error", async () => {
+        const spy = jest.spyOn(userModel, "findById").mockImplementation(() => {
+          throw new Error("Database error");
+        });
+        const updatedUser = {
+          name: "New User",
+          email: "testuser@gmail.com",
+          password: "newpassword456",
+          phone: "87654321",
+          address: "13 Computing Drive",
+        };
 
-      expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty("success", false);
-      expect(response.body).toHaveProperty(
-        "message",
-        "Error while updating profile"
-      );
-      expect(response.body).toHaveProperty("error");
+        const response = await request(app)
+          .put(UPDATE_PROFILE_API)
+          .set("Authorization", mockToken)
+          .send(updatedUser);
 
-      const mongoUri = mongo.getUri();
-      await mongoose.connect(mongoUri);
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty("success", false);
+        expect(response.body).toHaveProperty(
+          "message",
+          "Error while updating profile"
+        );
+        expect(response.body).toHaveProperty("error");
+
+        spy.mockRestore();
+      });
     });
   });
 
-  describe("GET /api/v1/auth/orders", () => {
-    const GET_ORDERS_API = "/api/v1/auth/orders";
-    process.env.JWT_SECRET = "test-secret";
-
+  describe("Order", () => {
     const mockUser = {
       _id: new mongoose.Types.ObjectId("65d21b4667d0d8992e610c85"),
       name: "Test User",
@@ -205,7 +207,7 @@ describe("Auth Routes", () => {
       answer: "Software Testing",
       DOB: new Date("01/23/2004"),
     };
-    const mockOtherUser = {
+    const mockAdminUser = {
       _id: new mongoose.Types.ObjectId("6714c2a30e8ea8335e4104ff"),
       name: "Other User",
       email: "otheruser@gmail.com",
@@ -214,6 +216,7 @@ describe("Auth Routes", () => {
       address: "13 Computing Drive",
       answer: "Software Development",
       DOB: new Date("12/09/2002"),
+      role: 1,
     };
 
     const mockProduct = {
@@ -235,96 +238,211 @@ describe("Auth Routes", () => {
       payment: { success: true },
       products: [mockProduct._id],
     };
-    const mockOtherUserOrder = {
+    const mockAdminUserOrder = {
       _id: new mongoose.Types.ObjectId("67b2f5356aeeaf5676d72a44"),
       status: "Shipped",
-      buyer: mockOtherUser._id,
+      buyer: mockAdminUser._id,
       payment: { success: false },
       products: [mockProduct._id],
     };
 
-    let mockToken;
+    let mockToken, mockAdminToken;
 
     beforeEach(async () => {
       await userModel.deleteMany({});
-      await userModel.create([mockUser, mockOtherUser]);
+      await userModel.create([mockUser, mockAdminUser]);
       mockToken = JWT.sign({ _id: mockUser._id }, process.env.JWT_SECRET);
+      mockAdminToken = JWT.sign(
+        { _id: mockAdminUser._id },
+        process.env.JWT_SECRET
+      );
 
       await productModel.deleteMany({});
       await productModel.create(mockProduct);
 
       await orderModel.deleteMany({});
-      await orderModel.create([mockUserOrder, mockOtherUserOrder]);
+      await orderModel.create(mockUserOrder);
+      await orderModel.create(mockAdminUserOrder);
     });
 
-    it("should return successful response with order details when get orders is successful", async () => {
-      const response = await request(app)
-        .get(GET_ORDERS_API)
-        .set("Authorization", mockToken);
+    describe("GET /api/v1/auth/orders", () => {
+      const GET_ORDERS_API = "/api/v1/auth/orders";
 
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveLength(1);
-      expect(response.body[0]).toHaveProperty(
-        "_id",
-        mockUserOrder._id.toString()
-      );
-      expect(response.body[0]).toHaveProperty("status", mockUserOrder.status);
-      expect(response.body[0].buyer).toHaveProperty("name", mockUser.name);
-      expect(response.body[0]).toHaveProperty("createdAt");
-      expect(response.body[0].payment).toHaveProperty("success", true);
-      expect(response.body[0].products).toHaveLength(1);
+      it("should return successful response with order details when get orders is successful", async () => {
+        const response = await request(app)
+          .get(GET_ORDERS_API)
+          .set("Authorization", mockToken);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveLength(1);
+        expect(response.body[0]).toHaveProperty(
+          "_id",
+          mockUserOrder._id.toString()
+        );
+        expect(response.body[0]).toHaveProperty("status", mockUserOrder.status);
+        expect(response.body[0].buyer).toHaveProperty("name", mockUser.name);
+        expect(response.body[0]).toHaveProperty("createdAt");
+        expect(response.body[0].payment).toHaveProperty(
+          "success",
+          mockUserOrder.payment.success
+        );
+        expect(response.body[0].products).toHaveLength(1);
+      });
+
+      it("should return successful response with product details when get orders is successful", async () => {
+        const response = await request(app)
+          .get(GET_ORDERS_API)
+          .set("Authorization", mockToken);
+
+        expect(response.status).toBe(200);
+        expect(response.body[0].products[0]).toHaveProperty(
+          "_id",
+          mockProduct._id.toString()
+        );
+        expect(response.body[0].products[0]).toHaveProperty(
+          "name",
+          mockProduct.name
+        );
+        expect(response.body[0].products[0]).toHaveProperty(
+          "description",
+          mockProduct.description
+        );
+        expect(response.body[0].products[0]).toHaveProperty(
+          "price",
+          mockProduct.price
+        );
+        expect(response.body[0].products[0]).not.toHaveProperty("photo");
+      });
+
+      it("should return error response when request is unauthorized", async () => {
+        const response = await request(app).get(GET_ORDERS_API);
+
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("success", false);
+        expect(response.body).toHaveProperty("message", "Unauthorized Access");
+      });
+
+      it("should return error response when there is a database error", async () => {
+        const spy = jest.spyOn(orderModel, "find").mockImplementation(() => {
+          throw new Error("Database error");
+        });
+
+        const response = await request(app)
+          .get(GET_ORDERS_API)
+          .set("Authorization", mockToken);
+
+        expect(response.status).toBe(500);
+        expect(response.body).toHaveProperty("success", false);
+        expect(response.body).toHaveProperty(
+          "message",
+          "Error while getting orders"
+        );
+        expect(response.body).toHaveProperty("error");
+
+        spy.mockRestore();
+      });
     });
 
-    it("should return successful response with product details when get orders is successful", async () => {
-      const response = await request(app)
-        .get(GET_ORDERS_API)
-        .set("Authorization", mockToken);
+    describe("GET /api/v1/auth/all-orders", () => {
+      const GET_ALL_ORDERS_API = "/api/v1/auth/all-orders";
 
-      expect(response.status).toBe(200);
-      expect(response.body[0].products[0]).toHaveProperty(
-        "_id",
-        mockProduct._id.toString()
-      );
-      expect(response.body[0].products[0]).toHaveProperty(
-        "name",
-        mockProduct.name
-      );
-      expect(response.body[0].products[0]).toHaveProperty(
-        "description",
-        mockProduct.description
-      );
-      expect(response.body[0].products[0]).toHaveProperty(
-        "price",
-        mockProduct.price
-      );
-      expect(response.body[0].products[0]).not.toHaveProperty("photo");
-    });
+      it("should return successful response with order details when get all orders is successful", async () => {
+        const response = await request(app)
+          .get(GET_ALL_ORDERS_API)
+          .set("Authorization", mockAdminToken);
 
-    it("should return error response when request is unauthorized", async () => {
-      const response = await request(app).get(GET_ORDERS_API);
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveLength(2);
 
-      expect(response.status).toBe(401);
-      expect(response.body).toHaveProperty("success", false);
-      expect(response.body).toHaveProperty("message", "Unauthorized Access");
-    });
+        // order 1
+        expect(response.body[0]).toHaveProperty(
+          "_id",
+          mockAdminUserOrder._id.toString()
+        );
+        expect(response.body[0]).toHaveProperty(
+          "status",
+          mockAdminUserOrder.status
+        );
+        expect(response.body[0].buyer).toHaveProperty(
+          "name",
+          mockAdminUser.name
+        );
+        expect(response.body[0]).toHaveProperty("createdAt");
+        expect(response.body[0].payment).toHaveProperty(
+          "success",
+          mockAdminUserOrder.payment.success
+        );
+        expect(response.body[0].products).toHaveLength(1);
 
-    it("should return error response when there is a database error", async () => {
-      await mongoose.disconnect();
+        // order 2
+        expect(response.body[1]).toHaveProperty(
+          "_id",
+          mockUserOrder._id.toString()
+        );
+        expect(response.body[1]).toHaveProperty("status", mockUserOrder.status);
+        expect(response.body[1].buyer).toHaveProperty("name", mockUser.name);
+        expect(response.body[1]).toHaveProperty("createdAt");
+        expect(response.body[1].payment).toHaveProperty(
+          "success",
+          mockUserOrder.payment.success
+        );
+        expect(response.body[1].products).toHaveLength(1);
+      });
 
-      const response = await request(app)
-        .get(GET_ORDERS_API)
-        .set("Authorization", mockToken);
+      it("should return successful response with product details when get all orders is successful", async () => {
+        const response = await request(app)
+          .get(GET_ALL_ORDERS_API)
+          .set("Authorization", mockAdminToken);
 
-      expect(response.status).toBe(500);
-      expect(response.body).toHaveProperty("success", false);
-      expect(response.body).toHaveProperty(
-        "message",
-        "Error while getting orders"
-      );
-      expect(response.body).toHaveProperty("error");
+        expect(response.status).toBe(200);
+        expect(response.body[0].products[0]).toHaveProperty(
+          "_id",
+          mockProduct._id.toString()
+        );
+        expect(response.body[0].products[0]).toHaveProperty(
+          "name",
+          mockProduct.name
+        );
+        expect(response.body[0].products[0]).toHaveProperty(
+          "description",
+          mockProduct.description
+        );
+        expect(response.body[0].products[0]).toHaveProperty(
+          "price",
+          mockProduct.price
+        );
+        expect(response.body[0].products[0]).not.toHaveProperty("photo");
+      });
 
-      const mongoUri = mongo.getUri();
-      await mongoose.connect(mongoUri);
+      it("should return error response when request is unauthorized", async () => {
+        const response = await request(app)
+          .get(GET_ALL_ORDERS_API)
+          .set("Authorization", mockToken);
+
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("success", false);
+        expect(response.body).toHaveProperty("message", "Unauthorized Access");
+      });
+
+      it("should return error response when there is a database error", async () => {
+        const spy = jest.spyOn(orderModel, "find").mockImplementation(() => {
+          throw new Error("Database error");
+        });
+
+        const response = await request(app)
+          .get(GET_ALL_ORDERS_API)
+          .set("Authorization", mockAdminToken);
+
+        expect(response.status).toBe(500);
+        expect(response.body).toHaveProperty("success", false);
+        expect(response.body).toHaveProperty(
+          "message",
+          "Error while getting all orders"
+        );
+        expect(response.body).toHaveProperty("error");
+
+        spy.mockRestore();
+      });
     });
   });
 });
