@@ -77,7 +77,6 @@ describe("Category Routes", () => {
 
   describe("GET /api/v1/category/single-category", () => {
     const SINGLE_CATEGORY_API = "/api/v1/category/single-category";
-    const slug = "test-category-1";
 
     beforeEach(async () => {
       await categoryModel.deleteMany({});
@@ -85,7 +84,9 @@ describe("Category Routes", () => {
     });
 
     it("should return successful response with the category when request is successful", async () => {
-      const response = await request(app).get(`${SINGLE_CATEGORY_API}/${slug}`);
+      const response = await request(app).get(
+        `${SINGLE_CATEGORY_API}/${mockCategory1.slug}`
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("success", true);
@@ -119,7 +120,9 @@ describe("Category Routes", () => {
           throw new Error("Database error");
         });
 
-      const response = await request(app).get(`${SINGLE_CATEGORY_API}/${slug}`);
+      const response = await request(app).get(
+        `${SINGLE_CATEGORY_API}/${mockCategory1.slug}`
+      );
 
       expect(response.status).toBe(500);
       expect(response.body).toHaveProperty("success", false);
