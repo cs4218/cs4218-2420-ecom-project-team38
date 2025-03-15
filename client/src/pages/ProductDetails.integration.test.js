@@ -19,7 +19,7 @@ describe("Product Details integration test", () => {
     _id: 1,
     name: "Test product 1",
     price: 100,
-    description: "This is a product description with more than 30 characters",
+    description: "First test product",
     slug: "test-product-1",
     category: { _id: 1, name: "Test Category" },
   };
@@ -29,7 +29,7 @@ describe("Product Details integration test", () => {
       _id: 2,
       name: "Test product 2",
       price: 10,
-      description: "Second test product!",
+      description: "Second test product",
       slug: "test-product-2",
     },
   ];
@@ -72,9 +72,9 @@ describe("Product Details integration test", () => {
     const secondAddToCartButton = addToCartButtons[1];
 
     await user.click(firstAddToCartButton);
-    await user.click(secondAddToCartButton);
-
     expect(toast.success).toHaveBeenCalledWith("Item Added to cart");
+
+    await user.click(secondAddToCartButton);
 
     const cartLink = screen.getByText("Cart", { selector: "a.nav-link" });
     await user.click(cartLink);
