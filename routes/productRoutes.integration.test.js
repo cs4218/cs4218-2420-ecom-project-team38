@@ -251,10 +251,12 @@ describe("Product Routes", () => {
   });
 
   describe("DELETE /api/v1/product/delete-product", () => {
-    let pid;
+    let pid, token, adminToken, normalToken;
 
     beforeEach(async () => {
       await productModel.deleteMany({});
+      await userModel.deleteMany({});
+
       const product = await productModel.create({
         name: "book",
         slug: "book",
@@ -265,19 +267,82 @@ describe("Product Routes", () => {
       });
 
       pid = product._id;
+
+      const adminUser = await userModel.create({
+        name: "Admin User",
+        email: "admin@example.com",
+        password: "password",
+        phone: "1234567890",
+        address: {
+          street: "Jurong East Street 21",
+          city: "Singapore",
+          zip: "123456",
+        },
+        answer: "answer",
+        DOB: new Date("2000-01-01"),
+        role: 1,
+      });
+
+      adminToken = JWT.sign({ _id: adminUser._id }, process.env.JWT_SECRET, {
+        expiresIn: "7d",
+      });
+
+      const normalUser = await userModel.create({
+        name: "Normal User",
+        email: "user@example.com",
+        password: "password",
+        phone: "1234567890",
+        address: {
+          street: "Jurong West Street 21",
+          city: "Singapore",
+          zip: "123456",
+        },
+        answer: "idk",
+        DOB: new Date("2000-02-02"),
+        role: 0,
+      });
+
+      normalToken = JWT.sign({ _id: normalUser._id }, process.env.JWT_SECRET, {
+        expiresIn: "7d",
+      });
     });
 
-    it("Should delete a product", async () => {
-      const response = await request(app).delete(`/api/v1/product/delete-product/${pid}`);
+    it("Should delete a product if the user is authenticated and is also an admin", async () => {
+      token = adminToken;
+      const response = await request(app)
+        .delete(`/api/v1/product/delete-product/${pid}`)
+        .set("Authorization", `${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("success", true);
       expect(response.body).toHaveProperty("message", "Product Deleted successfully");
     });
 
+    it("Should delete a product if the user is not an admin", async () => {
+      token = normalToken;
+      const response = await request(app)
+        .delete(`/api/v1/product/delete-product/${pid}`)
+        .set("Authorization", `${token}`);
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("success", false);
+      expect(response.body).toHaveProperty("message", "Unauthorized Access");
+    });
+
+    it("Should not delete a product if the user is not authenticated", async () => {
+      const response = await request(app).delete(`/api/v1/product/delete-product/${pid}`);
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("success", false);
+      expect(response.body).toHaveProperty("message", "Unauthorized Access");
+    });
+
     it("Should not delete anything if the product does not exist", async () => {
+      token = adminToken;
       const fakePid = new mongoose.Types.ObjectId();
-      const response = await request(app).delete(`/api/v1/product/delete-product/${fakePid}`);
+      const response = await request(app)
+        .delete(`/api/v1/product/delete-product/${fakePid}`)
+        .set("Authorization", `${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("success", true);
@@ -310,17 +375,12 @@ describe("Product Routes", () => {
 
     it("Should return a list of products containing matching keyword", async () => {
       const keyword = "phone";
-      const response = await request(app).get(
-        `/api/v1/product/search/${keyword}`
-      );
+      const response = await request(app).get(`/api/v1/product/search/${keyword}`);
       expect(response.status).toBe(200);
       expect(response.body).toHaveLength(1);
       expect(response.body[0]).toHaveProperty("name", "phone");
       expect(response.body[0]).toHaveProperty("slug", "phone");
-      expect(response.body[0]).toHaveProperty(
-        "description",
-        "phone description"
-      );
+      expect(response.body[0]).toHaveProperty("description", "phone description");
       expect(response.body[0]).toHaveProperty("price", 1000);
       expect(response.body[0]).toHaveProperty("category");
       expect(response.body[0]).toHaveProperty("quantity", 10);
@@ -328,9 +388,7 @@ describe("Product Routes", () => {
 
     it("Should return an empty list when keyword does not match products", async () => {
       const keyword = "non-existent";
-      const response = await request(app).get(
-        `/api/v1/product/search/${keyword}`
-      );
+      const response = await request(app).get(`/api/v1/product/search/${keyword}`);
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual([]);
@@ -454,6 +512,30 @@ describe("Product Routes", () => {
       expect(products[0]).toHaveProperty("price", 10);
       expect(products[0]).toHaveProperty("category", "67d18a47b92dddc71c78f644");
       expect(products[0]).toHaveProperty("quantity", 20);
+    });
+
+    it("Should return the whole list of products when no filters are provided", async () => {
+      const filters = {
+        checked: [],
+        radio: [],
+      };
+
+      const response = await request(app)
+        .post("/api/v1/product/product-filters")
+        .set("Content-Type", "application/json")
+        .send(filters);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("products");
+
+      const { products } = response.body;
+      products.sort((a, b) => a.name.localeCompare(b.name));
+
+      expect(products[0]).toHaveProperty("name", "book");
+      expect(products[0]).toHaveProperty("slug", "book");
+
+      expect(products[1]).toHaveProperty("name", "laptop");
+      expect(products[1]).toHaveProperty("slug", "laptop");
     });
   });
 
