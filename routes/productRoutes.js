@@ -21,21 +21,9 @@ import { isAdmin, requireSignIn } from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
 //routes
-router.post(
-  "/create-product",
-  requireSignIn,
-  isAdmin,
-  formidable(),
-  createProductController
-);
+router.post("/create-product", requireSignIn, isAdmin, formidable(), createProductController);
 //routes
-router.put(
-  "/update-product/:pid",
-  requireSignIn,
-  isAdmin,
-  formidable(),
-  updateProductController
-);
+router.put("/update-product/:pid", requireSignIn, isAdmin, formidable(), updateProductController);
 
 //get products
 router.get("/get-product", getProductController);
@@ -47,9 +35,13 @@ router.get("/get-product/:slug", getSingleProductController);
 router.get("/product-photo/:pid", productPhotoController);
 
 //delete rproduct
-router.delete("/delete-product/:pid", requireSignIn,
+router.delete(
+  "/delete-product/:pid",
+  requireSignIn,
   isAdmin,
-  formidable(), deleteProductController);
+  formidable(),
+  deleteProductController
+);
 
 //filter product
 router.post("/product-filters", express.json(), productFiltersController);
