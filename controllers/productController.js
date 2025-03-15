@@ -277,7 +277,7 @@ export const searchProductController = async (req, res) => {
       /[-[\]{}()*+?.,\\/^$|#\s]/g,
       "\\$&"
     );
-    const resutls = await productModel
+    const results = await productModel
       .find({
         $or: [
           { name: { $regex: sanitisedKeyword, $options: "i" } },
@@ -285,7 +285,7 @@ export const searchProductController = async (req, res) => {
         ],
       })
       .select("-photo");
-    res.json(resutls);
+    res.json(results);
   } catch (error) {
     console.log(error);
     res.status(400).send({
@@ -350,21 +350,8 @@ export const productCategoryController = async (req, res) => {
   }
 };
 
-//payment gateway api
-//token
+//payment gateway api token
 export const braintreeTokenController = async (req, res) => {
-  // try {
-  //   gateway.clientToken.generate({}, function (err, response) {
-  //     if (err) {
-  //       res.status(500).send(err);
-  //     } else {
-  //       res.send(response);
-  //     }
-  //   });
-  // } catch (error) {
-  //   console.log(error);
-  // }
-
   try {
     const response = await new Promise((resolve, reject) => {
       const gateway = new braintree.BraintreeGateway({
@@ -413,7 +400,7 @@ export const brainTreePaymentController = async (req, res) => {
         },
       },
       function (error, result) {
-        if (result) {
+        if (result && result.success) {
           const order = new orderModel({
             products: cart,
             payment: result,
@@ -421,7 +408,11 @@ export const brainTreePaymentController = async (req, res) => {
           }).save();
           res.status(200).json({ ok: true });
         } else {
-          res.status(500).send(error);
+          res.status(500).send({ 
+            ok: false, 
+            message: "Payment processing failed",
+            error
+          });
         }
       }
     );

@@ -21,21 +21,9 @@ import { isAdmin, requireSignIn } from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
 //routes
-router.post(
-  "/create-product",
-  requireSignIn,
-  isAdmin,
-  formidable(),
-  createProductController
-);
+router.post("/create-product", requireSignIn, isAdmin, formidable(), createProductController);
 //routes
-router.put(
-  "/update-product/:pid",
-  requireSignIn,
-  isAdmin,
-  formidable(),
-  updateProductController
-);
+router.put("/update-product/:pid", requireSignIn, isAdmin, formidable(), updateProductController);
 
 //get products
 router.get("/get-product", getProductController);
@@ -47,10 +35,16 @@ router.get("/get-product/:slug", getSingleProductController);
 router.get("/product-photo/:pid", productPhotoController);
 
 //delete rproduct
-router.delete("/delete-product/:pid", deleteProductController);
+router.delete(
+  "/delete-product/:pid",
+  requireSignIn,
+  isAdmin,
+  formidable(),
+  deleteProductController
+);
 
 //filter product
-router.post("/product-filters", productFiltersController);
+router.post("/product-filters", express.json(), productFiltersController);
 
 //product count
 router.get("/product-count", productCountController);
@@ -72,6 +66,6 @@ router.get("/product-category/:slug", productCategoryController);
 router.get("/braintree/token", braintreeTokenController);
 
 //payments
-router.post("/braintree/payment", requireSignIn, brainTreePaymentController);
+router.post("/braintree/payment", requireSignIn, express.json(), brainTreePaymentController);
 
 export default router;

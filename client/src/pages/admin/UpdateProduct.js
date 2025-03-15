@@ -90,7 +90,7 @@ const UpdateProduct = () => {
   const handleDelete = async () => {
     try {
       const shouldDelete = window.confirm(
-        "Are You Sure want to delete this product?"
+        "Are you sure you want to delete this product?"
       );
       if (!shouldDelete) return;
       const { data } = await axios.delete(
