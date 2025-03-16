@@ -94,10 +94,24 @@ const Header = () => {
                       href="#"
                       role="button"
                       data-bs-toggle="dropdown"
-                      style={{ border: "none" }}
+                      style={{
+                        border: "none",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
                       data-testid="user-name-dropdown"
                     >
-                      {auth?.user?.name}
+                      <span
+                        style={{
+                          display: "inline-block",
+                          maxWidth: "130px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {auth?.user?.name}
+                      </span>
                     </NavLink>
                     <ul className="dropdown-menu">
                       <li>
