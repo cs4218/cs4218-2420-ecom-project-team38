@@ -800,6 +800,15 @@ describe("Product Routes", () => {
       expect(response.body).toHaveProperty("success", true);
       expect(response.body).toHaveProperty("total", 2);
     });
+
+    it("Should return 0 when there are no products", async () => {
+      await productModel.deleteMany({});
+      const response = await request(app).get("/api/v1/product/product-count");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("success", true);
+      expect(response.body).toHaveProperty("total", 0);
+    });
   });
 
   describe("GET /api/v1/product/product-list", () => {
@@ -867,6 +876,17 @@ describe("Product Routes", () => {
 
       const { products } = response.body;
       expect(products).toHaveLength(6);
+    });
+
+    it("Should return an empty list when there are no products", async () => {
+      await productModel.deleteMany({});
+      const page = 1;
+      const response = await request(app).get(`/api/v1/product/product-list/${page}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("success", true);
+      expect(response.body).toHaveProperty("products");
+      expect(response.body.products).toHaveLength(0);
     });
   });
 
