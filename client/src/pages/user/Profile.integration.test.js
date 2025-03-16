@@ -90,12 +90,14 @@ describe("Profile page integration test", () => {
 
     it("should display the updated user profile in the dashboard page", async () => {
       const updatedName = "New User";
+      const updatedPhone = "87654321";
       const updatedAddress = "456 New Address";
       axios.put.mockResolvedValue({
         data: {
           updatedUser: {
             ...mockUser,
             name: updatedName,
+            phone: updatedPhone,
             address: updatedAddress,
           },
         },
@@ -105,6 +107,9 @@ describe("Profile page integration test", () => {
 
       fireEvent.change(screen.getByPlaceholderText("Enter Your Name"), {
         target: { value: updatedName },
+      });
+      fireEvent.change(screen.getByPlaceholderText("Enter Your Phone"), {
+        target: { value: updatedPhone },
       });
       fireEvent.change(screen.getByPlaceholderText("Enter Your Address"), {
         target: { value: updatedAddress },
@@ -118,6 +123,9 @@ describe("Profile page integration test", () => {
       ).toBeInTheDocument();
       expect(
         await screen.findByText(`User Email : ${mockUser.email}`)
+      ).toBeInTheDocument();
+      expect(
+        await screen.findByText(`User Contact : ${updatedPhone}`)
       ).toBeInTheDocument();
       expect(
         await screen.findByText(`User Address : ${updatedAddress}`)
