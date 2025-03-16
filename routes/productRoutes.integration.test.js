@@ -11,6 +11,7 @@ import { beforeAll, afterAll, expect } from "@jest/globals";
 import { MongoMemoryServer } from "mongodb-memory-server";
 
 const app = Express();
+app.use(Express.json())
 app.use("/api/v1/product", productRoutes);
 
 let mongo;

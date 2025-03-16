@@ -44,7 +44,7 @@ router.delete(
 );
 
 //filter product
-router.post("/product-filters", express.json(), productFiltersController);
+router.post("/product-filters", productFiltersController);
 
 //product count
 router.get("/product-count", productCountController);
