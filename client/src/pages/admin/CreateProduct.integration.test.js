@@ -49,8 +49,10 @@ describe("CreateProduct Integration Test", () => {
           return Promise.resolve({
             data: { success: true, category: [{ _id: 1, name: "Books" }] },
           });
-        default:
+        case "/api/v1/product/get-product":
           return Promise.resolve({ data: { products: [mockProduct] } });
+        default:
+          return Promise.resolve({});
       }
     });
     axios.post = jest.fn().mockResolvedValue({ data: { success: true } });
