@@ -26,42 +26,44 @@ const Products = () => {
 
   return (
     <Layout>
-      <div className="row">
-        <div className="col-md-3">
-          <AdminMenu />
-        </div>
-        <div className="col-md-9">
-          <h1 className="text-center">All Products List</h1>
-          <div 
-            className="product-grid mb-4" 
-            data-testid="products-list"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(18rem, 1fr))",
-              gap: "1rem",
-              padding: "10px",
-              // marginBottom: "10px"
-            }}
-          >
-            {products?.map((p) => (
-              <Link
-                key={p._id}
-                to={`/dashboard/admin/product/${p.slug}`}
-                className="product-link"
-              >
-                <div className="card" style={{ height: "100%" }}>
-                  <img
-                    src={`/api/v1/product/product-photo/${p._id}`}
-                    className="card-img-top"
-                    alt={p.name}
-                  />
-                  <div className="card-body">
-                    <h5 className="card-title">{p.name}</h5>
-                    <p className="card-text">{p.description}</p>
+      <div className="container-fluid m-3 p-3">
+        <div className="row">
+          <div className="col-md-3">
+            <AdminMenu />
+          </div>
+          <div className="col-md-9">
+            <h1 className="text-center">All Products List</h1>
+            <div
+              className="product-grid mb-4"
+              data-testid="products-list"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(18rem, 1fr))",
+                gap: "1rem",
+                padding: "10px",
+                // marginBottom: "10px"
+              }}
+            >
+              {products?.map((p) => (
+                <Link
+                  key={p._id}
+                  to={`/dashboard/admin/product/${p.slug}`}
+                  className="product-link"
+                >
+                  <div className="card" style={{ height: "100%" }}>
+                    <img
+                      src={`/api/v1/product/product-photo/${p._id}`}
+                      className="card-img-top"
+                      alt={p.name}
+                    />
+                    <div className="card-body">
+                      <h5 className="card-title">{p.name}</h5>
+                      <p className="card-text">{p.description}</p>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </div>
