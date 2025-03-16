@@ -6,6 +6,7 @@ import Profile from "./Profile";
 import Dashboard from "./Dashboard";
 import axios from "axios";
 import { AuthProvider } from "../../context/auth";
+import CartPage from "../CartPage";
 
 jest.mock("axios");
 
@@ -37,7 +38,10 @@ describe("Profile page integration test", () => {
     jest.clearAllMocks();
 
     localStorage.clear();
-    localStorage.setItem("auth", JSON.stringify({ user: mockUser }));
+    localStorage.setItem(
+      "auth",
+      JSON.stringify({ user: mockUser, token: "testtoken" })
+    );
   });
 
   describe("With user name header dropdown", () => {
@@ -118,6 +122,51 @@ describe("Profile page integration test", () => {
       expect(
         await screen.findByText(`User Address : ${updatedAddress}`)
       ).toBeInTheDocument();
+    });
+  });
+
+  describe("With cart page", () => {
+    const renderProfilePage = () => {
+      render(
+        <AuthProvider>
+          <MemoryRouter initialEntries={["/dashboard/user/profile"]}>
+            <Routes>
+              <Route path="/dashboard/user/profile" element={<Profile />} />
+              <Route path="/cart" element={<CartPage />} />
+            </Routes>
+          </MemoryRouter>
+        </AuthProvider>
+      );
+    };
+
+    it("should display the updated user name and address in the cart page", async () => {
+      const updatedName = "New User";
+      const updatedAddress = "456 New Address";
+      axios.put.mockResolvedValue({
+        data: {
+          updatedUser: {
+            ...mockUser,
+            name: updatedName,
+            address: updatedAddress,
+          },
+        },
+      });
+
+      renderProfilePage();
+
+      fireEvent.change(screen.getByPlaceholderText("Enter Your Name"), {
+        target: { value: updatedName },
+      });
+      fireEvent.change(screen.getByPlaceholderText("Enter Your Address"), {
+        target: { value: updatedAddress },
+      });
+      fireEvent.click(screen.getByRole("button", { name: /update/i }));
+      fireEvent.click(screen.getByRole("link", { name: /cart/i }));
+
+      expect(
+        await screen.findByText(`Hello ${updatedName}`)
+      ).toBeInTheDocument();
+      expect(await screen.findByText(updatedAddress)).toBeInTheDocument();
     });
   });
 });
