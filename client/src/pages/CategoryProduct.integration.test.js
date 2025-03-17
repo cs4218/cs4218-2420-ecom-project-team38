@@ -9,10 +9,15 @@ import { CartProvider } from "../context/cart";
 import { AuthProvider } from "../context/auth";
 import toast from "react-hot-toast";
 import CartPage from "./CartPage";
+import { useCategory } from "../context/category";
 
 jest.mock("axios");
 jest.mock("react-hot-toast");
-jest.mock("../hooks/useCategory", () => jest.fn(() => []));
+
+jest.mock("../context/category", () => ({
+  useCategory: jest.fn(() => []),
+}));
+
 jest.mock("../components/Form/SearchInput", () => () => <div>Mocked SearchInput</div>);
 
 describe("Category Products integration test", () => {
