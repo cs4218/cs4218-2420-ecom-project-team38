@@ -12,7 +12,14 @@ import CartPage from "./CartPage";
 
 jest.mock("axios");
 jest.mock("react-hot-toast");
-jest.mock("../components/Form/SearchInput", () => () => <div>Mocked SearchInput</div>);
+jest.mock("../context/category", () => ({
+  useCategory: jest.fn(() => [[], jest.fn()]),
+}));
+jest.mock("../components/Form/SearchInput", () => () => (
+  <div>Mocked SearchInput</div>
+));
+
+jest.spyOn(console, "log").mockImplementation(() => {});
 
 describe("Product Details integration test", () => {
   const mockProduct = {
@@ -55,8 +62,8 @@ describe("Product Details integration test", () => {
         <AuthProvider>
           <CartProvider>
             <Routes>
-              <Route path='/product/:slug' element={<ProductDetails />} />
-              <Route path='/cart' element={<CartPage />} />
+              <Route path="/product/:slug" element={<ProductDetails />} />
+              <Route path="/cart" element={<CartPage />} />
             </Routes>
           </CartProvider>
         </AuthProvider>
@@ -83,7 +90,9 @@ describe("Product Details integration test", () => {
       expect(screen.getByTestId("cart-items")).toBeInTheDocument();
     });
 
-    expect(screen.getByText(/you have 2 items in your cart/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/you have 2 items in your cart/i)
+    ).toBeInTheDocument();
     expect(screen.getByText("Total | Checkout | Payment")).toBeInTheDocument();
     expect(screen.getByText("Total : $110.00")).toBeInTheDocument();
     expect(screen.getByText("Test product 1")).toBeInTheDocument();
