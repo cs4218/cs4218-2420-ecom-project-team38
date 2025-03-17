@@ -421,7 +421,6 @@ describe("Product Routes", () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveLength(2);
-      console.log(response.body.map((p) => p.name));
       expect(response.body.map((p) => p.name));
       expect(response.body.map((p) => p.slug)).toEqual(
         expect.arrayContaining([products[0].slug, products[1].slug])
