@@ -15,6 +15,8 @@ jest.mock("../../components/Layout", () => ({ children }) => (
   <div>{children}</div>
 ));
 
+const deletePopup = jest.spyOn(window, "confirm");
+
 describe("UpdateProduct Integration Test", () => {
   const mockProduct = {
     _id: 1,
@@ -34,85 +36,152 @@ describe("UpdateProduct Integration Test", () => {
   };
   const mockCategories = [{ _id: 1, name: "Books" }];
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    axios.get = jest
-      .fn()
-      .mockResolvedValueOnce({
-        data: { success: true, products: [mockProduct] },
-      })
-      .mockResolvedValueOnce({
-        data: { product: mockProduct },
-      })
-      .mockResolvedValueOnce({
-        data: { success: true, category: mockCategories },
-      })
-      .mockResolvedValueOnce({
-        data: { success: true, products: [updatedProduct] },
-      });
-    axios.put = jest.fn().mockResolvedValue({ data: { success: true } });
+  describe("Update product", () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      axios.get = jest
+        .fn()
+        .mockResolvedValueOnce({
+          data: { success: true, products: [mockProduct] },
+        })
+        .mockResolvedValueOnce({
+          data: { product: mockProduct },
+        })
+        .mockResolvedValueOnce({
+          data: { success: true, category: mockCategories },
+        })
+        .mockResolvedValueOnce({
+          data: { success: true, products: [updatedProduct] },
+        });
+      axios.put = jest.fn().mockResolvedValue({ data: { success: true } });
+    });
+
+    it("Product can be updated", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <MemoryRouter initialEntries={["/dashboard/admin/products"]}>
+          <Routes>
+            <Route
+              path="/dashboard/admin/product/:slug"
+              element={<UpdateProduct />}
+            />
+            <Route path="/dashboard/admin/products" element={<Products />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      await waitFor(() =>
+        expect(axios.get).toHaveBeenCalledWith("/api/v1/product/get-product")
+      );
+
+      // select product to update
+
+      let products = screen.getByTestId("products-list");
+      const productLink = products.children[0];
+      await user.click(productLink);
+
+      // update product
+
+      await waitFor(() =>
+        expect(axios.get).toHaveBeenCalledWith(
+          "/api/v1/product/get-product/product1"
+        )
+      );
+      await waitFor(() =>
+        expect(axios.get).toHaveBeenCalledWith("/api/v1/category/get-category")
+      );
+
+      await user.clear(screen.getByPlaceholderText("write a name"));
+      await user.type(
+        screen.getByPlaceholderText("write a name"),
+        updatedProduct.name
+      );
+      await user.click(screen.getByText("UPDATE PRODUCT"));
+
+      await waitFor(() =>
+        expect(axios.put).toHaveBeenCalledWith(
+          `/api/v1/product/update-product/${mockProduct._id}`,
+          expect.any(FormData)
+        )
+      );
+
+      // check if updated product is displayed
+
+      await waitFor(() =>
+        expect(axios.get).toHaveBeenCalledWith("/api/v1/product/get-product")
+      );
+      products = screen.getByTestId("products-list");
+      const updatedProductLink = products.children[0];
+      expect(within(updatedProductLink).getByText(updatedProduct.name))
+        .toBeInTheDocument;
+      expect(within(updatedProductLink).getByText(updatedProduct.description))
+        .toBeInTheDocument;
+    });
   });
 
-  it("Should display newly updated product", async () => {
-    const user = userEvent.setup();
+  describe("Delete product", () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      axios.get = jest
+        .fn()
+        .mockResolvedValueOnce({
+          data: { success: true, products: [mockProduct] },
+        })
+        .mockResolvedValueOnce({
+          data: { product: mockProduct },
+        })
+        .mockResolvedValueOnce({
+          data: { success: true, category: mockCategories },
+        })
+        .mockResolvedValueOnce({
+          data: { success: true, products: [] },
+        });
+      axios.delete = jest.fn().mockResolvedValue({ data: { success: true } });
+    });
 
-    render(
-      <MemoryRouter initialEntries={["/dashboard/admin/products"]}>
-        <Routes>
-          <Route
-            path="/dashboard/admin/product/:slug"
-            element={<UpdateProduct />}
-          />
-          <Route path="/dashboard/admin/products" element={<Products />} />
-        </Routes>
-      </MemoryRouter>
-    );
+    it("Product can be deleted", async () => {
+      const user = userEvent.setup();
+      deletePopup.mockImplementation(() => true);
 
-    await waitFor(() =>
-      expect(axios.get).toHaveBeenCalledWith("/api/v1/product/get-product")
-    );
+      render(
+        <MemoryRouter initialEntries={["/dashboard/admin/products"]}>
+          <Routes>
+            <Route
+              path="/dashboard/admin/product/:slug"
+              element={<UpdateProduct />}
+            />
+            <Route path="/dashboard/admin/products" element={<Products />} />
+          </Routes>
+        </MemoryRouter>
+      );
 
-    // select product to update
+      await waitFor(() =>
+        expect(axios.get).toHaveBeenCalledWith("/api/v1/product/get-product")
+      );
 
-    let products = screen.getByTestId("products-list");
-    const productLink = products.children[0];
-    await user.click(productLink);
+      // select product to delete
 
-    // update product
+      let products = screen.getByTestId("products-list");
+      const productLink = products.children[0];
+      await user.click(productLink);
 
-    await waitFor(() =>
-      expect(axios.get).toHaveBeenCalledWith(
-        "/api/v1/product/get-product/product1"
-      )
-    );
-    await waitFor(() =>
-      expect(axios.get).toHaveBeenCalledWith("/api/v1/category/get-category")
-    );
+      // delete product
 
-    await user.clear(screen.getByPlaceholderText("write a name"));
-    await user.type(
-      screen.getByPlaceholderText("write a name"),
-      updatedProduct.name
-    );
-    await user.click(screen.getByText("UPDATE PRODUCT"));
+      await user.click(screen.getByRole("button", { name: "DELETE PRODUCT" }));
+      await waitFor(() =>
+        expect(axios.delete).toHaveBeenCalledWith(
+          `/api/v1/product/delete-product/${mockProduct._id}`
+        )
+      );
 
-    await waitFor(() =>
-      expect(axios.put).toHaveBeenCalledWith(
-        `/api/v1/product/update-product/${mockProduct._id}`,
-        expect.any(FormData)
-      )
-    );
+      // check if product is deleted
 
-    // check if updated product is displayed
-
-    await waitFor(() =>
-      expect(axios.get).toHaveBeenCalledWith("/api/v1/product/get-product")
-    );
-    products = screen.getByTestId("products-list");
-    const updatedProductLink = products.children[0];
-    expect(within(updatedProductLink).getByText(updatedProduct.name))
-      .toBeInTheDocument;
-    expect(within(updatedProductLink).getByText(updatedProduct.description))
-      .toBeInTheDocument;
+      await waitFor(() =>
+        expect(axios.get).toHaveBeenCalledWith("/api/v1/product/get-product")
+      );
+      products = screen.getByTestId("products-list");
+      expect(products.children).toHaveLength(0);
+    });
   });
 });
