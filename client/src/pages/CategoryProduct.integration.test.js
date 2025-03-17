@@ -1,19 +1,18 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import axios from "axios";
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import CategoryProduct from "./CategoryProduct";
-import ProductDetails from "./ProductDetails";
 import { CartProvider } from "../context/cart";
 import { AuthProvider } from "../context/auth";
-import { navigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import CartPage from "./CartPage";
 
 jest.mock("axios");
 jest.mock("react-hot-toast");
+jest.mock("../hooks/useCategory", () => jest.fn(() => []));
 jest.mock("../components/Form/SearchInput", () => () => <div>Mocked SearchInput</div>);
 
 describe("Category Products integration test", () => {
