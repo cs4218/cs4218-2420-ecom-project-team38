@@ -90,6 +90,17 @@ describe("Category Routes", () => {
       expect(response.body.category).toHaveProperty("name", "Food");
     });
 
+    it("Should not create an invalid category", async () => {
+      const token = jwt.sign({ _id: adminUser._id }, secret);
+      const response = await request(app)
+        .post("/api/v1/category/create-category")
+        .send({})
+        .set("Authorization", token);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("message", "Name is required");
+    });
+
     it("Should not create duplicate categories", async () => {
       const token = jwt.sign({ _id: adminUser._id }, secret);
       const response = await request(app)
@@ -143,6 +154,35 @@ describe("Category Routes", () => {
       expect(response.body).toHaveProperty("category");
     });
 
+    it("Should not cause duplicate categories", async () => {
+      const token = jwt.sign({ _id: adminUser._id }, secret);
+      const response = await request(app)
+        .put(`/api/v1/category/update-category/${categories[0]._id}`)
+        .send({ name: categories[1].name })
+        .set("Authorization", token);
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("success", false);
+      expect(response.body).toHaveProperty(
+        "message",
+        "Category Already Exists"
+      );
+    });
+
+    it("Should not get an error when updating an existing category with the same name", async () => {
+      const token = jwt.sign({ _id: adminUser._id }, secret);
+      const response = await request(app)
+        .put(`/api/v1/category/update-category/${categories[0]._id}`)
+        .send({ name: categories[0].name })
+        .set("Authorization", token);
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("success", true);
+      expect(response.body).toHaveProperty(
+        "messsage",
+        "Category Updated Successfully"
+      );
+      expect(response.body).toHaveProperty("category");
+    });
+
     it("Non-admin users should not be able to update categories", async () => {
       await userModel.create(nonAdminUser);
       const token = jwt.sign({ _id: nonAdminUser._id }, secret);
@@ -184,6 +224,24 @@ describe("Category Routes", () => {
         "Category Deleted Successfully"
       );
       expect(await categoryModel.find({})).toHaveLength(1);
+    });
+
+    it("Should get an error when deleting a non-existent category", async () => {
+      const token = jwt.sign({ _id: adminUser._id }, secret);
+      const response = await request(app)
+        .delete(
+          `/api/v1/category/delete-category/${new mongoose.Types.ObjectId(
+            "66db427fdb0119d9234b27fe"
+          )}`
+        )
+        .set("Authorization", token);
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty("success", false);
+      expect(response.body).toHaveProperty(
+        "message",
+        "Category does not exist"
+      );
+      expect(await categoryModel.find({})).toHaveLength(2);
     });
 
     it("Non-admin users should not be able to delete categories", async () => {

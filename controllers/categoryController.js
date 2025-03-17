@@ -4,7 +4,7 @@ export const createCategoryController = async (req, res) => {
   try {
     const { name } = req.body;
     if (!name || name.trim().length === 0) {
-      return res.status(401).send({ message: "Name is required" });
+      return res.status(400).send({ message: "Name is required" });
     }
     const trimmedName = name.trim();
     const existingCategory = await categoryModel.findOne({ name: trimmedName });
@@ -46,14 +46,14 @@ export const updateCategoryController = async (req, res) => {
     }
 
     const trimmedName = name.trim();
-    const existingCategory = await categoryModel.findOne({ name: trimmedName });
-
-    console.log(existingCategory);
+    const existingCategory = await categoryModel.findOne({
+      $and: [{ name: trimmedName }, { _id: { $ne: id } }],
+    });
 
     if (existingCategory) {
       return res
         .status(200)
-        .send({ success: true, message: "Category Already Exists" });
+        .send({ success: false, message: "Category Already Exists" });
     }
 
     const category = await categoryModel.findByIdAndUpdate(
