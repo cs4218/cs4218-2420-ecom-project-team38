@@ -25,7 +25,13 @@ jest.mock("../context/cart", () => ({
   useCart: jest.fn(() => [null, jest.fn()]),
 }));
 
-jest.mock("../components/Form/SearchInput", () => () => <div>Mocked SearchInput</div>);
+jest.mock("../context/category", () => ({
+  useCategory: jest.fn(() => [[], jest.fn()]),
+}));
+
+jest.mock("../components/Form/SearchInput", () => () => (
+  <div>Mocked SearchInput</div>
+));
 
 Object.defineProperty(window, "localStorage", {
   value: {
@@ -35,6 +41,8 @@ Object.defineProperty(window, "localStorage", {
   },
   writable: true,
 });
+
+jest.spyOn(console, "log").mockImplementation(() => {});
 
 describe("ProductDetails Component", () => {
   beforeEach(() => {
@@ -81,7 +89,9 @@ describe("ProductDetails Component", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText("Description : This is a test product")).toBeInTheDocument();
+      expect(
+        screen.getByText("Description : This is a test product")
+      ).toBeInTheDocument();
     });
 
     await waitFor(() => {
@@ -135,8 +145,8 @@ describe("ProductDetails Component", () => {
     });
   });
 
-  it('Should handle errors gracefully when fetching product details of a existing product', async () => {
-    const errorMsg = 'Error fetching product details';
+  it("Should handle errors gracefully when fetching product details of a existing product", async () => {
+    const errorMsg = "Error fetching product details";
     axios.get.mockRejectedValue(new Error(errorMsg));
 
     render(
@@ -146,7 +156,9 @@ describe("ProductDetails Component", () => {
     );
 
     await waitFor(() => {
-      expect(axios.get).toHaveBeenCalledWith(`/api/v1/product/get-product/test-product`);
+      expect(axios.get).toHaveBeenCalledWith(
+        `/api/v1/product/get-product/test-product`
+      );
 
       expect(console.error).toHaveBeenCalledWith(new Error(errorMsg));
     });
@@ -246,7 +258,9 @@ describe("ProductDetails Component", () => {
     const similarProductName = await screen.findByText("Similar Product");
     expect(similarProductName).toBeInTheDocument();
 
-    const similarProductDesc = await screen.findByText("Similar product to Test Product...");
+    const similarProductDesc = await screen.findByText(
+      "Similar product to Test Product..."
+    );
     expect(similarProductDesc).toBeInTheDocument();
 
     const moreDetailsButtons = screen.getAllByText("More Details");
@@ -272,7 +286,9 @@ describe("ProductDetails Component", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText("Description : Similar product to Test Product")).toBeInTheDocument();
+      expect(
+        screen.getByText("Description : Similar product to Test Product")
+      ).toBeInTheDocument();
     });
 
     await waitFor(() => {

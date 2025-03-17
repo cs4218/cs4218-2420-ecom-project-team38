@@ -3,11 +3,9 @@ import axios from "axios";
 import { MemoryRouter } from "react-router-dom";
 import { render, waitFor, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-
 import { useCart } from "../context/cart";
 import { useAuth } from "../context/auth";
 import CartPage from "./CartPage";
-import { afterEach } from "node:test";
 
 jest.mock("axios");
 
@@ -25,7 +23,9 @@ jest.mock("../context/search", () => ({
   useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]),
 }));
 
-jest.mock("../hooks/useCategory", () => jest.fn(() => []));
+jest.mock("../context/category", () => ({
+  useCategory: jest.fn(() => [[], jest.fn()]),
+}));
 
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),

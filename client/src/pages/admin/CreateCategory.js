@@ -5,13 +5,17 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import CategoryForm from "../../components/Form/CategoryForm";
 import { Modal } from "antd";
+import { useCategory } from "../../context/category";
+
 const CreateCategory = () => {
+  const [, setAllCategories] = useCategory();
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
   const [visible, setVisible] = useState(false);
   const [selected, setSelected] = useState(null);
   const [updatedName, setUpdatedName] = useState("");
-  //handle Form
+
+  //handle form
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -35,6 +39,7 @@ const CreateCategory = () => {
     try {
       const { data } = await axios.get("/api/v1/category/get-category");
       if (data.success) {
+        setAllCategories(data.category);
         setCategories(data.category);
       }
     } catch (error) {

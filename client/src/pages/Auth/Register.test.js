@@ -23,7 +23,9 @@ jest.mock("../../context/search", () => ({
   useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]),
 }));
 
-jest.mock("../../hooks/useCategory", () => jest.fn(() => []));
+jest.mock("../../context/category", () => ({
+  useCategory: jest.fn(() => [[], jest.fn()]),
+}));
 
 jest.spyOn(console, "log").mockImplementation(() => {});
 
@@ -62,7 +64,10 @@ const renderRegistrationPage = () => {
   );
 };
 
-const fillAndSubmitRegistrationForm = (email = "test@example.com", name = "John Doe") => {
+const fillAndSubmitRegistrationForm = (
+  email = "test@example.com",
+  name = "John Doe"
+) => {
   const password = "password123";
   const phone = "1234567890";
   const address = "123 Street";

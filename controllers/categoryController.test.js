@@ -3,7 +3,7 @@ import categoryModel from "../models/categoryModel";
 import {
   createCategoryController,
   updateCategoryController,
-  categoryControlller,
+  categoryController,
   singleCategoryController,
   deleteCategoryController,
 } from "./categoryController";
@@ -224,7 +224,7 @@ describe("Category controller", () => {
     it("Should get all categories from the database", async () => {
       categoryModel.find = jest.fn();
 
-      await categoryControlller(req, res);
+      await categoryController(req, res);
 
       expect(categoryModel.find).toHaveBeenCalledWith({});
     });
@@ -245,7 +245,7 @@ describe("Category controller", () => {
 
       categoryModel.find = jest.fn().mockResolvedValue(mockCategories);
 
-      await categoryControlller(req, res);
+      await categoryController(req, res);
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
@@ -259,7 +259,7 @@ describe("Category controller", () => {
       const dbError = new Error("Database error while getting all categories");
       categoryModel.find = jest.fn().mockRejectedValue(dbError);
 
-      await categoryControlller(req, res);
+      await categoryController(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith({

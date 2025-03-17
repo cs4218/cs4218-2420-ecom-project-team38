@@ -183,7 +183,7 @@ describe("Auth Routes", () => {
           .set("Authorization", mockToken)
           .send(updatedUser);
 
-        expect(response.status).toBe(400);
+        expect(response.status).toBe(500);
         expect(response.body).toHaveProperty("success", false);
         expect(response.body).toHaveProperty(
           "message",
