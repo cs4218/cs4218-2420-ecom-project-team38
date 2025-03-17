@@ -17,12 +17,15 @@ jest.mock("../context/cart", () => ({
   useCart: jest.fn(() => [["item1", "item2"], jest.fn()]),
 }));
 
-jest.mock("../hooks/useCategory", () =>
-  jest.fn(() => [
-    { name: "category1", slug: "category1" },
-    { name: "category2", slug: "category2" },
-  ])
-);
+jest.mock("../context/category", () => ({
+  useCategory: jest.fn(() => [
+    [
+      { name: "category1", slug: "category1" },
+      { name: "category2", slug: "category2" },
+    ],
+    jest.fn(),
+  ]),
+}));
 
 jest.mock("./Form/SearchInput", () => () => <div>SearchInput</div>);
 

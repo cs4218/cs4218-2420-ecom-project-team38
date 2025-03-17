@@ -26,6 +26,10 @@ jest.mock("../context/cart", () => ({
   useCart: jest.fn(() => [null, jest.fn()]),
 }));
 
+jest.mock("../context/category", () => ({
+  useCategory: jest.fn(() => [[], jest.fn()]),
+}));
+
 Object.defineProperty(window, "localStorage", {
   value: {
     setItem: jest.fn(),
@@ -35,7 +39,9 @@ Object.defineProperty(window, "localStorage", {
   writable: true,
 });
 
-jest.mock("../components/Form/SearchInput", () => () => <div>Mocked SearchInput</div>);
+jest.mock("../components/Form/SearchInput", () => () => (
+  <div>Mocked SearchInput</div>
+));
 
 describe("CategoryProduct Component", () => {
   beforeEach(() => {
@@ -65,7 +71,8 @@ describe("CategoryProduct Component", () => {
               {
                 _id: "12346",
                 name: "Test Product 2",
-                description: "This is another test product with an insanely long description",
+                description:
+                  "This is another test product with an insanely long description",
                 price: 20.0,
                 category: { _id: "10", name: "Test Category" },
                 slug: "test-product-2",
@@ -101,12 +108,18 @@ describe("CategoryProduct Component", () => {
     });
 
     await waitFor(() => {
-      const truncatedDescription = "This is another test product with an insanely long description".substring(0, 60) + "...";
+      const truncatedDescription =
+        "This is another test product with an insanely long description".substring(
+          0,
+          60
+        ) + "...";
       expect(screen.getByText(truncatedDescription)).toBeInTheDocument();
     });
 
     await waitFor(() => {
-      const moreDetailsButtons = screen.getAllByRole("button", { name: /more details/i });
+      const moreDetailsButtons = screen.getAllByRole("button", {
+        name: /more details/i,
+      });
       expect(moreDetailsButtons.length).toBe(2);
     });
   });

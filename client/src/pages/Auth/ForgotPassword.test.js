@@ -23,7 +23,9 @@ jest.mock("../../context/search", () => ({
   useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]),
 }));
 
-jest.mock("../../hooks/useCategory", () => jest.fn(() => []));
+jest.mock("../../context/category", () => ({
+  useCategory: jest.fn(() => [[], jest.fn()]),
+}));
 
 jest.spyOn(console, "log").mockImplementation(() => {});
 

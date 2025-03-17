@@ -29,9 +29,9 @@ jest.mock("../context/cart", () => ({
   useCart: jest.fn(() => [[], mockSetCart]),
 }));
 
-jest.mock("../hooks/useCategory", () =>
-  jest.fn(() => [{ name: "test", slug: "test" }])
-);
+jest.mock("../context/category", () => ({
+  useCategory: jest.fn(() => [[{ name: "test", slug: "test" }], jest.fn()]),
+}));
 
 jest.mock("react-hot-toast");
 
