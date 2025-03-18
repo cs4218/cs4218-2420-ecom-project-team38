@@ -561,7 +561,7 @@ describe("Product controller", () => {
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
-        message: "Product already exists",
+        message: "Product with same name already exists",
         success: false,
       });
     });
@@ -1170,7 +1170,7 @@ describe("Product controller", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
-        message: "Product already exists",
+        message: "Product with same name already exists",
       });
     });
   });

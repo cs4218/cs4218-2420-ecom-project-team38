@@ -50,7 +50,7 @@ export const createProductController = async (req, res) => {
     if (existingProduct) {
       return res.status(200).send({
         success: false,
-        message: "Product already exists",
+        message: "Product with same name already exists",
       });
     }
 
@@ -196,7 +196,7 @@ export const updateProductController = async (req, res) => {
     if (existingProduct) {
       return res.status(200).send({
         success: false,
-        message: "Product already exists",
+        message: "Product with same name already exists",
       });
     }
 
