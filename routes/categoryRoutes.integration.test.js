@@ -148,7 +148,7 @@ describe("Category Routes", () => {
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("success", true);
       expect(response.body).toHaveProperty(
-        "messsage",
+        "message",
         "Category Updated Successfully"
       );
       expect(response.body).toHaveProperty("category");
@@ -177,7 +177,7 @@ describe("Category Routes", () => {
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("success", true);
       expect(response.body).toHaveProperty(
-        "messsage",
+        "message",
         "Category Updated Successfully"
       );
       expect(response.body).toHaveProperty("category");

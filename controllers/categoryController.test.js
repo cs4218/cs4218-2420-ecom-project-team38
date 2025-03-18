@@ -123,7 +123,7 @@ describe("Category controller", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
-        messsage: "Category Updated Successfully",
+        message: "Category Updated Successfully",
         category: mockCategory,
       });
     });
