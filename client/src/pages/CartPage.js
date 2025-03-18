@@ -102,7 +102,7 @@ const CartPage = () => {
         </div>
         <div className="container ">
           <div className="row ">
-            <div className="col-md-7  p-0 m-0">
+            <div className="col-md-7  p-0 m-0" data-testid="cart-items">
               {cart?.map((p, i) => (
                 <div className="row card flex-row" key={`${p._id}-${i}`}>
                   <div className="col-md-4">

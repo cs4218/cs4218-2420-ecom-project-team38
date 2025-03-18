@@ -3,14 +3,15 @@ import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "../context/auth";
 import toast from "react-hot-toast";
 import SearchInput from "./Form/SearchInput";
-import useCategory from "../hooks/useCategory";
+import { useCategory } from "../context/category";
 import { useCart } from "../context/cart";
 import { Badge } from "antd";
 import "../styles/Header.css";
+
 const Header = () => {
   const [auth, setAuth] = useAuth();
   const [cart] = useCart();
-  const categories = useCategory();
+  const [categories] = useCategory();
   const handleLogout = () => {
     setAuth({
       ...auth,
@@ -54,16 +55,19 @@ const Header = () => {
                 >
                   Categories
                 </Link>
-                <ul className="dropdown-menu">
+                <ul className="dropdown-menu" style={{ maxWidth: "300px" }}>
                   <li key="all">
-                    <Link className="dropdown-item" to={"/categories"}>
+                    <Link
+                      className="dropdown-item text-truncate"
+                      to={"/categories"}
+                    >
                       All Categories
                     </Link>
                   </li>
                   {categories?.map((c) => (
                     <li key={c.name}>
                       <Link
-                        className="dropdown-item"
+                        className="dropdown-item text-truncate"
                         to={`/category/${c.slug}`}
                       >
                         {c.name}
@@ -94,9 +98,24 @@ const Header = () => {
                       href="#"
                       role="button"
                       data-bs-toggle="dropdown"
-                      style={{ border: "none" }}
+                      style={{
+                        border: "none",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                      data-testid="user-name-dropdown"
                     >
-                      {auth?.user?.name}
+                      <span
+                        style={{
+                          display: "inline-block",
+                          maxWidth: "130px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {auth?.user?.name}
+                      </span>
                     </NavLink>
                     <ul className="dropdown-menu">
                       <li>

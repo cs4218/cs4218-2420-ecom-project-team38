@@ -25,7 +25,7 @@ const Orders = () => {
 
   return (
     <Layout title={"Your Orders"}>
-      <div className="container-flui p-3 m-3 dashboard">
+      <div className="container-fluid p-3 m-3 dashboard">
         <div className="row">
           <div className="col-md-3">
             <UserMenu />
@@ -34,7 +34,11 @@ const Orders = () => {
             <h1 className="text-center">All Orders</h1>
             {orders?.map((o, i) => {
               return (
-                <div className="border shadow" key={o._id}>
+                <div
+                  className="border shadow mb-2"
+                  key={o._id}
+                  style={{ overflowWrap: "break-word" }}
+                >
                   <table className="table">
                     <thead>
                       <tr>
@@ -60,7 +64,7 @@ const Orders = () => {
                   <div className="container">
                     {o?.products?.map((p, i) => (
                       <div
-                        className="row mb-2 p-3 card flex-row"
+                        className="row mb-2 me-1 ms-1 p-3 card flex-row"
                         data-testid="orders-product-card"
                         key={`${p._id}-${i}`}
                       >

@@ -702,7 +702,7 @@ describe("Auth Controller", () => {
         email: "testuser@gmail.com", // same email
         password: "newpassword456",
         phone: "87654321",
-        address: "456 New Address",
+        address: "13 Computing Drive",
       };
 
       res = {
@@ -872,6 +872,7 @@ describe("Auth Controller", () => {
           body: { ...mockUser, password: newPassword },
           user: { _id: mockUserId },
         };
+        userModel.findById = jest.fn().mockResolvedValue({ ...mockUser });
         userModel.findByIdAndUpdate = jest.fn();
 
         await updateProfileController(req, res);
@@ -916,6 +917,7 @@ describe("Auth Controller", () => {
           body: { ...validUpdatedProfile },
           user: { _id: mockUserId },
         };
+        userModel.findById = jest.fn().mockResolvedValue({ ...mockUser });
         userModel.findByIdAndUpdate = jest
           .fn()
           .mockResolvedValue({ ...validUpdatedProfile });
@@ -935,7 +937,7 @@ describe("Auth Controller", () => {
       it("should send error response when error getting user from database", async () => {
         const dbReadError = new Error("Database error getting user");
         const req = {
-          body: { ...validUpdatedProfile, password: "" },
+          body: { ...validUpdatedProfile },
           user: { _id: mockUserId },
         };
         userModel.findById = jest.fn().mockRejectedValue(dbReadError);
@@ -944,7 +946,7 @@ describe("Auth Controller", () => {
         await updateProfileController(req, res);
 
         expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.status).toHaveBeenCalledWith(500);
         expect(res.send).toHaveBeenCalledWith({
           success: false,
           message: "Error while updating profile",
@@ -954,7 +956,7 @@ describe("Auth Controller", () => {
 
       it("should send error response when user not found in database", async () => {
         const req = {
-          body: { ...validUpdatedProfile, password: "" },
+          body: { ...validUpdatedProfile },
           user: { _id: mockUserId },
         };
         userModel.findById = jest.fn().mockResolvedValue(null);
@@ -976,13 +978,14 @@ describe("Auth Controller", () => {
           body: { ...validUpdatedProfile },
           user: { _id: mockUserId },
         };
+        userModel.findById = jest.fn().mockResolvedValue({ ...mockUser });
         userModel.findByIdAndUpdate = jest
           .fn()
           .mockRejectedValue(dbUpdateError);
 
         await updateProfileController(req, res);
 
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.status).toHaveBeenCalledWith(500);
         expect(res.send).toHaveBeenCalledWith({
           success: false,
           message: "Error while updating profile",
@@ -996,13 +999,14 @@ describe("Auth Controller", () => {
           body: { ...validUpdatedProfile },
           user: { _id: mockUserId },
         };
-        mockHashPassword.mockRejectedValue(hashError);
+        userModel.findById = jest.fn().mockResolvedValue({ ...mockUser });
         userModel.findByIdAndUpdate = jest.fn();
+        mockHashPassword.mockRejectedValue(hashError);
 
         await updateProfileController(req, res);
 
         expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.status).toHaveBeenCalledWith(500);
         expect(res.send).toHaveBeenCalledWith({
           success: false,
           message: "Error while updating profile",
@@ -1029,7 +1033,9 @@ describe("Auth Controller", () => {
     });
 
     it("should get all orders where the buyer is the user from the database", async () => {
-      orderModel.find = jest.fn();
+      orderModel.find = jest.fn().mockReturnValue({
+        populate: jest.fn().mockReturnThis(),
+      });
 
       await getOrdersController(req, res);
 
@@ -1120,7 +1126,10 @@ describe("Auth Controller", () => {
     });
 
     it("should get all orders from the database", async () => {
-      orderModel.find = jest.fn();
+      orderModel.find = jest.fn().mockReturnValue({
+        populate: jest.fn().mockReturnThis(),
+        sort: jest.fn(),
+      });
 
       await getAllOrdersController(req, res);
 
@@ -1130,6 +1139,7 @@ describe("Auth Controller", () => {
     it("should exclude the product photos when getting orders from the database", async () => {
       orderModel.find = jest.fn().mockReturnValue({
         populate: jest.fn().mockReturnThis(),
+        sort: jest.fn(),
       });
 
       await getAllOrdersController(req, res);
@@ -1143,6 +1153,7 @@ describe("Auth Controller", () => {
     it("should include the buyers' names when getting orders from the database", async () => {
       orderModel.find = jest.fn().mockReturnValue({
         populate: jest.fn().mockReturnThis(),
+        sort: jest.fn(),
       });
 
       await getAllOrdersController(req, res);
@@ -1238,7 +1249,7 @@ describe("Auth Controller", () => {
       expect(orderModel.findByIdAndUpdate).toHaveBeenCalledWith(
         mockOrderId,
         { status: mockOrderStatus },
-        { new: true }
+        { new: true, runValidators: true }
       );
     });
 
