@@ -62,7 +62,7 @@ describe("Category controller", () => {
 
       await createCategoryController(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.status).toHaveBeenCalledWith(400);
       expect(res.send).toHaveBeenCalledWith({ message: "Name is required" });
       expect(categoryModel.prototype.save).not.toHaveBeenCalled();
     });
@@ -73,7 +73,7 @@ describe("Category controller", () => {
 
       await createCategoryController(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.status).toHaveBeenCalledWith(400);
       expect(res.send).toHaveBeenCalledWith({ message: "Name is required" });
       expect(categoryModel.prototype.save).not.toHaveBeenCalled();
     });
@@ -123,7 +123,7 @@ describe("Category controller", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
-        messsage: "Category Updated Successfully",
+        message: "Category Updated Successfully",
         category: mockCategory,
       });
     });
@@ -140,10 +140,12 @@ describe("Category controller", () => {
       await updateCategoryController(req, res);
 
       expect(categoryModel.findByIdAndUpdate).not.toHaveBeenCalled();
-      expect(categoryModel.findOne).toHaveBeenCalledWith({ name: "test" });
+      expect(categoryModel.findOne).toHaveBeenCalledWith({
+        $and: [{ name: "test" }, { _id: { $ne: "1" } }],
+      });
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
-        success: true,
+        success: false,
         message: "Category Already Exists",
       });
     });
