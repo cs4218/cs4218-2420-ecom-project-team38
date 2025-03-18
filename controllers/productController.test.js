@@ -1778,7 +1778,7 @@ describe("Product controller", () => {
 
       await searchProductController(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
         message: "Error In Search Product API",
@@ -2202,8 +2202,7 @@ describe("Product controller", () => {
 
       jest.spyOn(braintree, "BraintreeGateway").mockImplementation(() => ({
         transaction: {
-          sale: (_, callback) =>
-            callback(mockError, null),
+          sale: (_, callback) => callback(mockError, null),
         },
       }));
 

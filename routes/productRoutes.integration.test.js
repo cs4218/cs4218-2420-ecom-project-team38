@@ -11,7 +11,7 @@ import { beforeAll, afterAll, expect } from "@jest/globals";
 import { MongoMemoryServer } from "mongodb-memory-server";
 
 const app = Express();
-app.use(Express.json())
+app.use(Express.json());
 app.use("/api/v1/product", productRoutes);
 
 let mongo;
@@ -65,7 +65,10 @@ describe("Product Routes", () => {
 
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty("success", true);
-      expect(response.body).toHaveProperty("message", "Product Created Successfully");
+      expect(response.body).toHaveProperty(
+        "message",
+        "Product Created Successfully"
+      );
       expect(response.body).toHaveProperty("products");
 
       const { products } = response.body;
@@ -204,13 +207,19 @@ describe("Product Routes", () => {
 
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty("success", true);
-      expect(response.body).toHaveProperty("message", "Product Updated Successfully");
+      expect(response.body).toHaveProperty(
+        "message",
+        "Product Updated Successfully"
+      );
       expect(response.body).toHaveProperty("products");
 
       const { products } = response.body;
       expect(products).toHaveProperty("name", "updated book");
       expect(products).toHaveProperty("slug", "updated-book");
-      expect(products).toHaveProperty("description", "updated book description");
+      expect(products).toHaveProperty(
+        "description",
+        "updated book description"
+      );
       expect(products).toHaveProperty("price", 20);
       expect(products).toHaveProperty("category");
       expect(products).toHaveProperty("quantity", 25);
@@ -316,7 +325,10 @@ describe("Product Routes", () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("success", true);
-      expect(response.body).toHaveProperty("message", "Product Deleted successfully");
+      expect(response.body).toHaveProperty(
+        "message",
+        "Product Deleted successfully"
+      );
     });
 
     it("Should delete a product if the user is not an admin", async () => {
@@ -331,7 +343,9 @@ describe("Product Routes", () => {
     });
 
     it("Should not delete a product if the user is not authenticated", async () => {
-      const response = await request(app).delete(`/api/v1/product/delete-product/${pid}`);
+      const response = await request(app).delete(
+        `/api/v1/product/delete-product/${pid}`
+      );
 
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty("success", false);
@@ -347,49 +361,95 @@ describe("Product Routes", () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("success", true);
-      expect(response.body).toHaveProperty("message", "Product Deleted successfully");
+      expect(response.body).toHaveProperty(
+        "message",
+        "Product Deleted successfully"
+      );
     });
   });
 
   describe("GET /api/v1/product/search", () => {
+    const products = [
+      {
+        name: "phone",
+        slug: "phone",
+        description: "phone description",
+        price: 1000,
+        category: new mongoose.Types.ObjectId("66db427fdb0119d9234b27ee"),
+        quantity: 10,
+      },
+      {
+        name: "laptop",
+        slug: "laptop",
+        description: "laptop description",
+        price: 2000,
+        category: new mongoose.Types.ObjectId("66db427fdb0119d9234b27ee"),
+        quantity: 20,
+      },
+    ];
     beforeEach(async () => {
       await productModel.deleteMany({});
-      await productModel.create([
-        {
-          name: "phone",
-          slug: "phone",
-          description: "phone description",
-          price: 1000,
-          category: new mongoose.Types.ObjectId("66db427fdb0119d9234b27ee"),
-          quantity: 10,
-        },
-        {
-          name: "laptop",
-          slug: "laptop",
-          description: "laptop description",
-          price: 2000,
-          category: new mongoose.Types.ObjectId("66db427fdb0119d9234b27ee"),
-          quantity: 20,
-        },
-      ]);
+      await productModel.create(products);
     });
 
-    it("Should return a list of products containing matching keyword", async () => {
-      const keyword = "phone";
-      const response = await request(app).get(`/api/v1/product/search/${keyword}`);
+    it("Should return a list of products with names matching the keyword", async () => {
+      const keyword = products[0].name;
+      const response = await request(app).get(
+        `/api/v1/product/search/${keyword}`
+      );
       expect(response.status).toBe(200);
       expect(response.body).toHaveLength(1);
-      expect(response.body[0]).toHaveProperty("name", "phone");
-      expect(response.body[0]).toHaveProperty("slug", "phone");
-      expect(response.body[0]).toHaveProperty("description", "phone description");
-      expect(response.body[0]).toHaveProperty("price", 1000);
-      expect(response.body[0]).toHaveProperty("category");
-      expect(response.body[0]).toHaveProperty("quantity", 10);
+      expect(response.body[0]).toHaveProperty("name", products[0].name);
+      expect(response.body[0]).toHaveProperty("slug", products[0].slug);
+      expect(response.body[0]).toHaveProperty(
+        "description",
+        products[0].description
+      );
+      expect(response.body[0]).toHaveProperty("price", products[0].price);
+      expect(response.body[0]).toHaveProperty(
+        "category",
+        products[0].category.toString()
+      );
+      expect(response.body[0]).toHaveProperty("quantity", products[0].quantity);
+    });
+
+    it("Should return a list of products with descriptions matching the keyword", async () => {
+      const keyword = "description";
+      const response = await request(app).get(
+        `/api/v1/product/search/${keyword}`
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveLength(2);
+      expect(response.body.map((p) => p.name));
+      expect(response.body.map((p) => p.slug)).toEqual(
+        expect.arrayContaining([products[0].slug, products[1].slug])
+      );
+      expect(response.body.map((p) => p.description)).toEqual(
+        expect.arrayContaining([
+          products[0].description,
+          products[1].description,
+        ])
+      );
+      expect(response.body.map((p) => p.price)).toEqual(
+        expect.arrayContaining([products[0].price, products[1].price])
+      );
+      expect(response.body.map((p) => p.category)).toEqual(
+        expect.arrayContaining([
+          products[0].category.toString(),
+          products[1].category.toString(),
+        ])
+      );
+      expect(response.body.map((p) => p.quantity)).toEqual(
+        expect.arrayContaining([products[0].quantity, products[1].quantity])
+      );
     });
 
     it("Should return an empty list when keyword does not match products", async () => {
       const keyword = "non-existent";
-      const response = await request(app).get(`/api/v1/product/search/${keyword}`);
+      const response = await request(app).get(
+        `/api/v1/product/search/${keyword}`
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual([]);
@@ -437,7 +497,9 @@ describe("Product Routes", () => {
 
     it("Should return product with the given slug", async () => {
       const slug = "book";
-      const response = await request(app).get(`/api/v1/product/get-product/${slug}`);
+      const response = await request(app).get(
+        `/api/v1/product/get-product/${slug}`
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("message", "Single Product Fetched");
@@ -456,7 +518,9 @@ describe("Product Routes", () => {
 
     it("Should return no product when slug does not exist", async () => {
       const slug = "camera";
-      const response = await request(app).get(`/api/v1/product/get-product/${slug}`);
+      const response = await request(app).get(
+        `/api/v1/product/get-product/${slug}`
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("message", "Single Product Fetched");
@@ -511,7 +575,10 @@ describe("Product Routes", () => {
       expect(products[0]).toHaveProperty("slug", "book");
       expect(products[0]).toHaveProperty("description", "book description");
       expect(products[0]).toHaveProperty("price", 10);
-      expect(products[0]).toHaveProperty("category", "67d18a47b92dddc71c78f644");
+      expect(products[0]).toHaveProperty(
+        "category",
+        "67d18a47b92dddc71c78f644"
+      );
       expect(products[0]).toHaveProperty("quantity", 20);
     });
 
@@ -576,7 +643,9 @@ describe("Product Routes", () => {
     });
 
     it("Should return related products", async () => {
-      const response = await request(app).get(`/api/v1/product/related-product/${pid}/${cid}`);
+      const response = await request(app).get(
+        `/api/v1/product/related-product/${pid}/${cid}`
+      );
       expect(response.status).toBe(200);
 
       const { products } = response.body;
@@ -666,7 +735,9 @@ describe("Product Routes", () => {
 
     it("Should return the photo of the product", async () => {
       pid = pidPhoto;
-      const response = await request(app).get(`/api/v1/product/product-photo/${pid}`);
+      const response = await request(app).get(
+        `/api/v1/product/product-photo/${pid}`
+      );
 
       expect(response.status).toBe(200);
       expect(response.headers["content-type"]).toBe("image/jpeg");
@@ -675,7 +746,9 @@ describe("Product Routes", () => {
 
     it("Should return an error if no photo can be found", async () => {
       pid = pidNoPhoto;
-      const response = await request(app).get(`/api/v1/product/product-photo/${pid}`);
+      const response = await request(app).get(
+        `/api/v1/product/product-photo/${pid}`
+      );
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty("success", false);
@@ -732,7 +805,9 @@ describe("Product Routes", () => {
 
     it("Should return products of the given category", async () => {
       const slug = "electronics";
-      const response = await request(app).get(`/api/v1/product/product-category/${slug}`);
+      const response = await request(app).get(
+        `/api/v1/product/product-category/${slug}`
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("products");
@@ -751,7 +826,9 @@ describe("Product Routes", () => {
 
     it("Should return an empty list when there are no products in the category", async () => {
       const slug = "furniture";
-      const response = await request(app).get(`/api/v1/product/product-category/${slug}`);
+      const response = await request(app).get(
+        `/api/v1/product/product-category/${slug}`
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("products");
@@ -760,7 +837,9 @@ describe("Product Routes", () => {
 
     it("Should return an error message if category does not exist", async () => {
       const slug = "does-not-exist";
-      const response = await request(app).get(`/api/v1/product/product-category/${slug}`);
+      const response = await request(app).get(
+        `/api/v1/product/product-category/${slug}`
+      );
 
       expect(response.status).toBe(404);
 
@@ -859,7 +938,9 @@ describe("Product Routes", () => {
 
     it("Should return the list of products on the current page", async () => {
       const page = 1;
-      const response = await request(app).get(`/api/v1/product/product-list/${page}`);
+      const response = await request(app).get(
+        `/api/v1/product/product-list/${page}`
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("success", true);
@@ -886,7 +967,9 @@ describe("Product Routes", () => {
     });
 
     it("Should return a Braintree client token", async () => {
-      const response = await request(app).get("/api/v1/product/braintree/token");
+      const response = await request(app).get(
+        "/api/v1/product/braintree/token"
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("clientToken");
@@ -901,7 +984,9 @@ describe("Product Routes", () => {
       process.env.BRAINTREE_PUBLIC_KEY = "invalid-public-key";
       process.env.BRAINTREE_PRIVATE_KEY = "invalid-private-key";
 
-      const response = await request(app).get("/api/v1/product/braintree/token");
+      const response = await request(app).get(
+        "/api/v1/product/braintree/token"
+      );
 
       expect(response.status).toBe(500);
       expect(response.body).toHaveProperty("name", "authenticationError");
