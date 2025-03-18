@@ -32,6 +32,7 @@ const createMockFile = (filename, filesize, fileType) => {
 
 describe("CreateProduct Integration Test", () => {
   const mockProduct = {
+    _id: 1,
     name: "product1",
     description: "description1",
     price: 100,
