@@ -60,6 +60,7 @@ describe("Product controller", () => {
         },
       });
 
+      jest.spyOn(productModel, "findOne").mockResolvedValue(null);
       jest.spyOn(productModel.prototype, "save").mockImplementation(mockSave);
 
       const req = {
@@ -117,6 +118,7 @@ describe("Product controller", () => {
         slug: mockSlug,
       });
 
+      jest.spyOn(productModel, "findOne").mockResolvedValue(null);
       jest.spyOn(productModel.prototype, "save").mockImplementation(mockSave);
 
       const req = {
@@ -529,6 +531,40 @@ describe("Product controller", () => {
         error: "Photo is Required and should be less then 1mb",
       });
     });
+
+    it("Does not create a product if the name is not unique", async () => {
+      const mockProduct = {
+        _id: "67ba0e19b5b64a493c0f08aa",
+        name: "test product",
+        description: "This is a test product",
+        price: 60,
+        category: "67ba0db37d0621608b2f79e2",
+        quantity: 5,
+        shipping: false,
+      };
+
+      jest.spyOn(productModel, "findOne").mockResolvedValue(mockProduct);
+
+      const req = {
+        fields: { ...mockProduct },
+        files: {
+          photo: { path: "mock-photo-path", type: "image/jpg", size: 500 },
+        },
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+
+      await createProductController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        message: "Product already exists",
+        success: false,
+      });
+    });
   });
 
   describe("Update product controller", () => {
@@ -565,6 +601,7 @@ describe("Product controller", () => {
         },
       };
 
+      productModel.findOne = jest.fn().mockResolvedValue(null);
       productModel.findByIdAndUpdate = jest
         .fn()
         .mockResolvedValue(mockUpdatedProductResponse);
@@ -618,6 +655,7 @@ describe("Product controller", () => {
         slug: mockSlug,
       };
 
+      productModel.findOne = jest.fn().mockResolvedValue(null);
       productModel.findByIdAndUpdate = jest
         .fn()
         .mockResolvedValue(mockUpdatedProductResponse);
@@ -1081,6 +1119,58 @@ describe("Product controller", () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith({
         error: "Photo is Required and should be less then 1mb",
+      });
+    });
+
+    it("Does not update product if the name already exists", async () => {
+      const mockProductId = "67bac8f8c3398a1d89886761";
+    
+      const mockUpdatedProduct = {
+        name: "Existing Product",
+        description: "This is an updated product with an existing name",
+        price: 100,
+        category: "67babe1aeae58eb5646d28fb",
+        quantity: 10,
+        shipping: true,
+      };
+    
+      const mockPhoto = {
+        path: "updated-photo-path",
+        size: 500000,
+        type: "image/jpeg",
+      };
+    
+      // Mock the existing product
+      const mockExistingProduct = {
+        _id: "67bac8f8c3398a1d89886762",
+        name: "Existing Product",
+        description: "This is an existing product",
+        price: 100,
+        category: "67babe1aeae58eb5646d28fb",
+        quantity: 10,
+        shipping: true,
+      };
+    
+      productModel.findOne = jest.fn().mockResolvedValue(mockExistingProduct);
+    
+      const req = {
+        params: { pid: mockProductId },
+        fields: mockUpdatedProduct,
+        files: { photo: mockPhoto },
+      };
+    
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+    
+      await updateProductController(req, res);
+    
+      expect(productModel.findOne).toHaveBeenCalledWith({ name: mockUpdatedProduct.name });
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: "Product already exists",
       });
     });
   });

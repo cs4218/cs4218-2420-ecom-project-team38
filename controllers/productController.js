@@ -44,11 +44,22 @@ export const createProductController = async (req, res) => {
           .send({ error: "Photo is Required and should be less then 1mb" });
     }
 
+    const existingProduct = await productModel
+      .findOne({ name: name })
+    
+    if (existingProduct) {
+      return res.status(200).send({
+        success: false,
+        message: "Product already exists",
+      });
+    }
+
     const products = new productModel({ ...req.fields, slug: slugify(name) });
     if (photo) {
       products.photo.data = fs.readFileSync(photo.path);
       products.photo.contentType = photo.type;
     }
+
     await products.save();
     res.status(201).send({
       success: true,
@@ -177,6 +188,16 @@ export const updateProductController = async (req, res) => {
         return res
           .status(500)
           .send({ error: "Photo is Required and should be less then 1mb" });
+    }
+
+    const existingProduct = await productModel
+      .findOne({ name: name })
+    
+    if (existingProduct) {
+      return res.status(200).send({
+        success: false,
+        message: "Product already exists",
+      });
     }
 
     const products = await productModel.findByIdAndUpdate(
