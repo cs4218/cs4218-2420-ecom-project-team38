@@ -5,21 +5,15 @@ import * as router from "react-router";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import Categories from "./Categories";
-import useCategory from "../hooks/useCategory";
+import { useCategory } from "../context/category";
 
-jest.mock("../context/auth", () => ({
-  useAuth: jest.fn(() => [null, jest.fn()]),
+jest.mock("../context/category", () => ({
+  useCategory: jest.fn(),
 }));
 
-jest.mock("../context/cart", () => ({
-  useCart: jest.fn(() => [null, jest.fn()]),
-}));
-
-jest.mock("../context/search", () => ({
-  useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]),
-}));
-
-jest.mock("../hooks/useCategory", () => jest.fn(() => []));
+jest.mock("../components/Layout", () => ({ children }) => (
+  <div>{children}</div>
+));
 
 const mockUseNavigate = jest.fn();
 jest.spyOn(router, "useNavigate").mockImplementation(() => mockUseNavigate);
@@ -51,12 +45,12 @@ describe("Categories Page", () => {
     };
   });
 
-  it("should display all categories as links", () => {
-    useCategory.mockReturnValue([mockCategory1, mockCategory2]);
+  it("should display all categories as links", async () => {
+    useCategory.mockReturnValue([[mockCategory1, mockCategory2], jest.fn()]);
 
     renderCategoriesPage();
 
-    const categoryLinks = screen.getAllByTestId("category-link");
+    const categoryLinks = await screen.findAllByTestId("category-link");
     const category1Link = within(categoryLinks[0]).getByRole("link", {
       name: mockCategory1.name,
     });
@@ -70,8 +64,7 @@ describe("Categories Page", () => {
   });
 
   it("should not display any category links when there are no categories", () => {
-    useCategory.mockReturnValue([]);
-
+    useCategory.mockReturnValue([[], jest.fn()]);
     renderCategoriesPage();
 
     expect(screen.queryAllByTestId("category-link")).toHaveLength(0);
@@ -79,7 +72,7 @@ describe("Categories Page", () => {
 
   it("should navigate to the product category page when a category link is clicked", async () => {
     const user = userEvent.setup();
-    useCategory.mockReturnValue([mockCategory1]);
+    useCategory.mockReturnValue([[mockCategory1], jest.fn()]);
 
     renderCategoriesPage();
 

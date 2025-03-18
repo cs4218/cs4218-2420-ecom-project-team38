@@ -1,8 +1,11 @@
-import { useState, useEffect } from "react";
+import React from "react";
+import { useState, useContext, createContext, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-export default function useCategory() {
+const CategoryContext = createContext();
+
+const CategoryProvider = ({ children }) => {
   const [categories, setCategories] = useState([]);
 
   //get cat
@@ -20,5 +23,14 @@ export default function useCategory() {
     getCategories();
   }, []);
 
-  return categories;
-}
+  return (
+    <CategoryContext.Provider value={[categories, setCategories]}>
+      {children}
+    </CategoryContext.Provider>
+  );
+};
+
+// custom hook
+const useCategory = () => useContext(CategoryContext);
+
+export { useCategory, CategoryProvider };

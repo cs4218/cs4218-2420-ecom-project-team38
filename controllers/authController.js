@@ -265,17 +265,18 @@ export const updateProfileController = async (req, res) => {
       });
     }
 
+    const user = await userModel.findById(req.user._id);
+    if (!user) {
+      return res.status(404).send({
+        success: false,
+        message: "User not found",
+      });
+    }
+
     let newHashedPassword, currentHashedPassword;
     if (password) {
       newHashedPassword = await hashPassword(password);
     } else {
-      const user = await userModel.findById(req.user._id);
-      if (!user) {
-        return res.status(404).send({
-          success: false,
-          message: "User not found",
-        });
-      }
       currentHashedPassword = user.password;
     }
 
@@ -296,7 +297,7 @@ export const updateProfileController = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(400).send({
+    res.status(500).send({
       success: false,
       message: "Error while updating profile",
       error,
@@ -349,7 +350,7 @@ export const orderStatusController = async (req, res) => {
     const order = await orderModel.findByIdAndUpdate(
       orderId,
       { status },
-      { new: true }
+      { new: true, runValidators: true }
     );
 
     if (!order) {

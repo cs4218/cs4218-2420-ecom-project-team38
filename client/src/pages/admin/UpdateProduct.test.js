@@ -59,9 +59,9 @@ jest.mock("../../context/search", () => ({
   useSearch: jest.fn(() => [{ keyword: "" }, jest.fn()]), // Mock useSearch hook to return null state and a mock function
 }));
 
-jest.mock("../../hooks/useCategory", () =>
-  jest.fn(() => [{ name: "test", slug: "test" }])
-);
+jest.mock("../../context/category", () => ({
+  useCategory: jest.fn(() => [[{ name: "test", slug: "test" }], jest.fn()]),
+}));
 
 jest.mock("../../components/Layout", () => ({ children }) => (
   <div>{children}</div>
@@ -506,7 +506,7 @@ describe("UpdateProduct page", () => {
       );
       await user.click(screen.getByRole("button", { name: "DELETE PRODUCT" }));
       expect(deletePopup).toHaveBeenCalledWith(
-        "Are You Sure want to delete this product?"
+        "Are you sure you want to delete this product?"
       );
     });
 
@@ -562,7 +562,7 @@ describe("UpdateProduct page", () => {
       );
       await user.click(screen.getByRole("button", { name: "DELETE PRODUCT" }));
       expect(deletePopup).toHaveBeenCalledWith(
-        "Are You Sure want to delete this product?"
+        "Are you sure you want to delete this product?"
       );
       expect(axios.delete).not.toHaveBeenCalled();
     });

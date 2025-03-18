@@ -1778,7 +1778,7 @@ describe("Product controller", () => {
 
       await searchProductController(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
         message: "Error In Search Product API",
@@ -2142,6 +2142,7 @@ describe("Product controller", () => {
         transaction: {
           sale: (_, callback) =>
             callback(null, {
+              success: true,
               amount: 150,
               paymentMethodNonce: "fake-payment-nonce",
             }),
@@ -2186,6 +2187,7 @@ describe("Product controller", () => {
       const savedOrder = mockSave.mock.instances[0];
       expect(savedOrder.products).toEqual(productIds);
       expect(savedOrder.payment).toEqual({
+        success: true,
         amount: 150,
         paymentMethodNonce: "fake-payment-nonce",
       });
@@ -2196,10 +2198,11 @@ describe("Product controller", () => {
     });
 
     it("Returns an error if an exception occurs inside the Braintree transaction", async () => {
+      const mockError = new Error("Payment processing failed");
+
       jest.spyOn(braintree, "BraintreeGateway").mockImplementation(() => ({
         transaction: {
-          sale: (_, callback) =>
-            callback(new Error("Braintree transaction failed"), null),
+          sale: (_, callback) => callback(mockError, null),
         },
       }));
 
@@ -2228,7 +2231,11 @@ describe("Product controller", () => {
       await brainTreePaymentController(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.send).toHaveBeenCalledWith(expect.any(Error));
+      expect(res.send).toHaveBeenCalledWith({
+        ok: false,
+        message: "Payment processing failed",
+        error: mockError,
+      });
     });
 
     it("Returns an error if an exception occurs outside the Braintree transaction", async () => {

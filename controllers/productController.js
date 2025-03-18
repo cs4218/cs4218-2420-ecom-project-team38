@@ -31,13 +31,15 @@ export const createProductController = async (req, res) => {
       case !price:
         return res.status(500).send({ error: "Price is Required" });
       case price < 0:
-        return res.status(500).send({ error: "Price should not be negative" })
+        return res.status(500).send({ error: "Price should not be negative" });
       case !category:
         return res.status(500).send({ error: "Category is Required" });
       case !quantity:
         return res.status(500).send({ error: "Quantity is Required" });
       case quantity < 0:
-          return res.status(500).send({ error: "Quantity should not be negative" });
+        return res
+          .status(500)
+          .send({ error: "Quantity should not be negative" });
       case photo && photo.size > 1000000:
         return res
           .status(500)
@@ -166,13 +168,15 @@ export const updateProductController = async (req, res) => {
       case !price:
         return res.status(500).send({ error: "Price is Required" });
       case price < 0:
-          return res.status(500).send({ error: "Price should not be negative" })
+        return res.status(500).send({ error: "Price should not be negative" });
       case !category:
         return res.status(500).send({ error: "Category is Required" });
       case !quantity:
         return res.status(500).send({ error: "Quantity is Required" });
       case quantity < 0:
-          return res.status(500).send({ error: "Quantity should not be negative" });
+        return res
+          .status(500)
+          .send({ error: "Quantity should not be negative" });
       case photo && photo.size > 1000000:
         return res
           .status(500)
@@ -277,7 +281,7 @@ export const searchProductController = async (req, res) => {
       /[-[\]{}()*+?.,\\/^$|#\s]/g,
       "\\$&"
     );
-    const resutls = await productModel
+    const results = await productModel
       .find({
         $or: [
           { name: { $regex: sanitisedKeyword, $options: "i" } },
@@ -285,10 +289,10 @@ export const searchProductController = async (req, res) => {
         ],
       })
       .select("-photo");
-    res.json(resutls);
+    res.json(results);
   } catch (error) {
     console.log(error);
-    res.status(400).send({
+    res.status(500).send({
       success: false,
       message: "Error In Search Product API",
       error,
@@ -350,21 +354,8 @@ export const productCategoryController = async (req, res) => {
   }
 };
 
-//payment gateway api
-//token
+//payment gateway api token
 export const braintreeTokenController = async (req, res) => {
-  // try {
-  //   gateway.clientToken.generate({}, function (err, response) {
-  //     if (err) {
-  //       res.status(500).send(err);
-  //     } else {
-  //       res.send(response);
-  //     }
-  //   });
-  // } catch (error) {
-  //   console.log(error);
-  // }
-
   try {
     const response = await new Promise((resolve, reject) => {
       const gateway = new braintree.BraintreeGateway({
@@ -372,7 +363,7 @@ export const braintreeTokenController = async (req, res) => {
         merchantId: process.env.BRAINTREE_MERCHANT_ID,
         publicKey: process.env.BRAINTREE_PUBLIC_KEY,
         privateKey: process.env.BRAINTREE_PRIVATE_KEY,
-     });
+      });
 
       gateway.clientToken.generate({}, function (err, response) {
         if (err) {
@@ -413,7 +404,7 @@ export const brainTreePaymentController = async (req, res) => {
         },
       },
       function (error, result) {
-        if (result) {
+        if (result && result.success) {
           const order = new orderModel({
             products: cart,
             payment: result,
@@ -421,15 +412,19 @@ export const brainTreePaymentController = async (req, res) => {
           }).save();
           res.status(200).json({ ok: true });
         } else {
-          res.status(500).send(error);
+          res.status(500).send({
+            ok: false,
+            message: "Payment processing failed",
+            error,
+          });
         }
       }
     );
   } catch (error) {
-    res.status(500).json({ 
-      ok: false, 
-      message: "Error outside Braintree transaction", 
-      error 
+    res.status(500).json({
+      ok: false,
+      message: "Error outside Braintree transaction",
+      error,
     });
   }
 };

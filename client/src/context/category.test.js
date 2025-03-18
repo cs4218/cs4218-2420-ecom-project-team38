@@ -2,7 +2,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import "@testing-library/jest-dom";
-import useCategory from "./useCategory";
+import { CategoryProvider, useCategory } from "./category";
 
 jest.mock("axios");
 
@@ -10,7 +10,7 @@ jest.mock("react-hot-toast");
 
 jest.spyOn(console, "log").mockImplementation(() => {});
 
-describe("Use Category Hook", () => {
+describe("Category Context", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -18,7 +18,7 @@ describe("Use Category Hook", () => {
   it("should make API call to get all categories", async () => {
     axios.get.mockResolvedValue({ data: {} });
 
-    renderHook(() => useCategory());
+    renderHook(() => useCategory(), { wrapper: CategoryProvider });
 
     await waitFor(() =>
       expect(axios.get).toHaveBeenCalledWith("/api/v1/category/get-category")
@@ -45,23 +45,29 @@ describe("Use Category Hook", () => {
 
     axios.get.mockResolvedValue({ data: mockCategoryData });
 
-    const { result } = renderHook(() => useCategory());
+    const { result } = renderHook(() => useCategory(), {
+      wrapper: CategoryProvider,
+    });
 
-    await waitFor(() => expect(result.current).toBe(mockCategoryData.category));
+    await waitFor(() =>
+      expect(result.current[0]).toBe(mockCategoryData.category)
+    );
   });
 
   it("should return an empty list when API call to get all categories fails", async () => {
     axios.get.mockRejectedValue(new Error("Backend error"));
 
-    const { result } = renderHook(() => useCategory());
+    const { result } = renderHook(() => useCategory(), {
+      wrapper: CategoryProvider,
+    });
 
-    await waitFor(() => expect(result.current).toEqual([]));
+    await waitFor(() => expect(result.current[0]).toEqual([]));
   });
 
   it("should display error message when API call to get all categories fails", async () => {
     axios.get.mockRejectedValue(new Error("Backend error"));
 
-    renderHook(() => useCategory());
+    renderHook(() => useCategory(), { wrapper: CategoryProvider });
 
     await waitFor(() =>
       expect(toast.error).toHaveBeenCalledWith(
