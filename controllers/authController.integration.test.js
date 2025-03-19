@@ -6,7 +6,7 @@ import JWT from "jsonwebtoken";
 import { jest } from "@jest/globals";
 
 import userModel from "../models/userModel.js";
-import { app } from "../server.js";
+import { server, app } from "../server.js";
 
 const unhashedPassword = "Password123!";
 const newPassword = "Password1234!"; // For Password Resets
@@ -63,6 +63,7 @@ describe("Auth Controller Integration Tests", () => {
     await mongoose.connection.dropDatabase();
     await mongoose.connection.close();
     await mongodb.stop();
+    server.close();
   });
 
   describe("Registration Controller Integration Tests", () => {
