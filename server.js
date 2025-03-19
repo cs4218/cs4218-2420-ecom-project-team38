@@ -34,10 +34,10 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 6060;
 
-const server = app.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(
     `Server running on ${process.env.DEV_MODE} mode on ${PORT}`.bgCyan.white
   );
 });
 
-export { server, app };
+export { app };

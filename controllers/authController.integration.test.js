@@ -1,3 +1,6 @@
+process.env.JWT_SECRET = "test-secret";
+
+import express from "express";
 import supertest from "supertest";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
@@ -5,8 +8,12 @@ import { ObjectId } from "mongodb";
 import JWT from "jsonwebtoken";
 import { jest } from "@jest/globals";
 
+import authRoutes from "../routes/authRoutes.js";
 import userModel from "../models/userModel.js";
-import { server, app } from "../server.js";
+
+const app = express();
+app.use(express.json());
+app.use("/api/v1/auth", authRoutes);
 
 const unhashedPassword = "Password123!";
 const newPassword = "Password1234!"; // For Password Resets
@@ -63,7 +70,6 @@ describe("Auth Controller Integration Tests", () => {
     await mongoose.connection.dropDatabase();
     await mongoose.connection.close();
     await mongodb.stop();
-    server.close();
   });
 
   describe("Registration Controller Integration Tests", () => {
