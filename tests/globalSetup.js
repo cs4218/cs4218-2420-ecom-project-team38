@@ -8,7 +8,6 @@ export default async function globalSetup() {
   process.env.MONGO_URL = mongoUri;
 
   const serverProcess = spawn("npm", ["run", "server"], {
-    stdio: "inherit",
     shell: true,
     env: { ...process.env, MONGO_URL: mongoUri },
   });
