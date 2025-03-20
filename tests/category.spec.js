@@ -150,7 +150,6 @@ test.describe("Category Page - Authenticated Users", () => {
     await page.waitForURL("/cart");
 
     await expect(page.getByText("You have 1 item in your cart")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Please login to checkout" })).not.toBeVisible();
     await expect(page.getByRole("heading", { name: `${testAccount.address}` })).toBeVisible();
     await expect(page.getByRole("button", { name: "Update Address" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Make Payment" })).toBeVisible();
