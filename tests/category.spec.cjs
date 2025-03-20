@@ -21,7 +21,7 @@ test.describe("Category Page - Unauthenticated Users", () => {
 
     await expect(page.locator(".dropdown-menu")).toBeVisible();
     await expect(page.locator(".dropdown-menu")).toContainText("All Categories");
-    await expect(page.locator('#navbarTogglerDemo01').getByRole('link', { name: 'Electronics' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Electronics' }).first()).toBeVisible();
 
     await page.click("text=Electronics");
     await page.waitForURL("/category/electronics");
@@ -41,6 +41,7 @@ test.describe("Category Page - Unauthenticated Users", () => {
 
     await expect(page.getByText("You have 1 item in your cart")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Total : $" })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '$1,499.99' })).toBeVisible();
     await expect(page.getByRole("button", { name: "Please login to checkout" })).toBeVisible();
   });
 });
@@ -68,7 +69,7 @@ test.describe("Category Page - Authenticated Users", () => {
 
     await expect(page.locator(".dropdown-menu").first()).toBeVisible();
     await expect(page.locator(".dropdown-menu").first()).toContainText("All Categories");
-    await expect(page.locator('#navbarTogglerDemo01').getByRole('link', { name: 'Electronics' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Electronics' }).first()).toBeVisible();
 
     await page.click("text=Electronics");
     await page.waitForURL("/category/electronics");
@@ -88,6 +89,7 @@ test.describe("Category Page - Authenticated Users", () => {
 
     await expect(page.getByText("You have 1 item in your cart")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Total : $" })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '$999.99' })).toBeVisible();
     await expect(page.getByRole("button", { name: "Please login to checkout" })).not.toBeVisible();
     await expect(page.getByRole("heading", { name: "Test Address" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Update Address" })).toBeVisible();
