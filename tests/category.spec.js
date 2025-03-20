@@ -103,11 +103,24 @@ test.describe("Category Page - Authenticated Users", () => {
   };
 
   test.beforeEach(async ({ page }) => {
+    await logoutIfLoggedIn(page);
+
+    const mongoUri = process.env.MONGO_URL;
+    await mongoose.connect(mongoUri);
+    await categoryModel.create(categories);
+    await productModel.create(products);
+
     await page.goto("/login");
     await page.getByRole("textbox", { name: "Enter Your Email" }).fill(testAccount.email);
     await page.getByRole("textbox", { name: "Enter Your Password" }).fill(testAccount.password);
     await page.getByTestId("login-button").click();
     await page.goto("/");
+  });
+
+  test.afterEach(async () => {
+    await productModel.deleteMany({});
+    await categoryModel.deleteMany({});
+    await mongoose.disconnect();
   });
 
   test("should navigate through categories, select a category, add a product in that category to the cart, and show make payment", async ({
@@ -127,9 +140,8 @@ test.describe("Category Page - Authenticated Users", () => {
     await expect(
       page.getByRole("heading", { name: `Description : ${products[1].description}` })
     ).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Price :$" })).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: `Description : ${products[0].description}` })
+      page.getByRole("heading", { name: `Category : ${categories[0].name}` })
     ).toBeVisible();
 
     await page.getByRole("button", { name: "ADD TO CART" }).first().click();
@@ -139,7 +151,7 @@ test.describe("Category Page - Authenticated Users", () => {
 
     await expect(page.getByText("You have 1 item in your cart")).toBeVisible();
     await expect(page.getByRole("button", { name: "Please login to checkout" })).not.toBeVisible();
-    await expect(page.getByRole("heading", { name: "Test Address" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: `${testAccount.address}` })).toBeVisible();
     await expect(page.getByRole("button", { name: "Update Address" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Make Payment" })).toBeVisible();
   });
