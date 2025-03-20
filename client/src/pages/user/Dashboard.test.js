@@ -34,6 +34,7 @@ describe("Dashboard Page", () => {
     mockUser = {
       name: "Test User",
       email: "testuser@gmail.com",
+      phone: "98765432",
       address: "123 Test Address",
     };
 
@@ -49,7 +50,7 @@ describe("Dashboard Page", () => {
     expect(screen.getByText("Mock User Menu")).toBeInTheDocument();
   });
 
-  it("should display the authenticated user's name, email and address", () => {
+  it("should display the authenticated user's name, email, phone and address", () => {
     renderDashboardPage();
 
     expect(
@@ -59,17 +60,21 @@ describe("Dashboard Page", () => {
       screen.getByText(`User Email : ${mockUser.email}`)
     ).toBeInTheDocument();
     expect(
+      screen.getByText(`User Contact : ${mockUser.phone}`)
+    ).toBeInTheDocument();
+    expect(
       screen.getByText(`User Address : ${mockUser.address}`)
     ).toBeInTheDocument();
   });
 
-  it("should not display any name, email or address when the user is unauthenticated", () => {
+  it("should not display any name, email, phone or address when the user is unauthenticated", () => {
     useAuth.mockReturnValue([null, jest.fn()]);
 
     renderDashboardPage();
 
     expect(screen.getByText("User Name :")).toBeInTheDocument();
     expect(screen.getByText("User Email :")).toBeInTheDocument();
+    expect(screen.getByText("User Contact :")).toBeInTheDocument();
     expect(screen.getByText("User Address :")).toBeInTheDocument();
   });
 });

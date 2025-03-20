@@ -31,17 +31,29 @@ export const createProductController = async (req, res) => {
       case !price:
         return res.status(500).send({ error: "Price is Required" });
       case price < 0:
-        return res.status(500).send({ error: "Price should not be negative" })
+        return res.status(500).send({ error: "Price should not be negative" });
       case !category:
         return res.status(500).send({ error: "Category is Required" });
       case !quantity:
         return res.status(500).send({ error: "Quantity is Required" });
       case quantity < 0:
-          return res.status(500).send({ error: "Quantity should not be negative" });
+        return res
+          .status(500)
+          .send({ error: "Quantity should not be negative" });
       case photo && photo.size > 1000000:
         return res
           .status(500)
           .send({ error: "Photo is Required and should be less then 1mb" });
+    }
+
+    const existingProduct = await productModel
+      .findOne({ name: name })
+    
+    if (existingProduct) {
+      return res.status(200).send({
+        success: false,
+        message: "Product with same name already exists",
+      });
     }
 
     const products = new productModel({ ...req.fields, slug: slugify(name) });
@@ -49,6 +61,7 @@ export const createProductController = async (req, res) => {
       products.photo.data = fs.readFileSync(photo.path);
       products.photo.contentType = photo.type;
     }
+
     await products.save();
     res.status(201).send({
       success: true,
@@ -166,17 +179,29 @@ export const updateProductController = async (req, res) => {
       case !price:
         return res.status(500).send({ error: "Price is Required" });
       case price < 0:
-          return res.status(500).send({ error: "Price should not be negative" })
+        return res.status(500).send({ error: "Price should not be negative" });
       case !category:
         return res.status(500).send({ error: "Category is Required" });
       case !quantity:
         return res.status(500).send({ error: "Quantity is Required" });
       case quantity < 0:
-          return res.status(500).send({ error: "Quantity should not be negative" });
+        return res
+          .status(500)
+          .send({ error: "Quantity should not be negative" });
       case photo && photo.size > 1000000:
         return res
           .status(500)
           .send({ error: "Photo is Required and should be less then 1mb" });
+    }
+
+    const existingProduct = await productModel
+      .findOne({ name: name })
+    
+    if (existingProduct) {
+      return res.status(200).send({
+        success: false,
+        message: "Product with same name already exists",
+      });
     }
 
     const products = await productModel.findByIdAndUpdate(
@@ -288,7 +313,7 @@ export const searchProductController = async (req, res) => {
     res.json(results);
   } catch (error) {
     console.log(error);
-    res.status(400).send({
+    res.status(500).send({
       success: false,
       message: "Error In Search Product API",
       error,
@@ -359,7 +384,7 @@ export const braintreeTokenController = async (req, res) => {
         merchantId: process.env.BRAINTREE_MERCHANT_ID,
         publicKey: process.env.BRAINTREE_PUBLIC_KEY,
         privateKey: process.env.BRAINTREE_PRIVATE_KEY,
-     });
+      });
 
       gateway.clientToken.generate({}, function (err, response) {
         if (err) {
@@ -408,19 +433,19 @@ export const brainTreePaymentController = async (req, res) => {
           }).save();
           res.status(200).json({ ok: true });
         } else {
-          res.status(500).send({ 
-            ok: false, 
+          res.status(500).send({
+            ok: false,
             message: "Payment processing failed",
-            error
+            error,
           });
         }
       }
     );
   } catch (error) {
-    res.status(500).json({ 
-      ok: false, 
-      message: "Error outside Braintree transaction", 
-      error 
+    res.status(500).json({
+      ok: false,
+      message: "Error outside Braintree transaction",
+      error,
     });
   }
 };

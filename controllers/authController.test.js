@@ -946,7 +946,7 @@ describe("Auth Controller", () => {
         await updateProfileController(req, res);
 
         expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.status).toHaveBeenCalledWith(500);
         expect(res.send).toHaveBeenCalledWith({
           success: false,
           message: "Error while updating profile",
@@ -985,7 +985,7 @@ describe("Auth Controller", () => {
 
         await updateProfileController(req, res);
 
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.status).toHaveBeenCalledWith(500);
         expect(res.send).toHaveBeenCalledWith({
           success: false,
           message: "Error while updating profile",
@@ -1006,7 +1006,7 @@ describe("Auth Controller", () => {
         await updateProfileController(req, res);
 
         expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.status).toHaveBeenCalledWith(500);
         expect(res.send).toHaveBeenCalledWith({
           success: false,
           message: "Error while updating profile",
