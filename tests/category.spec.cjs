@@ -14,7 +14,7 @@ test.describe("Category Page", () => {
     await page.goto("/");
   });
 
-  test("should navigate through categories, add a product to the cart, and prompt login to checkout", async ({
+  test("should navigate through categories, select a category, add a product in that category to the cart, and prompt login to checkout", async ({
     page,
   }) => {
     await page.click("text=Categories");
