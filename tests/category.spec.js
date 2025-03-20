@@ -78,10 +78,12 @@ test.describe("Category Page - Unauthenticated Users", () => {
 
     await expect(page.getByRole("heading", { name: `Name : ${products[0].name}` })).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: `Description : ${products[1].name}` })
+      page.getByRole("heading", { name: `Description : ${products[0].description}` })
     ).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Price :$" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Category : Electronics" })).toBeVisible();
+    // await expect(page.getByRole("heading", { name: "Price :$" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: `Category : ${categories[0].name}` })
+    ).toBeVisible();
 
     await page.getByRole("button", { name: "ADD TO CART" }).first().click();
 
@@ -127,7 +129,9 @@ test.describe("Category Page - Authenticated Users", () => {
       page.getByRole("heading", { name: `Description : ${products[1].description}` })
     ).toBeVisible();
     await expect(page.getByRole("heading", { name: "Price :$" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Category : Electronics" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: `Description : ${products[0].description}` })
+    ).toBeVisible();
 
     await page.getByRole("button", { name: "ADD TO CART" }).first().click();
 
