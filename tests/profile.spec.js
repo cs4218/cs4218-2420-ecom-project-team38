@@ -4,12 +4,12 @@ import userModel from "../models/userModel";
 import { hashPassword } from "../helpers/authHelper";
 
 test.describe("Profile page ui tests", () => {
-  let mockUser, mockPassword;
+  let mockUser, login;
 
   test.beforeAll(async () => {
     await mongoose.connect(process.env.MONGO_URL);
 
-    mockPassword = "testpassword123";
+    const mockPassword = "testpassword123";
     mockUser = {
       _id: new mongoose.Types.ObjectId("65d21b4667d0d8992e610c85"),
       name: "Test User",
@@ -19,6 +19,19 @@ test.describe("Profile page ui tests", () => {
       address: "21 Lower Kent Ridge Rd",
       answer: "Software Testing",
       DOB: new Date("01/23/2004"),
+    };
+
+    login = async (page) => {
+      await page.getByRole("link", { name: "Login" }).click();
+      await page
+        .getByRole("textbox", { name: "Enter Your Email" })
+        .fill(mockUser.email);
+      await page
+        .getByRole("textbox", { name: "Enter Your Password" })
+        .fill(mockPassword);
+      await page.getByRole("button", { name: "LOGIN" }).click();
+
+      await expect(page.getByText("Login successfully!")).toBeVisible();
     };
   });
 
@@ -41,14 +54,7 @@ test.describe("Profile page ui tests", () => {
     const updatedAddress = "13 Computing Drive";
 
     // login
-    await page.getByRole("link", { name: "Login" }).click();
-    await page
-      .getByRole("textbox", { name: "Enter Your Email" })
-      .fill(mockUser.email);
-    await page
-      .getByRole("textbox", { name: "Enter Your Password" })
-      .fill(mockPassword);
-    await page.getByRole("button", { name: "LOGIN" }).click();
+    await login(page);
 
     // go to dashboard page
     await page.getByTestId("user-name-dropdown").click();
@@ -111,14 +117,7 @@ test.describe("Profile page ui tests", () => {
     const updatedPassword = "newpassword456";
 
     // login
-    await page.getByRole("link", { name: "Login" }).click();
-    await page
-      .getByRole("textbox", { name: "Enter Your Email" })
-      .fill(mockUser.email);
-    await page
-      .getByRole("textbox", { name: "Enter Your Password" })
-      .fill(mockPassword);
-    await page.getByRole("button", { name: "LOGIN" }).click();
+    await login(page);
 
     // go to profile page
     await page.getByTestId("user-name-dropdown").click();
