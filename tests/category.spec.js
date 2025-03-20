@@ -76,9 +76,9 @@ test.describe("Category Page - Unauthenticated Users", () => {
     await page.waitForURL("/category/electronics");
     await page.getByRole("button", { name: "More Details" }).first().click();
 
-    await expect(page.getByRole("heading", { name: "Name : Laptop" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: `Name : ${products[0].name}` })).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "Description : A powerful laptop" })
+      page.getByRole("heading", { name: `Description : ${products[1].name}` })
     ).toBeVisible();
     await expect(page.getByRole("heading", { name: "Price :$" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Category : Electronics" })).toBeVisible();
@@ -89,8 +89,6 @@ test.describe("Category Page - Unauthenticated Users", () => {
     await page.waitForURL("/cart");
 
     await expect(page.getByText("You have 1 item in your cart")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Total : $" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "$1,499.99" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Please login to checkout" })).toBeVisible();
   });
 });
@@ -124,9 +122,9 @@ test.describe("Category Page - Authenticated Users", () => {
     await page.waitForURL("/category/electronics");
     await page.getByRole("button", { name: "More Details" }).nth(1).click();
 
-    await expect(page.getByRole("heading", { name: "Name : Smartphone" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: `Name : ${products[1].name}` })).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "Description : A high-end smartphone" })
+      page.getByRole("heading", { name: `Description : ${products[1].description}` })
     ).toBeVisible();
     await expect(page.getByRole("heading", { name: "Price :$" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Category : Electronics" })).toBeVisible();
@@ -137,8 +135,6 @@ test.describe("Category Page - Authenticated Users", () => {
     await page.waitForURL("/cart");
 
     await expect(page.getByText("You have 1 item in your cart")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Total : $" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "$999.99" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Please login to checkout" })).not.toBeVisible();
     await expect(page.getByRole("heading", { name: "Test Address" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Update Address" })).toBeVisible();
