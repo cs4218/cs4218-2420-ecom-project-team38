@@ -21,7 +21,7 @@ test.describe("Category Page - Unauthenticated Users", () => {
 
     await expect(page.locator(".dropdown-menu")).toBeVisible();
     await expect(page.locator(".dropdown-menu")).toContainText("All Categories");
-    await expect(page.locator(".dropdown-menu")).toContainText("Electronics");
+    await expect(page.locator('#navbarTogglerDemo01').getByRole('link', { name: 'Electronics' })).toBeVisible();
 
     await page.click("text=Electronics");
     await page.waitForURL("/category/electronics");
@@ -39,7 +39,7 @@ test.describe("Category Page - Unauthenticated Users", () => {
     await page.getByRole("link", { name: "Cart" }).click();
     await page.waitForURL("/cart");
 
-    await expect(page.getByText("You have 1 items in your cart")).toBeVisible();
+    await expect(page.getByText("You have 1 item in your cart")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Total : $" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Please login to checkout" })).toBeVisible();
   });
@@ -68,7 +68,7 @@ test.describe("Category Page - Authenticated Users", () => {
 
     await expect(page.locator(".dropdown-menu").first()).toBeVisible();
     await expect(page.locator(".dropdown-menu").first()).toContainText("All Categories");
-    await expect(page.locator(".dropdown-menu").first()).toContainText("Electronics");
+    await expect(page.locator('#navbarTogglerDemo01').getByRole('link', { name: 'Electronics' })).toBeVisible();
 
     await page.click("text=Electronics");
     await page.waitForURL("/category/electronics");
@@ -86,7 +86,7 @@ test.describe("Category Page - Authenticated Users", () => {
     await page.getByRole("link", { name: "Cart" }).click();
     await page.waitForURL("/cart");
 
-    await expect(page.getByText("You have 1 items in your cart")).toBeVisible();
+    await expect(page.getByText("You have 1 item in your cart")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Total : $" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Please login to checkout" })).not.toBeVisible();
     await expect(page.getByRole("heading", { name: "Test Address" })).toBeVisible();
