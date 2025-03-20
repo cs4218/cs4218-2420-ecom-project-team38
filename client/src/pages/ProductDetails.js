@@ -89,7 +89,7 @@ const ProductDetails = () => {
         {relatedProducts.length < 1 && (
           <p className="text-center">No Similar Products found</p>
         )}
-        <div className="d-flex flex-wrap">
+        <div className="d-flex flex-wrap" data-testid="related-products">
           {relatedProducts?.map((p) => (
             <div className="card m-2" key={p._id}>
               <img
