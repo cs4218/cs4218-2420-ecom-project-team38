@@ -1,4 +1,42 @@
 import { test, expect } from "@playwright/test";
+import mongoose from "mongoose";
+
+import productModel from "../models/productModel";
+import categoryModel from "../models/categoryModel";
+
+const categories = [
+  {
+    _id: new mongoose.Types.ObjectId("66db427fdb0119d9234b27ee"),
+    name: "Electronics",
+    slug: "electronics",
+  },
+  {
+    _id: new mongoose.Types.ObjectId("66db427fdb0119d9234b27ef"),
+    name: "Books",
+    slug: "books",
+  },
+];
+
+const products = [
+  {
+    _id: new mongoose.Types.ObjectId("66db427fdb0119d9234b27ee"),
+    name: "Phone",
+    slug: "phone",
+    description: "Phone description",
+    price: 1000,
+    category: categories[0]._id,
+    quantity: 10,
+  },
+  {
+    _id: new mongoose.Types.ObjectId("66db427fdb0119d9234b27ef"),
+    name: "Laptop",
+    slug: "laptop",
+    description: "Laptop description",
+    price: 2000,
+    category: categories[0]._id,
+    quantity: 5,
+  },
+];
 
 async function logoutIfLoggedIn(page) {
   const userMenu = page.locator("text=Logout");
@@ -11,7 +49,18 @@ async function logoutIfLoggedIn(page) {
 test.describe("Category Page - Unauthenticated Users", () => {
   test.beforeEach(async ({ page }) => {
     await logoutIfLoggedIn(page);
+
+    const mongoUri = process.env.MONGO_URL;
+    await mongoose.connect(mongoUri);
+    await categoryModel.create(categories);
+    await productModel.create(products);
     await page.goto("/");
+  });
+
+  test.afterEach(async () => {
+    await productModel.deleteMany({});
+    await categoryModel.deleteMany({});
+    await mongoose.disconnect();
   });
 
   test("should navigate through categories, select a category, add a product in that category to the cart, and prompt login to checkout", async ({
@@ -21,7 +70,7 @@ test.describe("Category Page - Unauthenticated Users", () => {
 
     await expect(page.locator(".dropdown-menu")).toBeVisible();
     await expect(page.locator(".dropdown-menu")).toContainText("All Categories");
-    // await expect(page.locator(".dropdown-menu")).toContainText("Electronics");
+    await expect(page.locator(".dropdown-menu")).toContainText("Electronics");
 
     await page.click("text=Electronics");
     await page.waitForURL("/category/electronics");
@@ -41,7 +90,7 @@ test.describe("Category Page - Unauthenticated Users", () => {
 
     await expect(page.getByText("You have 1 item in your cart")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Total : $" })).toBeVisible();
-    await expect(page.getByRole('heading', { name: '$1,499.99' })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "$1,499.99" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Please login to checkout" })).toBeVisible();
   });
 });
@@ -69,7 +118,7 @@ test.describe("Category Page - Authenticated Users", () => {
 
     await expect(page.locator(".dropdown-menu").first()).toBeVisible();
     await expect(page.locator(".dropdown-menu").first()).toContainText("All Categories");
-    // await expect(page.locator(".dropdown-menu")).toContainText("Electronics");
+    await expect(page.locator(".dropdown-menu")).toContainText("Electronics");
 
     await page.click("text=Electronics");
     await page.waitForURL("/category/electronics");
@@ -89,7 +138,7 @@ test.describe("Category Page - Authenticated Users", () => {
 
     await expect(page.getByText("You have 1 item in your cart")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Total : $" })).toBeVisible();
-    await expect(page.getByRole('heading', { name: '$999.99' })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "$999.99" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Please login to checkout" })).not.toBeVisible();
     await expect(page.getByRole("heading", { name: "Test Address" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Update Address" })).toBeVisible();
