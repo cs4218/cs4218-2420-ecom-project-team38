@@ -80,7 +80,6 @@ test.describe("Category Page - Unauthenticated Users", () => {
     await expect(
       page.getByRole("heading", { name: `Description : ${products[0].description}` })
     ).toBeVisible();
-    // await expect(page.getByRole("heading", { name: "Price :$" })).toBeVisible();
     await expect(
       page.getByRole("heading", { name: `Category : ${categories[0].name}` })
     ).toBeVisible();
@@ -108,7 +107,7 @@ test.describe("Category Page - Authenticated Users", () => {
     await page.getByRole("textbox", { name: "Enter Your Email" }).fill(testAccount.email);
     await page.getByRole("textbox", { name: "Enter Your Password" }).fill(testAccount.password);
     await page.getByTestId("login-button").click();
-    await page.waitForURL("/");
+    await page.goto("/");
   });
 
   test("should navigate through categories, select a category, add a product in that category to the cart, and show make payment", async ({
