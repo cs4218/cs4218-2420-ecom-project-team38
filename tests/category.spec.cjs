@@ -21,7 +21,7 @@ test.describe("Category Page - Unauthenticated Users", () => {
 
     await expect(page.locator(".dropdown-menu")).toBeVisible();
     await expect(page.locator(".dropdown-menu")).toContainText("All Categories");
-    await expect(page.getByRole('link', { name: 'Electronics' }).first()).toBeVisible();
+    await expect(page.locator(".dropdown-menu")).toContainText("Electronics");
 
     await page.click("text=Electronics");
     await page.waitForURL("/category/electronics");
@@ -69,7 +69,7 @@ test.describe("Category Page - Authenticated Users", () => {
 
     await expect(page.locator(".dropdown-menu").first()).toBeVisible();
     await expect(page.locator(".dropdown-menu").first()).toContainText("All Categories");
-    await expect(page.getByRole('link', { name: 'Electronics' }).first()).toBeVisible();
+    await expect(page.locator(".dropdown-menu")).toContainText("Electronics");
 
     await page.click("text=Electronics");
     await page.waitForURL("/category/electronics");
