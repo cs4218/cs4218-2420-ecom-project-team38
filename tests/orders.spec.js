@@ -12,7 +12,6 @@ test.describe("Orders ui tests", () => {
 
     const mockPassword = "testpassword123";
     mockUser = {
-      _id: new mongoose.Types.ObjectId("65d21b4667d0d8992e610c85"),
       name: "Test User",
       email: "testuser@gmail.com",
       password: await hashPassword(mockPassword),
@@ -36,7 +35,6 @@ test.describe("Orders ui tests", () => {
     };
 
     mockProduct = {
-      _id: new mongoose.Types.ObjectId("66db427fdb0119d9234b27f3"),
       name: "Test Product Name",
       slug: "Test-Product-Name",
       description: "Test Product Description",
@@ -144,8 +142,6 @@ test.describe("Orders ui tests", () => {
   test("should redirect unauthenticated user from orders pages to home page", async ({
     page,
   }) => {
-    expect(page.getByTestId("user-name-dropdown")).toHaveCount(0);
-
     // go to orders page
     await page.goto("/dashboard/user/orders");
 
