@@ -36,6 +36,15 @@ const products = [
     category: categories[0]._id,
     quantity: 5,
   },
+  {
+    _id: new mongoose.Types.ObjectId("66db427fdb0119d9234b27f0"),
+    name: "Book",
+    slug: "book",
+    description: "Book description",
+    price: 20,
+    category: categories[1]._id,
+    quantity: 50,
+  },
 ];
 
 async function logoutIfLoggedIn(page) {
@@ -61,6 +70,19 @@ test.describe("ProductDetails Page", () => {
     await productModel.deleteMany({});
     await categoryModel.deleteMany({});
     await mongoose.disconnect();
+  });
+
+  test("should have a similar product section", async ({ page }) => {
+    await page.goto("/product/phone");
+    await page.waitForURL("/product/phone");
+    await expect(page.getByRole("heading", { name: "Similar Products ➡️" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Laptop" })).toBeVisible();
+  });
+
+  test("should not have a similar product section if no similar products", async ({ page }) => {
+    await page.goto("/product/book");
+    await page.waitForURL("/product/book");
+    await expect(page.getByText("No Similar Products found")).toBeVisible();
   });
 
   test("should show no results if product does not exist", async ({ page }) => {
