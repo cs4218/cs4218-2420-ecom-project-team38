@@ -7,8 +7,11 @@ import {
   singleCategoryController,
   deleteCategoryController,
 } from "./categoryController";
+import productModel from "../models/productModel";
 
 jest.mock("../models/categoryModel");
+
+jest.mock("../models/productModel");
 
 describe("Category controller", () => {
   describe("Create category controller", () => {
@@ -353,6 +356,7 @@ describe("Category controller", () => {
       const req = { params: { id: "1" } };
       const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
 
+      productModel.findOne = jest.fn().mockResolvedValueOnce(null);
       categoryModel.findByIdAndDelete = jest
         .fn()
         .mockResolvedValueOnce({ name: "test" });
@@ -367,10 +371,37 @@ describe("Category controller", () => {
       });
     });
 
+    it("Should not allow deleting of category that has existing products", async () => {
+      const mockProduct = {
+        _id: "test_productid",
+        name: "Test Product Name",
+        description: "Test Product Description",
+        price: 200,
+        category: { _id: "1", name: "Test Category" },
+        quantity: 5,
+        shipping: false,
+      };
+      const req = { params: { id: "1" } };
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+      productModel.findOne = jest.fn().mockResolvedValueOnce(mockProduct);
+      categoryModel.findByIdAndDelete = jest.fn();
+
+      await deleteCategoryController(req, res);
+
+      expect(categoryModel.findByIdAndDelete).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: "There are existing products in this category",
+      });
+    });
+
     it("Should not allow deleting of category that does not exist", async () => {
       const req = { params: { id: "1" } };
       const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
 
+      productModel.findOne = jest.fn().mockResolvedValueOnce(null);
       categoryModel.findByIdAndDelete = jest.fn().mockResolvedValueOnce(null);
 
       await deleteCategoryController(req, res);
@@ -389,6 +420,7 @@ describe("Category controller", () => {
       jest.spyOn(console, "log").mockImplementation(() => {});
 
       const mockError = new Error("Error deleting category");
+      productModel.findOne = jest.fn().mockResolvedValueOnce(null);
       categoryModel.findByIdAndDelete = jest
         .fn()
         .mockRejectedValueOnce(mockError);
