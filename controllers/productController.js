@@ -164,13 +164,14 @@ export const deleteProductController = async (req, res) => {
   }
 };
 
-//upate producta
+//update product
 export const updateProductController = async (req, res) => {
   try {
+    const { pid } = req.params;
     const { name, description, price, category, quantity, shipping } =
       req.fields;
     const { photo } = req.files;
-    //alidation
+    // validation
     switch (true) {
       case !name:
         return res.status(500).send({ error: "Name is Required" });
@@ -195,7 +196,7 @@ export const updateProductController = async (req, res) => {
     }
 
     const existingProduct = await productModel
-      .findOne({ name: name })
+      .findOne({ name: name, _id: { $ne: pid } })
     
     if (existingProduct) {
       return res.status(200).send({
@@ -224,7 +225,7 @@ export const updateProductController = async (req, res) => {
     res.status(500).send({
       success: false,
       error,
-      message: "Error in Update product",
+      message: "Error in Updating product",
     });
   }
 };
