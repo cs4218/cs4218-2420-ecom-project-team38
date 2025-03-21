@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import userModel from "../models/userModel";
 import productModel from "../models/productModel";
 import { hashPassword } from "../helpers/authHelper";
+import fs from "fs";
 
 test.describe("Orders ui tests", () => {
   let mockUser, login, mockProduct;
@@ -41,7 +42,10 @@ test.describe("Orders ui tests", () => {
       price: 4.99,
       category: new mongoose.Types.ObjectId("66db427fdb0119d9234b27ef"),
       quantity: 20,
-      photo: {},
+      photo: {
+        data: fs.readFileSync("./tests/images/productPhoto.png"),
+        contentType: "image/png",
+      },
       shipping: false,
     };
   });
