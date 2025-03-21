@@ -99,6 +99,10 @@ test.describe("Orders page ui tests", () => {
     // wait for redirection to orders page
     await page.waitForURL("/dashboard/user/orders");
 
+    await expect(
+      page.getByRole("heading", { name: "All Orders" })
+    ).toBeVisible();
+
     // view new order - table headers
     await expect(page.getByRole("columnheader", { name: "#" })).toBeVisible();
     await expect(
@@ -135,5 +139,25 @@ test.describe("Orders page ui tests", () => {
     await expect(page.getByText(mockProduct.name)).toBeVisible();
     await expect(page.getByText(mockProduct.description)).toBeVisible();
     await expect(page.getByText(`Price : ${mockProduct.price}`)).toBeVisible();
+  });
+
+  test("should redirect unauthenticated user from orders pages to home page", async ({
+    page,
+  }) => {
+    expect(page.getByTestId("user-name-dropdown")).toHaveCount(0);
+
+    // go to orders page
+    await page.goto("/dashboard/user/orders");
+
+    await expect(page.getByRole("heading", { name: "All Orders" })).toHaveCount(
+      0
+    );
+
+    // wait for redirection to home page
+    await page.waitForURL("/");
+
+    await expect(
+      page.getByRole("heading", { name: "All Products", exact: true })
+    ).toBeVisible();
   });
 });
