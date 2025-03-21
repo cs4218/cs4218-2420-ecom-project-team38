@@ -11,7 +11,6 @@ test.describe("Profile ui tests", () => {
 
     const mockPassword = "testpassword123";
     mockUser = {
-      _id: new mongoose.Types.ObjectId("65d21b4667d0d8992e610c85"),
       name: "Test User",
       email: "testuser@gmail.com",
       password: await hashPassword(mockPassword),
@@ -46,9 +45,7 @@ test.describe("Profile ui tests", () => {
     await mongoose.disconnect();
   });
 
-  test("should allow authenticated user to view and update profile", async ({
-    page,
-  }) => {
+  test("should allow user to view and update profile", async ({ page }) => {
     const updatedName = "New User";
     const updatedPhone = "87654321";
     const updatedAddress = "13 Computing Drive";
@@ -151,7 +148,7 @@ test.describe("Profile ui tests", () => {
     ).toBeVisible();
   });
 
-  test("should redirect unauthenticated user from profile-related pages to home page", async ({
+  test("should redirect unauthenticated user from dashboard page to home page", async ({
     page,
   }) => {
     expect(page.getByTestId("user-name-dropdown")).toHaveCount(0);
@@ -169,7 +166,11 @@ test.describe("Profile ui tests", () => {
     await expect(
       page.getByRole("heading", { name: "All Products", exact: true })
     ).toBeVisible();
+  });
 
+  test("should redirect unauthenticated user from profile page to home page", async ({
+    page,
+  }) => {
     // go to profile page
     await page.goto("/dashboard/user/profile");
 
