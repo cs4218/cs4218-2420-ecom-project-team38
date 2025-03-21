@@ -93,3 +93,27 @@ test.describe("Category Page", () => {
     await expect(page.getByRole("button", { name: "Please login to checkout" })).toBeVisible();
   });
 });
+
+test.describe("Category Page", () => {
+  test.beforeEach(async ({ page }) => {
+    await logoutIfLoggedIn(page);
+
+    const mongoUri = process.env.MONGO_URL;
+    await mongoose.connect(mongoUri);
+    await categoryModel.create(categories);
+    await productModel.create(products);
+    await page.goto("/");
+  });
+
+  test.afterEach(async () => {
+    await productModel.deleteMany({});
+    await categoryModel.deleteMany({});
+    await mongoose.disconnect();
+  });
+
+  test("should show no results if category does not exist", async ({ page }) => {
+    await page.goto("/category/non-existent-category");
+    await expect(page.getByRole('heading', { name: 'Category -' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '0 result found' })).toBeVisible();
+  });
+});
