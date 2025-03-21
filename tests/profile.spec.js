@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import userModel from "../models/userModel";
 import { hashPassword } from "../helpers/authHelper";
 
-test.describe("Profile page ui tests", () => {
+test.describe("Profile ui tests", () => {
   let mockUser, login;
 
   test.beforeAll(async () => {
