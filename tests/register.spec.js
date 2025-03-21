@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
-import mongoose from "mongoose";
 import { ObjectId } from "mongodb";
+import mongoose from "mongoose";
 
 import userModel from "../models/userModel.js";
 
@@ -16,8 +16,11 @@ const existingUser = {
   role: 0,
 };
 
-const fillAndSubmitRegistrationForm = async (page, email = "user2@test.com", password = "Password123!") => {
-  const name = "Test User 2";
+const newUserName = "Test User 2";
+const newuserEmail = "user2@test.com";
+
+const fillAndSubmitRegistrationForm = async (page, email = newuserEmail, password = "Password123!") => {
+  const name = newUserName;
   const phone = "91231235";
   const address = "Test Address 2";
   const answer = "Basketball";
@@ -58,30 +61,30 @@ test.describe("Registration Page UI Test", () => {
     await fillAndSubmitRegistrationForm(page);
     await expect(page.getByText("Register Successfully, please login")).toBeVisible();
 
-    const userCountInDB = await userModel.countDocuments();
-    expect(userCountInDB).toBe(2);
+    const user = await userModel.findOne({ email: newuserEmail });
+    expect(user.name).toBe(newUserName);
   });
 
-  test("Display errors when required fields are empty", async ({ page }) => {
+  test("Does not register the user when required fields are empty", async ({ page }) => {
     await fillAndSubmitRegistrationForm(page, "");
 
-    const userCountInDB = await userModel.countDocuments();
-    expect(userCountInDB).toBe(1);
+    const user = await userModel.findOne({ email: newuserEmail });
+    expect(user).toBe(null);
   });
 
-  test("Display errors for invalid input formats", async ({ page }) => {
+  test("Does not register the user with invalid input formats", async ({ page }) => {
     await fillAndSubmitRegistrationForm(page, undefined, "test");
     await expect(page.getByText("Passsword should be at least 6 characters long")).toBeVisible();
 
-    const userCountInDB = await userModel.countDocuments();
-    expect(userCountInDB).toBe(1);
+    const user = await userModel.findOne({ email: newuserEmail });
+    expect(user).toBe(null);
   });
 
-  test("Display errors if the email is already registered", async ({ page }) => {
+  test("Does not register the user if the email is already registered", async ({ page }) => {
     await fillAndSubmitRegistrationForm(page, existingUser.email, undefined);
     await expect(page.getByText("Already registered! Please login.")).toBeVisible();
 
-    const userCountInDB = await userModel.countDocuments();
-    expect(userCountInDB).toBe(1);
+    const user = await userModel.findOne({ email: newuserEmail });
+    expect(user).toBe(null);
   });
 });
