@@ -45,7 +45,7 @@ async function logoutIfLoggedIn(page) {
   }
 }
 
-test.describe("Category Page", () => {
+test.describe("Category product page", () => {
   test.beforeEach(async ({ page }) => {
     await logoutIfLoggedIn(page);
 
