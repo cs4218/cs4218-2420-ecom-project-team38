@@ -4,7 +4,7 @@ import userModel from "../models/userModel";
 import productModel from "../models/productModel";
 import { hashPassword } from "../helpers/authHelper";
 
-test.describe("Orders page ui tests", () => {
+test.describe("Orders ui tests", () => {
   let mockUser, login, mockProduct;
 
   test.beforeAll(async () => {
