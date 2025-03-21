@@ -73,15 +73,17 @@ test.describe("ProductDetails Page", () => {
   });
 
   test("should have a similar product section", async ({ page }) => {
-    await page.goto("/product/phone");
+    const slug = products[0].slug;
+    await page.goto(`/product/${slug}`);
     await page.waitForURL("/product/phone");
     await expect(page.getByRole("heading", { name: "Similar Products ➡️" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Laptop" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: `${products[1].name}` })).toBeVisible();
   });
 
   test("should not have a similar product section if no similar products", async ({ page }) => {
-    await page.goto("/product/book");
-    await page.waitForURL("/product/book");
+    const slug = products[2].slug;
+    await page.goto(`/product/${slug}`);
+    await page.waitForURL(`/product/${slug}`);
     await expect(page.getByText("No Similar Products found")).toBeVisible();
   });
 
