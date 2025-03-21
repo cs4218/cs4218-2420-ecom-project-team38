@@ -63,6 +63,9 @@ test.describe("Registration Page UI Test", () => {
 
     const user = await userModel.findOne({ email: newuserEmail });
     expect(user.name).toBe(newUserName);
+
+    await page.waitForURL("/login");
+    await expect(page).toHaveURL("/login");
   });
 
   test("Does not register the user when required fields are empty", async ({ page }) => {

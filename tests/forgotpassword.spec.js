@@ -51,6 +51,9 @@ test.describe("Forgot Password Page UI Test", () => {
 
     const user = await userModel.findOne({ email: existingUser.email });
     expect(user.password).not.toBe(existingUser.password);
+
+    await page.waitForURL("/login");
+    await expect(page).toHaveURL("/login");
   });
 
   test("Does not reset the password when required fields are empty", async ({ page }) => {
