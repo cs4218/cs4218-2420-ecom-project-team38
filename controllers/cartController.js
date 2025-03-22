@@ -4,8 +4,9 @@ export const addItemCartController = async (req, res) => {
   try {
     let { userId, productId } = req.body;
     if (!userId || !productId) {
-      return res.json({
-        error: "User and Product ID are required",
+      return res.status(400).send({
+        success: false,
+        message: "User ID and Product ID are required",
       });
     }
 
@@ -34,8 +35,9 @@ export const removeItemCartController = async (req, res) => {
   try {
     let { userId, productId } = req.body;
     if (!userId || !productId) {
-      return res.json({
-        error: "User ID and Product ID are required",
+      return res.status(400).send({
+        success: false,
+        message: "User ID and Product ID are required",
       });
     }
 
@@ -51,9 +53,9 @@ export const removeItemCartController = async (req, res) => {
     return res.status(200).send({
       success: true,
       message: "Item removed from cart successfully",
-      updatedCart,
+      cart,
     });
-  } catch (error) {
+  } catch (error) { 
     console.log(error);
     res.status(400).send({
       success: false,
