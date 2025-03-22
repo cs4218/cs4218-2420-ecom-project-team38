@@ -124,57 +124,6 @@ test.describe("Profile ui tests", () => {
     ).toBeVisible();
   });
 
-  test("should allow user to update and login with new password only if valid", async ({
-    page,
-  }) => {
-    const invalidPassword = "2weak";
-    const validPassword = "newpassword456";
-
-    // login
-    await login(page);
-
-    // go to profile page
-    await page.getByTestId("user-name-dropdown").click();
-    await page.getByRole("link", { name: "Dashboard" }).click();
-    await page.getByRole("link", { name: "Profile" }).click();
-
-    // update password - invalid
-    await page
-      .getByRole("textbox", { name: "Enter Your Password" })
-      .fill(invalidPassword);
-    await page.getByRole("button", { name: "UPDATE" }).click();
-
-    await expect(
-      page.getByText("Passsword should be at least 6 characters long")
-    ).toBeVisible();
-
-    // update password - valid
-    await page
-      .getByRole("textbox", { name: "Enter Your Password" })
-      .fill(validPassword);
-    await page.getByRole("button", { name: "UPDATE" }).click();
-
-    await expect(page.getByText("Profile Updated Successfully")).toBeVisible();
-
-    // logout
-    await page.getByTestId("user-name-dropdown").click();
-    await page.getByRole("link", { name: "Logout" }).click();
-
-    // login with updated password
-    await page
-      .getByRole("textbox", { name: "Enter Your Email" })
-      .fill(mockUser.email);
-    await page
-      .getByRole("textbox", { name: "Enter Your Password" })
-      .fill(validPassword);
-    await page.getByRole("button", { name: "LOGIN" }).click();
-
-    await expect(page.getByText("Login successfully!")).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "All Products", exact: true })
-    ).toBeVisible();
-  });
-
   test("should not allow user to update profile when required values are missing", async ({
     page,
   }) => {
@@ -269,6 +218,70 @@ test.describe("Profile ui tests", () => {
     ).toBeVisible();
     await expect(
       page.getByRole("heading", { name: `User Address : ${mockUser.address}` })
+    ).toBeVisible();
+  });
+
+  test("should allow user to update and login with new password if valid", async ({
+    page,
+  }) => {
+    const updatedPassword = "newpassword456";
+
+    // login
+    await login(page);
+
+    // go to profile page
+    await page.getByTestId("user-name-dropdown").click();
+    await page.getByRole("link", { name: "Dashboard" }).click();
+    await page.getByRole("link", { name: "Profile" }).click();
+
+    // update password
+    await page
+      .getByRole("textbox", { name: "Enter Your Password" })
+      .fill(updatedPassword);
+    await page.getByRole("button", { name: "UPDATE" }).click();
+
+    await expect(page.getByText("Profile Updated Successfully")).toBeVisible();
+
+    // logout
+    await page.getByTestId("user-name-dropdown").click();
+    await page.getByRole("link", { name: "Logout" }).click();
+
+    // login with updated password
+    await page
+      .getByRole("textbox", { name: "Enter Your Email" })
+      .fill(mockUser.email);
+    await page
+      .getByRole("textbox", { name: "Enter Your Password" })
+      .fill(updatedPassword);
+    await page.getByRole("button", { name: "LOGIN" }).click();
+
+    await expect(page.getByText("Login successfully!")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "All Products", exact: true })
+    ).toBeVisible();
+  });
+
+  test("should not allow user to update password if invalid", async ({
+    page,
+  }) => {
+    const invalidPassword = "2weak";
+
+    // login
+    await login(page);
+
+    // go to profile page
+    await page.getByTestId("user-name-dropdown").click();
+    await page.getByRole("link", { name: "Dashboard" }).click();
+    await page.getByRole("link", { name: "Profile" }).click();
+
+    // update password
+    await page
+      .getByRole("textbox", { name: "Enter Your Password" })
+      .fill(invalidPassword);
+    await page.getByRole("button", { name: "UPDATE" }).click();
+
+    await expect(
+      page.getByText("Passsword should be at least 6 characters long")
     ).toBeVisible();
   });
 
