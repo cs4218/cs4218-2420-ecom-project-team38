@@ -9,8 +9,6 @@ test.describe("Orders ui tests", () => {
   let mockUser, login, mockProduct;
 
   test.beforeAll(async () => {
-    await mongoose.connect(process.env.MONGO_URL);
-
     const mockPassword = "testpassword123";
     mockUser = {
       name: "Test User",
@@ -51,15 +49,17 @@ test.describe("Orders ui tests", () => {
   });
 
   test.beforeEach(async ({ page }) => {
-    await userModel.deleteMany({});
+    await mongoose.connect(process.env.MONGO_URL);
+    await mongoose.connection.dropDatabase();
+
     await userModel.create(mockUser);
-    await productModel.deleteMany({});
     await productModel.create(mockProduct);
 
     await page.goto("/");
   });
 
-  test.afterAll(async () => {
+  test.afterEach(async () => {
+    await mongoose.connection.dropDatabase();
     await mongoose.disconnect();
   });
 
@@ -76,12 +76,13 @@ test.describe("Orders ui tests", () => {
     await page.getByRole("link", { name: "Cart" }).click();
 
     // make payment
+    // https://developer.paypal.com/tools/sandbox/card-testing/
     await page.getByRole("button", { name: "Paying with Card" }).click();
     await page
       .locator('iframe[name="braintree-hosted-field-number"]')
       .contentFrame()
       .getByRole("textbox", { name: "Credit Card Number" })
-      .fill("3714 496353 98431");
+      .fill("4012888888881881");
     await page
       .locator('iframe[name="braintree-hosted-field-expirationDate"]')
       .contentFrame()
@@ -91,8 +92,9 @@ test.describe("Orders ui tests", () => {
       .locator('iframe[name="braintree-hosted-field-cvv"]')
       .contentFrame()
       .getByRole("textbox", { name: "CVV" })
-      .fill("1234");
+      .fill("123");
     await page.getByRole("button", { name: "Make Payment" }).click();
+    await page.waitForURL("/dashboard/user/orders");
 
     await expect(
       page.getByText("Payment Completed Successfully")

@@ -11,8 +11,6 @@ test.describe("Admin category ui tests", () => {
   let mockCategory, mockProduct;
 
   test.beforeAll(async () => {
-    await mongoose.connect(process.env.MONGO_URL);
-
     const mockPassword = "testpassword123";
     mockAdminUser = {
       name: "Test Admin User",
@@ -69,17 +67,18 @@ test.describe("Admin category ui tests", () => {
   });
 
   test.beforeEach(async ({ page }) => {
-    await userModel.deleteMany({});
+    await mongoose.connect(process.env.MONGO_URL);
+    await mongoose.connection.dropDatabase();
+
     await userModel.create([mockAdminUser, mockUser]);
-    await categoryModel.deleteMany({});
     await categoryModel.create(mockCategory);
-    await productModel.deleteMany({});
     await productModel.create(mockProduct);
 
     await page.goto("/");
   });
 
-  test.afterAll(async () => {
+  test.afterEach(async () => {
+    await mongoose.connection.dropDatabase();
     await mongoose.disconnect();
   });
 

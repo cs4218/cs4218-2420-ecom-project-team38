@@ -7,8 +7,6 @@ test.describe("Profile ui tests", () => {
   let mockUser, login;
 
   test.beforeAll(async () => {
-    await mongoose.connect(process.env.MONGO_URL);
-
     const mockPassword = "testpassword123";
     mockUser = {
       name: "Test User",
@@ -35,13 +33,16 @@ test.describe("Profile ui tests", () => {
   });
 
   test.beforeEach(async ({ page }) => {
-    await userModel.deleteMany({});
+    await mongoose.connect(process.env.MONGO_URL);
+    await mongoose.connection.dropDatabase();
+
     await userModel.create(mockUser);
 
     await page.goto("/");
   });
 
-  test.afterAll(async () => {
+  test.afterEach(async () => {
+    await mongoose.connection.dropDatabase();
     await mongoose.disconnect();
   });
 
