@@ -82,7 +82,7 @@ test.describe("Admin category ui tests", () => {
     await mongoose.disconnect();
   });
 
-  test("should allow admin user to create new category and filter products", async ({
+  test("should allow admin user to create new category and browse products in the category", async ({
     page,
   }) => {
     const newCategory = "New Category";
@@ -125,7 +125,61 @@ test.describe("Admin category ui tests", () => {
     ).toBeVisible();
   });
 
-  test("should allow admin user to update category and filter products", async ({
+  test("should not allow admin user to create a blank category", async ({
+    page,
+  }) => {
+    const blankCategory = "  ";
+
+    // login
+    await login(page);
+
+    // go to create category page
+    await page.getByTestId("user-name-dropdown").click();
+    await page.getByRole("link", { name: "Dashboard" }).click();
+    await page.getByRole("link", { name: "Create Category" }).click();
+
+    await expect(
+      page.getByRole("heading", { name: "Manage Category" })
+    ).toBeVisible();
+
+    // create new category
+    await page
+      .getByRole("textbox", { name: "Enter new category" })
+      .fill(blankCategory);
+    await page.getByRole("button", { name: "Submit" }).click();
+
+    await expect(
+      page.getByText("Something went wrong in the input form")
+    ).toBeVisible();
+  });
+
+  test("should not allow admin user to create a duplicate category", async ({
+    page,
+  }) => {
+    const duplicateCategory = mockCategory.name;
+
+    // login
+    await login(page);
+
+    // go to create category page
+    await page.getByTestId("user-name-dropdown").click();
+    await page.getByRole("link", { name: "Dashboard" }).click();
+    await page.getByRole("link", { name: "Create Category" }).click();
+
+    await expect(
+      page.getByRole("heading", { name: "Manage Category" })
+    ).toBeVisible();
+
+    // create new category
+    await page
+      .getByRole("textbox", { name: "Enter new category" })
+      .fill(duplicateCategory);
+    await page.getByRole("button", { name: "Submit" }).click();
+
+    await expect(page.getByText("Category Already Exists")).toBeVisible();
+  });
+
+  test("should allow admin user to update category and browse products in the category", async ({
     page,
   }) => {
     const updatedCategory = "Updated Category";

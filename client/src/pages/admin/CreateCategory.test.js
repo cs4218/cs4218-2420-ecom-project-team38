@@ -165,7 +165,7 @@ describe("CreateCategory page", () => {
       );
       expect(consolelog).toHaveBeenCalledWith(mockError);
       expect(toast.error).toHaveBeenCalledWith(
-        "somthing went wrong in input form"
+        "Something went wrong in the input form"
       );
     });
   });
