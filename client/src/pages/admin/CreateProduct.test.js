@@ -222,7 +222,7 @@ describe("CreateProduct page", () => {
       "/api/v1/product/create-product",
       expect.any(FormData)
     );
-    expect(toast.error).toHaveBeenCalledWith("something went wrong");
+    expect(toast.error).toHaveBeenCalledWith("Something went wrong");
     expect(console.log).toHaveBeenCalledWith(mockError);
     expect(mockUseNavigate).not.toHaveBeenCalled();
   });
