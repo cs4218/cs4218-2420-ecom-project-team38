@@ -302,6 +302,33 @@ test.describe("Admin products UI test", () => {
     await page.waitForURL("/dashboard/admin/products");
 
     await expect(page.getByText("Product Updated Successfully")).toBeVisible();
+
+    // verify updated product details
+    const updatedProductLink = page
+      .locator("a")
+      .filter({ hasText: updateProductDetails.name });
+    await updatedProductLink.click();
+    await page.waitForURL(
+      `/dashboard/admin/product/${slugify(updateProductDetails.name)}`
+    );
+    await expect(
+      page.locator("div.ant-select").getByTitle(updateProductDetails.category)
+    ).toBeVisible();
+    await expect(page.getByPlaceholder("write a name")).toHaveValue(
+      updateProductDetails.name
+    );
+    await expect(page.getByPlaceholder("write a description")).toHaveValue(
+      updateProductDetails.description
+    );
+    await expect(page.getByPlaceholder("write a Price")).toHaveValue(
+      updateProductDetails.price.toString()
+    );
+    await expect(page.getByPlaceholder("write a quantity")).toHaveValue(
+      updateProductDetails.quantity.toString()
+    );
+    await expect(
+      page.locator("div.ant-select").getByTitle(updateProductDetails.shipping)
+    ).toBeVisible();
   });
 
   test("Should allow admin user to delete a product", async ({ page }) => {
