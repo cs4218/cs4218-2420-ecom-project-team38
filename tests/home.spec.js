@@ -42,7 +42,7 @@ test.describe("Home Page UI Test", () => {
     const mongoUri = process.env.MONGO_URL;
     await mongoose.connect(mongoUri);
     await userModel.insertOne(user);
-    await productModel.insertMany(product);
+    await productModel.insertOne(product);
   });
 
   test.afterAll(async () => {
