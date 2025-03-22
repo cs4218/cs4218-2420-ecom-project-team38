@@ -85,6 +85,55 @@ test.describe("Admin orders ui tests", () => {
     await mongoose.disconnect();
   });
 
+  test("should allow admin user to view users' orders", async ({ page }) => {
+    // login
+    await login(page);
+
+    // go to orders page
+    await page.getByTestId("user-name-dropdown").click();
+    await page.getByRole("link", { name: "Dashboard" }).click();
+    await page.getByRole("link", { name: "Orders" }).click();
+
+    // view user's order - table headers
+    await expect(page.getByRole("columnheader", { name: "#" })).toBeVisible();
+    await expect(
+      page.getByRole("columnheader", { name: "Status" })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("columnheader", { name: "Buyer" })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("columnheader", { name: "Date" })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("columnheader", { name: "Payment" })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("columnheader", { name: "Quantity" })
+    ).toBeVisible();
+
+    // view user's order - order details
+    await expect(
+      page.getByRole("cell", { name: mockOrder.status })
+    ).toBeVisible();
+    await expect(page.getByRole("cell", { name: mockUser.name })).toBeVisible();
+    await expect(
+      page.getByRole("cell", { name: "a few seconds ago" })
+    ).toBeVisible();
+    await expect(page.getByRole("cell", { name: "Success" })).toBeVisible();
+    await expect(
+      page.getByRole("cell", { name: mockOrder.products.length }).nth(-1)
+    ).toBeVisible();
+
+    // view user's order - product details
+    await expect(
+      page.getByRole("img", { name: mockProduct.name })
+    ).toBeVisible();
+    await expect(page.getByText(mockProduct.name)).toBeVisible();
+    await expect(page.getByText(mockProduct.description)).toBeVisible();
+    await expect(page.getByText(`Price : ${mockProduct.price}`)).toBeVisible();
+  });
+
   test("should allow admin user to update users' order status", async ({
     page,
   }) => {
