@@ -1,5 +1,3 @@
-process.env.JWT_SECRET = "test-secret";
-
 import express from "express";
 import supertest from "supertest";
 import { MongoMemoryServer } from "mongodb-memory-server";
@@ -7,6 +5,7 @@ import mongoose from "mongoose";
 import { ObjectId } from "mongodb";
 import JWT from "jsonwebtoken";
 import { jest } from "@jest/globals";
+import dotenv from "dotenv";
 
 import authRoutes from "../routes/authRoutes.js";
 import userModel from "../models/userModel.js";
@@ -14,6 +13,7 @@ import userModel from "../models/userModel.js";
 const app = express();
 app.use(express.json());
 app.use("/api/v1/auth", authRoutes);
+dotenv.config();
 
 const unhashedPassword = "Password123!";
 const newPassword = "Password1234!"; // For Password Resets
