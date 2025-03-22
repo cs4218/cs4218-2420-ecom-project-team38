@@ -73,7 +73,9 @@ test.describe("User experience: CategoryPage to Checkout", () => {
 
     await page.click("text=Electronics");
     await page.waitForURL("/category/electronics");
-    await page.getByRole("button", { name: "More Details" }).first().click();
+    await page
+      .locator(`.card-body:has-text("${products[0].name}") button:has-text("More Details")`)
+      .click();
 
     await expect(page.getByRole("heading", { name: `Name : ${products[0].name}` })).toBeVisible();
     await expect(
@@ -108,7 +110,9 @@ test.describe("User experience: CategoryPage to Checkout", () => {
 
   test("should show no results if product does not exist in category", async ({ page }) => {
     await page.goto("/category/books");
-    await expect(page.getByRole("heading", { name: `Category - ${categories[1].name}` })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: `Category - ${categories[1].name}` })
+    ).toBeVisible();
     await expect(page.getByRole("heading", { name: "0 result found" })).toBeVisible();
     await expect(page.locator('[data-testid="product-list"] .card-body')).not.toBeVisible();
   });
