@@ -354,4 +354,91 @@ test.describe("Admin products UI test", () => {
       productToDelete.name
     );
   });
+
+  test("Should not allow admin user to create a product with empty fields", async ({
+    page,
+  }) => {
+    const newProduct = {
+      name: "Textbook",
+      description: "Textbook description",
+      category: categories[1].name,
+      image: "./tests/images/textbook.jpg",
+      price: 50,
+      quantity: 20,
+      shipping: "Yes",
+    };
+    await page.getByRole("link", { name: "Create Product" }).click();
+    await page.waitForURL("/dashboard/admin/create-product");
+
+    await page.locator("#rc_select_0").click();
+    await page.getByTitle(newProduct.category).click();
+    await page.getByText("Upload Photo").click();
+    await page.locator("input[name=photo]").setInputFiles(newProduct.image);
+    await page.getByPlaceholder("write a name").fill(""); // empty name
+    await page
+      .getByPlaceholder("write a description")
+      .fill(newProduct.description);
+    await page
+      .getByPlaceholder("write a Price")
+      .fill(newProduct.price.toString());
+    await page
+      .getByPlaceholder("write a quantity")
+      .fill(newProduct.quantity.toString());
+    await page.locator("#rc_select_1").click();
+    await page.getByTitle(newProduct.shipping).click();
+    await page.getByRole("button", { name: "Create Product" }).click();
+
+    await expect(page.getByText("Something went wrong")).toBeVisible();
+  });
+
+  test("Should not allow admin user to clear compulsory fields while updating a product", async ({
+    page,
+  }) => {
+    const productToUpdate = {
+      ...products[0],
+      category: categories[0].name,
+      shipping: products[0].shipping ? "Yes" : "No",
+    };
+    const updateProductDetails = {
+      name: "Updated Phone",
+      description: "Updated Phone description",
+      price: 1500,
+      quantity: 15,
+      shipping: "No",
+      category: categories[1].name,
+    };
+
+    // update product
+
+    await page.getByRole("link", { name: "Products" }).click();
+    const productToUpdateLink = page
+      .getByTestId("products-list")
+      .locator("a")
+      .filter({ hasText: productToUpdate.name });
+    await productToUpdateLink.click();
+    await page.waitForURL(`/dashboard/admin/product/${productToUpdate.slug}`);
+    await page
+      .locator(".ant-select")
+      .getByText(productToUpdate.category)
+      .click();
+    await page.getByTitle(updateProductDetails.category).click();
+    await page.getByPlaceholder("write a name").clear(); // clear name
+    await page
+      .getByPlaceholder("write a description")
+      .fill(updateProductDetails.description);
+    await page
+      .getByPlaceholder("write a Price")
+      .fill(updateProductDetails.price.toString());
+    await page
+      .getByPlaceholder("write a quantity")
+      .fill(updateProductDetails.quantity.toString());
+    await page
+      .locator(".ant-select")
+      .getByText(productToUpdate.shipping ? "Yes" : "No")
+      .click();
+    await page.getByTitle(updateProductDetails.shipping).click();
+    await page.getByRole("button", { name: "UPDATE PRODUCT" }).click();
+
+    await expect(page.getByText("Something went wrong")).toBeVisible();
+  });
 });
