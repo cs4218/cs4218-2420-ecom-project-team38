@@ -87,7 +87,7 @@ const Login = () => {
             </button>
           </div>
 
-          <button type="submit" className="btn btn-primary">
+          <button type="submit" className="btn btn-primary" data-testid="login-button">
             LOGIN
           </button>
         </form>

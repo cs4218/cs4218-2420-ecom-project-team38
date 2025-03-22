@@ -130,6 +130,7 @@ const HomePage = () => {
               <Checkbox
                 key={c._id}
                 onChange={(e) => handleFilter(e.target.checked, c._id)}
+                style={{ overflowWrap: "anywhere" }}
               >
                 {c.name}
               </Checkbox>

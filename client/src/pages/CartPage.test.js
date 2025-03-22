@@ -184,7 +184,7 @@ describe("Cart Page", () => {
           screen.queryAllByRole("button", { name: "Update Address" })
         ).toHaveLength(0);
         expect(
-          screen.getByRole("button", { name: /plase login to checkout/i })
+          screen.getByRole("button", { name: /please login to checkout/i })
         ).toBeInTheDocument();
       });
     });
@@ -298,7 +298,7 @@ describe("Cart Page", () => {
       renderCartPage();
 
       const loginButton = screen.getByRole("button", {
-        name: /plase login to checkout/i,
+        name: /please login to checkout/i,
       });
       fireEvent.click(loginButton);
       await waitFor(() => {
