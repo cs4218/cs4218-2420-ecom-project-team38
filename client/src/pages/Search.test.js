@@ -26,7 +26,7 @@ jest.mock("../context/auth", () => ({
 const mockSetCart = jest.fn();
 
 jest.mock("../context/cart", () => ({
-  useCart: jest.fn(() => [[], mockSetCart]),
+  useCart: jest.fn(() => [[], mockSetCart, jest.fn()]),
 }));
 
 jest.mock("../context/category", () => ({

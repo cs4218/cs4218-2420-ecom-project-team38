@@ -36,6 +36,12 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    cart: [
+      {
+        type: mongoose.ObjectId,
+        ref: "Products",
+      },
+    ],
   },
   { timestamps: true }
 );

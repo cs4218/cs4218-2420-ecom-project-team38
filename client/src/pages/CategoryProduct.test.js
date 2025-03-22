@@ -23,7 +23,7 @@ jest.mock("../context/auth", () => ({
 }));
 
 jest.mock("../context/cart", () => ({
-  useCart: jest.fn(() => [null, jest.fn()]),
+  useCart: jest.fn(() => [[null], jest.fn(), jest.fn(), jest.fn()]),
 }));
 
 jest.mock("../context/category", () => ({
@@ -252,7 +252,7 @@ describe("CategoryProduct Component", () => {
     });
 
     const mockSetCart = jest.fn();
-    useCart.mockReturnValue([[], mockSetCart]);
+    useCart.mockReturnValue([[], mockSetCart, jest.fn()]);
 
     render(
       <MemoryRouter initialEntries={["/category/test-category"]}>

@@ -1014,6 +1014,7 @@ describe("Product Routes", () => {
         },
         answer: "idk",
         DOB: new Date("2000-02-02"),
+        cart: [],
         role: 0,
       });
 

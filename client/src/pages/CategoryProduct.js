@@ -10,7 +10,7 @@ const CategoryProduct = () => {
   const params = useParams();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
-  const [cart, setCart] = useCart();
+  const [cart, setCart, addToCartDB] = useCart();
   const [category, setCategory] = useState([]);
 
   useEffect(() => {
@@ -72,6 +72,7 @@ const CategoryProduct = () => {
                         "cart",
                         JSON.stringify([...cart, p])
                       );
+                      addToCartDB(p._id);
                       toast.success("Item Added to cart");
                     }}
                   >
