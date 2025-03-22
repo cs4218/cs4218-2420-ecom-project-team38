@@ -60,7 +60,7 @@ test.describe("Product search page", () => {
     await page.getByRole("button", { name: "Search" }).click();
     await page.waitForURL("/search");
 
-    expect(
+    await expect(
       page.getByRole("heading", { name: "Found 1", level: 6 })
     ).toBeVisible();
     expect(page.getByTestId("product-card")).toHaveCount(1);
