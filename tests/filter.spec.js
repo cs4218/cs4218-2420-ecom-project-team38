@@ -133,6 +133,18 @@ test.describe("Filter in home page", () => {
     await expect(page.getByRole('heading', { name: 'Book', exact: true })).toBeVisible();
   });
 
+  test("should show no results if filter does not match", async ({ page }) => {
+    await page.waitForSelector('[data-testid="product-list"]');
+
+    let productCount = await page.locator('[data-testid="product-list"] .card-body').count();
+    expect(productCount).toBe(4);
+
+    await page.getByRole("checkbox", { name: "Books" }).check();
+    await page.getByRole("radio", { name: "$100 or more" }).check();
+    await page.waitForSelector('[data-testid="product-list"]');
+    await expect(page.locator('[data-testid="product-list"] .card-body')).not.toBeVisible();
+  });
+
   test("should reset filters", async ({ page }) => {
     await page.waitForSelector('[data-testid="product-list"]');
 
