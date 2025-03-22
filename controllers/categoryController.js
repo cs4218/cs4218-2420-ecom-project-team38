@@ -1,5 +1,6 @@
 import categoryModel from "../models/categoryModel.js";
 import slugify from "slugify";
+import productModel from "../models/productModel.js";
 export const createCategoryController = async (req, res) => {
   try {
     const { name } = req.body;
@@ -133,6 +134,15 @@ export const singleCategoryController = async (req, res) => {
 export const deleteCategoryController = async (req, res) => {
   try {
     const { id } = req.params;
+
+    const existingProducts = await productModel.findOne({ category: id });
+    if (existingProducts) {
+      return res.status(200).send({
+        success: false,
+        message: "There are existing products in this category",
+      });
+    }
+
     const category = await categoryModel.findByIdAndDelete(id);
 
     if (!category) {

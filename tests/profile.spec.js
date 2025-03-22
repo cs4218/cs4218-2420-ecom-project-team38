@@ -35,13 +35,14 @@ test.describe("Profile ui tests", () => {
   });
 
   test.beforeEach(async ({ page }) => {
-    await userModel.deleteMany({});
+    await mongoose.connection.dropDatabase();
     await userModel.create(mockUser);
 
     await page.goto("/");
   });
 
   test.afterAll(async () => {
+    await mongoose.connection.dropDatabase();
     await mongoose.disconnect();
   });
 
