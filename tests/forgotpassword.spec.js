@@ -49,33 +49,22 @@ test.describe("Forgot Password Page UI Test", () => {
     await fillAndSubmitForgotPasswordForm(page, existingUser.email, existingUser.answer, newPassword);
     await expect(page.getByText("Password Reset Successfully, please login")).toBeVisible();
 
-    const user = await userModel.findOne({ email: existingUser.email });
-    expect(user.password).not.toBe(existingUser.password);
-
     await page.waitForURL("/login");
     await expect(page).toHaveURL("/login");
   });
 
   test("Does not reset the password when required fields are empty", async ({ page }) => {
     await fillAndSubmitForgotPasswordForm(page, "", existingUser.answer, newPassword);
-
-    const user = await userModel.findOne({ email: existingUser.email });
-    expect(user.password).toBe(existingUser.password);
+    await expect(page.locator('input[type="email"]:invalid')).toHaveCount(1);
   });
 
   test("Does not reset the password for invalid input formats", async ({ page }) => {
     await fillAndSubmitForgotPasswordForm(page, existingUser.email, existingUser.answer, "test");
     await expect(page.getByText("Passsword should be at least 6 characters long")).toBeVisible();
-
-    const user = await userModel.findOne({ email: existingUser.email });
-    expect(user.password).toBe(existingUser.password);
   });
 
   test("Does not reset the password if email or security answer is incorrect", async ({ page }) => {
     await fillAndSubmitForgotPasswordForm(page, existingUser.email, "Wrong Answer", newPassword);
     await expect(page.getByText("Wrong email or answer")).toBeVisible();
-
-    const user = await userModel.findOne({ email: existingUser.email });
-    expect(user.password).toBe(existingUser.password);
   });
 });

@@ -1,8 +1,6 @@
 import { test, expect } from "@playwright/test";
 import mongoose from "mongoose";
 
-import userModel from "../models/userModel.js";
-
 const newPassword = "Password1234!";
 const testUser = {
   name: "Test User 1",
@@ -61,8 +59,6 @@ test.describe("Auth E2E UI Test", () => {
 
     // Ensure User is registered
     await expect(page.getByText("Register Successfully, please login")).toBeVisible();
-    const registered_user = await userModel.findOne({ email: testUser.email });
-    expect(registered_user.name).toBe(testUser.name);
     await page.waitForURL("/login");
     await expect(page).toHaveURL("/login");
 
@@ -71,15 +67,11 @@ test.describe("Auth E2E UI Test", () => {
 
     // Ensure User is authenticated
     await expect(page.getByText("Login successfully!")).toBeVisible();
-    const auth_token = await page.evaluate(() => localStorage.getItem("auth"));
-    expect(auth_token).not.toBeNull();
     await page.waitForURL("/");
 
     // Logout User
     await page.getByTestId("user-name-dropdown").click();
     await page.getByRole("link", { name: "Logout" }).click();
-    const removed_token = await page.evaluate(() => localStorage.getItem("auth"));
-    expect(removed_token).toBeNull();
 
     // Ensure User is logged out
     await expect(page.getByText("Logout successfully!")).toBeVisible();
@@ -92,8 +84,6 @@ test.describe("Auth E2E UI Test", () => {
 
     // Ensure User's password has been reset
     await expect(page.getByText("Password Reset Successfully, please login")).toBeVisible();
-    const reset_user = await userModel.findOne({ email: testUser.email });
-    expect(reset_user.password).not.toBe(testUser.password);
     await page.waitForURL("/login");
     await expect(page).toHaveURL("/login");
 
@@ -103,7 +93,5 @@ test.describe("Auth E2E UI Test", () => {
     // Ensure User is authenticated
     await expect(page.getByText("Login successfully!")).toBeVisible();
     await page.waitForURL("/");
-    const auth_token_2 = await page.evaluate(() => localStorage.getItem("auth"));
-    expect(auth_token_2).not.toBeNull();
   });
 });

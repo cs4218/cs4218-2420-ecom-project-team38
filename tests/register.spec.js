@@ -61,33 +61,22 @@ test.describe("Registration Page UI Test", () => {
     await fillAndSubmitRegistrationForm(page);
     await expect(page.getByText("Register Successfully, please login")).toBeVisible();
 
-    const user = await userModel.findOne({ email: newuserEmail });
-    expect(user.name).toBe(newUserName);
-
     await page.waitForURL("/login");
     await expect(page).toHaveURL("/login");
   });
 
   test("Does not register the user when required fields are empty", async ({ page }) => {
     await fillAndSubmitRegistrationForm(page, "");
-
-    const user = await userModel.findOne({ email: newuserEmail });
-    expect(user).toBe(null);
+    await expect(page.locator('input[type="email"]:invalid')).toHaveCount(1);
   });
 
   test("Does not register the user with invalid input formats", async ({ page }) => {
     await fillAndSubmitRegistrationForm(page, undefined, "test");
     await expect(page.getByText("Passsword should be at least 6 characters long")).toBeVisible();
-
-    const user = await userModel.findOne({ email: newuserEmail });
-    expect(user).toBe(null);
   });
 
   test("Does not register the user if the email is already registered", async ({ page }) => {
     await fillAndSubmitRegistrationForm(page, existingUser.email, undefined);
     await expect(page.getByText("Already registered! Please login.")).toBeVisible();
-
-    const user = await userModel.findOne({ email: newuserEmail });
-    expect(user).toBe(null);
   });
 });

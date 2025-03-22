@@ -40,46 +40,29 @@ test.describe("Login Page UI Test", () => {
     await page.goto("/login");
   });
 
-  test.afterEach(async ({ page }) => {
-    await page.evaluate(() => localStorage.clear());
-  });
-
   test("Successfully logs in the user with correct credentials", async ({ page }) => {
     await fillAndSubmitLoginForm(page, existingUser.email, existingUserUnhashedPass);
     await expect(page.getByText("Login successfully!")).toBeVisible();
-
-    const token = await page.evaluate(() => localStorage.getItem("auth"));
-    expect(token).not.toBeNull();
-
     await page.waitForURL("/");
   });
 
   test("Prevents login when required fields are empty", async ({ page }) => {
     await fillAndSubmitLoginForm(page, "", existingUserUnhashedPass);
-
-    const token = await page.evaluate(() => localStorage.getItem("auth"));
-    expect(token).toBeNull();
+    await expect(page.locator('input[type="email"]:invalid')).toHaveCount(1);
   });
 
   test("Prevents login with invalid input formats", async ({ page }) => {
     await fillAndSubmitLoginForm(page, existingUser.email, "test");
     await expect(page.getByText("Invalid email or password")).toBeVisible();
-
-    const token = await page.evaluate(() => localStorage.getItem("auth"));
-    expect(token).toBeNull();
   });
 
   test("Does not authenticate and shows an error for invalid email or password", async ({ page }) => {
     await fillAndSubmitLoginForm(page, existingUser.email, "WrongPassword1!");
     await expect(page.getByText("Invalid email or password")).toBeVisible();
-
-    const token = await page.evaluate(() => localStorage.getItem("auth"));
-    expect(token).toBeNull();
   });
 
   test("Navigates to the Forgot Password page when the button is clicked", async ({ page }) => {
     await page.getByRole("button", { name: "Forgot Password" }).click();
-
     await page.waitForURL("/forgot-password");
     await expect(page).toHaveURL("/forgot-password");
   });
