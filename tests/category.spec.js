@@ -75,12 +75,12 @@ test.describe("Category product page", () => {
     await page.waitForURL("/category/electronics");
     await page.getByRole("button", { name: "More Details" }).first().click();
 
-    await expect(page.getByRole("heading", { name: `Name : Phone` })).toBeVisible();
+    await expect(page.getByRole("heading", { name: `Name : ${products[0].name}` })).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: `Description : Phone description` })
+      page.getByRole("heading", { name: `Description : ${products[0].description}` })
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: `Category : Electronics` })
+      page.getByRole("heading", { name: `Category : ${categories[0].name}` })
     ).toBeVisible();
 
     await page.getByRole("button", { name: "ADD TO CART" }).first().click();
