@@ -83,7 +83,7 @@ const CartPage = () => {
 
   return (
     <Layout>
-      <div className=" cart-page">
+      <div className="cart-page" style={{ overflowWrap: "break-word" }}>
         <div className="row">
           <div className="col-md-12">
             <h1 className="text-center bg-light p-2 mb-1">
@@ -104,7 +104,7 @@ const CartPage = () => {
         </div>
         <div className="container ">
           <div className="row ">
-            <div className="col-md-7  p-0 m-0" data-testid="cart-items">
+            <div className="col-md-7 p-3 m-0" data-testid="cart-items">
               {cart?.map((p, i) => (
                 <div className="row card flex-row" key={`${p._id}-${i}`}>
                   <div className="col-md-4">
