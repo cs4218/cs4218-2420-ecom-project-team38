@@ -64,6 +64,11 @@ test.describe("Orders ui tests", () => {
   });
 
   test("should allow user to place and view new order", async ({ page }) => {
+    // https://developer.paypal.com/tools/sandbox/card-testing/
+    const mockCardNumber = "4012888888881881";
+    const mockCardExpiry = "1027";
+    const mockCardCvv = "123";
+
     // login
     await login(page);
 
@@ -76,23 +81,22 @@ test.describe("Orders ui tests", () => {
     await page.getByRole("link", { name: "Cart" }).click();
 
     // make payment
-    // https://developer.paypal.com/tools/sandbox/card-testing/
     await page.getByRole("button", { name: "Paying with Card" }).click();
     await page
       .locator('iframe[name="braintree-hosted-field-number"]')
       .contentFrame()
       .getByRole("textbox", { name: "Credit Card Number" })
-      .fill("4012888888881881");
+      .fill(mockCardNumber);
     await page
       .locator('iframe[name="braintree-hosted-field-expirationDate"]')
       .contentFrame()
       .getByRole("textbox", { name: "Expiration Date" })
-      .fill("1027");
+      .fill(mockCardExpiry);
     await page
       .locator('iframe[name="braintree-hosted-field-cvv"]')
       .contentFrame()
       .getByRole("textbox", { name: "CVV" })
-      .fill("123");
+      .fill(mockCardCvv);
     await page.getByRole("button", { name: "Make Payment" }).click();
     await page.waitForURL("/dashboard/user/orders");
 
