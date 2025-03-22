@@ -11,6 +11,8 @@ test.describe("Admin orders ui tests", () => {
   let mockProduct, mockOrder;
 
   test.beforeAll(async () => {
+    await mongoose.connect(process.env.MONGO_URL);
+
     const mockPassword = "testpassword123";
     mockAdminUser = {
       name: "Test Admin User",
@@ -70,9 +72,7 @@ test.describe("Admin orders ui tests", () => {
   });
 
   test.beforeEach(async ({ page }) => {
-    await mongoose.connect(process.env.MONGO_URL);
     await mongoose.connection.dropDatabase();
-
     await userModel.create([mockAdminUser, mockUser]);
     await productModel.create(mockProduct);
     await orderModel.create(mockOrder);
@@ -80,7 +80,7 @@ test.describe("Admin orders ui tests", () => {
     await page.goto("/");
   });
 
-  test.afterEach(async () => {
+  test.afterAll(async () => {
     await mongoose.connection.dropDatabase();
     await mongoose.disconnect();
   });

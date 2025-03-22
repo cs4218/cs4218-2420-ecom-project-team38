@@ -9,6 +9,8 @@ test.describe("Orders ui tests", () => {
   let mockUser, login, mockProduct;
 
   test.beforeAll(async () => {
+    await mongoose.connect(process.env.MONGO_URL);
+
     const mockPassword = "testpassword123";
     mockUser = {
       name: "Test User",
@@ -49,16 +51,14 @@ test.describe("Orders ui tests", () => {
   });
 
   test.beforeEach(async ({ page }) => {
-    await mongoose.connect(process.env.MONGO_URL);
     await mongoose.connection.dropDatabase();
-
     await userModel.create(mockUser);
     await productModel.create(mockProduct);
 
     await page.goto("/");
   });
 
-  test.afterEach(async () => {
+  test.afterAll(async () => {
     await mongoose.connection.dropDatabase();
     await mongoose.disconnect();
   });
