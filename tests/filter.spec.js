@@ -80,6 +80,8 @@ test.describe("Filter in home page", () => {
     await page.waitForSelector('[data-testid="product-list"]');
     productCount = await page.locator('[data-testid="product-list"] .card-body').count();
     expect(productCount).toBe(2);
+    await expect(page.getByRole('heading', { name: 'Phone', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Laptop', exact: true })).toBeVisible();
 
     await page.getByRole("checkbox", { name: "Electronics" }).uncheck();
     await page.waitForSelector('[data-testid="product-list"]');
@@ -88,6 +90,8 @@ test.describe("Filter in home page", () => {
     await page.waitForSelector('[data-testid="product-list"]');
     productCount = await page.locator('[data-testid="product-list"] .card-body').count();
     expect(productCount).toBe(2);
+    await expect(page.getByRole('heading', { name: 'Book', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Textbook', exact: true })).toBeVisible();
 
     await page.getByRole("checkbox", { name: "Books" }).uncheck();
     await page.waitForSelector('[data-testid="product-list"]');
@@ -105,6 +109,8 @@ test.describe("Filter in home page", () => {
     await page.waitForSelector('[data-testid="product-list"]');
     productCount = await page.locator('[data-testid="product-list"] .card-body').count();
     expect(productCount).toBe(2);
+    await expect(page.getByRole('heading', { name: 'Phone', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Laptop', exact: true })).toBeVisible();
 
     await page.getByRole("radio", { name: "$20 to $" }).check();
     await page.waitForSelector('[data-testid="product-list"]');
