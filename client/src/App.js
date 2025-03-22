@@ -41,15 +41,15 @@ function App() {
           <Route path="user" element={<Dashboard />} />
           <Route path="user/orders" element={<Orders />} />
           <Route path="user/profile" element={<Profile />} />
-        </Route>
-        <Route path="/dashboard" element={<AdminRoute />}>
-          <Route path="admin" element={<AdminDashboard />} />
-          <Route path="admin/create-category" element={<CreateCategory />} />
-          <Route path="admin/create-product" element={<CreateProduct />} />
-          <Route path="admin/product/:slug" element={<UpdateProduct />} />
-          <Route path="admin/products" element={<Products />} />
-          {/* <Route path="admin/users" element={<Users />} /> */}
-          <Route path="admin/orders" element={<AdminOrders />} />
+          <Route element={<AdminRoute />}>
+            <Route path="admin" element={<AdminDashboard />} />
+            <Route path="admin/create-category" element={<CreateCategory />} />
+            <Route path="admin/create-product" element={<CreateProduct />} />
+            <Route path="admin/product/:slug" element={<UpdateProduct />} />
+            <Route path="admin/products" element={<Products />} />
+            {/* <Route path="admin/users" element={<Users />} /> */}
+            <Route path="admin/orders" element={<AdminOrders />} />
+          </Route>
         </Route>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
