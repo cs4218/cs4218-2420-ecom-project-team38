@@ -37,7 +37,7 @@ const Orders = () => {
                 <div
                   className="border shadow mb-2"
                   key={o._id}
-                  style={{ overflowWrap: "break-word" }}
+                  style={{ overflowWrap: "anywhere" }}
                 >
                   <table className="table">
                     <thead>
