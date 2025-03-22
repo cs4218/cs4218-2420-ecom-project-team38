@@ -16,7 +16,7 @@ jest.mock("../context/auth", () => ({
 }));
 
 jest.mock("../context/cart", () => ({
-  useCart: jest.fn(() => [null, jest.fn()]),
+  useCart: jest.fn(() => [null, jest.fn(), jest.fn(), jest.fn()]),
 }));
 
 jest.mock("../context/search", () => ({
@@ -97,13 +97,13 @@ const mockUser = {
 describe("Cart Page", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    useCart.mockReturnValue([[], jest.fn()]);
+    useCart.mockReturnValue([[], jest.fn(), jest.fn(), jest.fn()]);
     useAuth.mockReturnValue([[], jest.fn()]);
   });
   describe("UI Rendering", () => {
     describe("Cart Items", () => {
       it("should render a single cart item with details, total price, and remove button", () => {
-        useCart.mockReturnValue([[mockItem], jest.fn()]);
+        useCart.mockReturnValue([[mockItem], jest.fn(), jest.fn(), jest.fn()]);
         renderCartPage();
 
         expect(screen.getByText(mockItem["name"])).toBeInTheDocument();
@@ -124,14 +124,14 @@ describe("Cart Page", () => {
           description: "This description is 31 chars!!!",
           price: 1,
         };
-        useCart.mockReturnValue([[longMockItem], jest.fn()]);
+        useCart.mockReturnValue([[longMockItem], jest.fn(), jest.fn(), jest.fn()]);
         renderCartPage();
 
         expect(screen.getByText(expectedDescription)).toBeInTheDocument();
       });
 
       it("should render all cart items with their details, total price, and remove buttons", () => {
-        useCart.mockReturnValue([mockItems, jest.fn()]);
+        useCart.mockReturnValue([mockItems, jest.fn(), jest.fn(), jest.fn()]);
         renderCartPage();
 
         for (const mockItem of mockItems) {
@@ -165,7 +165,7 @@ describe("Cart Page", () => {
 
     describe("User Information", () => {
       it("should render authenticated user info with name, address, and update address button", () => {
-        useCart.mockReturnValue([mockItems, jest.fn()]);
+        useCart.mockReturnValue([mockItems, jest.fn(), jest.fn(), jest.fn()]);
         useAuth.mockReturnValue([{ user: mockUser }, jest.fn()]);
         renderCartPage();
 
@@ -193,7 +193,7 @@ describe("Cart Page", () => {
   describe("Cart Item Removal", () => {
     it("should remove a cart item when the remove button is clicked", () => {
       const setCart = jest.fn();
-      useCart.mockReturnValue([mockItems, setCart]);
+      useCart.mockReturnValue([mockItems, setCart, jest.fn(), jest.fn()]);
       renderCartPage();
 
       const removeButtons = screen.getAllByRole("button", { name: "Remove" });
@@ -215,7 +215,7 @@ describe("Cart Page", () => {
         .fn()
         .mockResolvedValue({ data: { clientToken: clientToken } });
       useAuth.mockReturnValue([{ token: "Test Auth Token" }, jest.fn()]);
-      useCart.mockReturnValue([mockItems, jest.fn()]);
+      useCart.mockReturnValue([mockItems, jest.fn(), jest.fn(), jest.fn()]);
       renderCartPage();
 
       await waitFor(() => {
@@ -240,7 +240,7 @@ describe("Cart Page", () => {
         { user: mockUser, token: "Test Auth Token" },
         jest.fn(),
       ]);
-      useCart.mockReturnValue([mockItems, jest.fn()]);
+      useCart.mockReturnValue([mockItems, jest.fn(), jest.fn(), jest.fn()]);
       renderCartPage();
 
       const paymentButton = await screen.findByText("Make Payment");
@@ -264,7 +264,7 @@ describe("Cart Page", () => {
 
   describe("Navigation Flow", () => {
     it("should navigate to the profile page on 'Update Address' click for users with an address", async () => {
-      useCart.mockReturnValue([mockItems, jest.fn()]);
+      useCart.mockReturnValue([mockItems, jest.fn(), jest.fn(), jest.fn()]);
       useAuth.mockReturnValue([{ user: mockUser }, jest.fn()]);
       renderCartPage();
 
@@ -278,7 +278,7 @@ describe("Cart Page", () => {
 
     it("should navigate to the profile page on 'Update Address' click for users without an address", async () => {
       const mockUserWithoutAddr = { name: "Test User" };
-      useCart.mockReturnValue([mockItems, jest.fn()]);
+      useCart.mockReturnValue([mockItems, jest.fn(), jest.fn(), jest.fn()]);
       useAuth.mockReturnValue([
         { user: mockUserWithoutAddr, token: "test-token" },
         jest.fn(),
@@ -324,7 +324,7 @@ describe("Cart Page", () => {
       });
 
       const setCart = jest.fn();
-      useCart.mockReturnValue([mockItems, setCart]);
+      useCart.mockReturnValue([mockItems, setCart, jest.fn(), jest.fn()]);
       renderCartPage();
 
       const removeButtons = screen.getAllByRole("button", { name: /remove/i });
@@ -357,7 +357,7 @@ describe("Cart Page", () => {
     it("should gracefully handle error in getting payment token by logging the error payment processing by logging the error", async () => {
       axios.get.mockRejectedValueOnce(error);
       useAuth.mockReturnValue([{ token: "Test Auth Token" }, jest.fn()]);
-      useCart.mockReturnValue([mockItems, jest.fn()]);
+      useCart.mockReturnValue([mockItems, jest.fn(), jest.fn(), jest.fn()]);
       renderCartPage();
 
       await waitFor(() => {
@@ -380,7 +380,7 @@ describe("Cart Page", () => {
         { user: mockUser, token: "Test Auth Token" },
         jest.fn(),
       ]);
-      useCart.mockReturnValue([[mockItem], jest.fn()]);
+      useCart.mockReturnValue([[mockItem], jest.fn(), jest.fn(), jest.fn()]);
       renderCartPage();
 
       const paymentButton = await screen.findByText("Make Payment");

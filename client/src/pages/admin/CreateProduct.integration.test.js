@@ -14,6 +14,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import Products from "./Products";
 import axios from "axios";
 import { AuthProvider } from "../../context/auth";
+import { CartProvider } from "../../context/cart";
 import AdminRoute from "../../components/Routes/AdminRoute";
 import Login from "../Auth/Login";
 
@@ -77,14 +78,16 @@ describe("CreateProduct Integration Test", () => {
       render(
         <MemoryRouter initialEntries={["/dashboard/admin/create-product"]}>
           <AuthProvider>
-            <Routes>
-              <Route path="/dashboard" element={<AdminRoute />}>
-                <Route
-                  path="admin/create-product"
-                  element={<CreateProduct />}
-                />
-              </Route>
-            </Routes>
+            <CartProvider>
+              <Routes>
+                <Route path="/dashboard" element={<AdminRoute />}>
+                  <Route
+                    path="admin/create-product"
+                    element={<CreateProduct />}
+                  />
+                </Route>
+              </Routes>
+            </CartProvider>
           </AuthProvider>
         </MemoryRouter>
       );
@@ -111,15 +114,17 @@ describe("CreateProduct Integration Test", () => {
       render(
         <MemoryRouter initialEntries={["/dashboard/admin/create-product"]}>
           <AuthProvider>
-            <Routes>
-              <Route path="/dashboard" element={<AdminRoute />}>
-                <Route
-                  path="admin/create-product"
-                  element={<CreateProduct />}
-                />
-              </Route>
-              <Route path="login" element={<Login />} />
-            </Routes>
+            <CartProvider>
+              <Routes>
+                <Route path="/dashboard" element={<AdminRoute />}>
+                  <Route
+                    path="admin/create-product"
+                    element={<CreateProduct />}
+                  />
+                </Route>
+                <Route path="login" element={<Login />} />
+              </Routes>
+            </CartProvider>
           </AuthProvider>
         </MemoryRouter>
       );

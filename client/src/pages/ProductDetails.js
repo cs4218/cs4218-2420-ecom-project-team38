@@ -10,7 +10,7 @@ const ProductDetails = () => {
   const params = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState({});
-  const [cart, setCart] = useCart();
+  const [cart, setCart, addToCartDB] = useCart();
   const [relatedProducts, setRelatedProducts] = useState([]);
 
   //initalp details
@@ -76,6 +76,7 @@ const ProductDetails = () => {
             onClick={() => {
               setCart([...cart, product]);
               localStorage.setItem("cart", JSON.stringify([...cart, product]));
+              addToCartDB(product._id);
               toast.success("Item Added to cart");
             }}
           >
@@ -125,6 +126,7 @@ const ProductDetails = () => {
                         "cart",
                         JSON.stringify([...cart, p])
                       );
+                      addToCartDB(p._id);
                       toast.success("Item Added to cart");
                     }}
                   >

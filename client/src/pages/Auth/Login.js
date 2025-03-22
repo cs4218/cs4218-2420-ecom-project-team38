@@ -5,11 +5,13 @@ import { useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import "../../styles/AuthStyles.css";
 import { useAuth } from "../../context/auth";
+import { useCart } from "../../context/cart";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [auth, setAuth] = useAuth();
+  const [, setCart] = useCart();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -37,6 +39,19 @@ const Login = () => {
           token: res.data.token,
         });
         localStorage.setItem("auth", JSON.stringify(res.data));
+        const updatedCart = [];
+
+        for (let productId of res.data.user.cart) {
+          const { data } = await axios.get(
+            `/api/v1/product/get-product-id/${productId}`
+          );
+          if (data?.product !== null) {
+            updatedCart.push(data.product);
+          }
+        }
+
+        setCart(updatedCart);
+        localStorage.setItem("cart", JSON.stringify(updatedCart));
         navigate(location.state || "/");
       } else {
         toast.error(res.data.message);
@@ -87,7 +102,11 @@ const Login = () => {
             </button>
           </div>
 
-          <button type="submit" className="btn btn-primary" data-testid="login-button">
+          <button
+            type="submit"
+            className="btn btn-primary"
+            data-testid="login-button"
+          >
             LOGIN
           </button>
         </form>

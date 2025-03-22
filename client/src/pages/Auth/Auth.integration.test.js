@@ -30,6 +30,7 @@ const testUser = {
   address: "123 Street",
   dob: "2000-01-01",
   answer: "Football",
+  cart: [],
 };
 
 const newPassword = "newPassword";

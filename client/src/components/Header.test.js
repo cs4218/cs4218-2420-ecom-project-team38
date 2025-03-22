@@ -14,7 +14,7 @@ jest.mock("../context/auth", () => ({
 }));
 
 jest.mock("../context/cart", () => ({
-  useCart: jest.fn(() => [["item1", "item2"], jest.fn()]),
+  useCart: jest.fn(() => [["item1", "item2"], jest.fn(), jest.fn(), jest.fn()]),
 }));
 
 jest.mock("../context/category", () => ({
@@ -34,6 +34,7 @@ Object.defineProperty(window, "localStorage", {
     setItem: jest.fn(),
     getItem: jest.fn(),
     removeItem: jest.fn(),
+    clear: jest.fn(),
   },
   writable: true,
 });
@@ -201,7 +202,7 @@ describe("Header Component", () => {
 
       await user.click(screen.getByText("user"));
       await user.click(screen.getByText("Logout"));
-      expect(localStorage.removeItem).toHaveBeenCalledWith("auth");
+      expect(localStorage.clear).toHaveBeenCalled();
       expect(mockSetAuth).toHaveBeenCalledWith({ user: null, token: "" });
       expect(toast.success).toHaveBeenCalledWith("Logout successfully!");
     });

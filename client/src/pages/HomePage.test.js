@@ -26,7 +26,7 @@ jest.mock("../context/auth", () => ({
 }));
 
 jest.mock("../context/cart", () => ({
-  useCart: jest.fn(() => [null, jest.fn()]),
+  useCart: jest.fn(() => [null, jest.fn(), jest.fn(), jest.fn()]),
 }));
 
 jest.mock("../context/search", () => ({
@@ -242,7 +242,7 @@ describe("Home Page", () => {
 
     it("should update the cart and display a success message", async () => {
       const setCartMock = jest.fn();
-      useCart.mockReturnValue([[], setCartMock]);
+      useCart.mockReturnValue([[], setCartMock, jest.fn()]);
       renderHomePage();
       await validateProductsRendered();
 
