@@ -184,11 +184,9 @@ test.describe("Profile ui tests", () => {
     // login
     await login(page);
 
-    // go to dashboard page
+    // go to profile page
     await page.getByTestId("user-name-dropdown").click();
     await page.getByRole("link", { name: "Dashboard" }).click();
-
-    // go to profile page
     await page.getByRole("link", { name: "Profile" }).click();
 
     // update profile with empty name
@@ -234,11 +232,9 @@ test.describe("Profile ui tests", () => {
     // login
     await login(page);
 
-    // go to dashboard page
+    // go to profile page
     await page.getByTestId("user-name-dropdown").click();
     await page.getByRole("link", { name: "Dashboard" }).click();
-
-    // go to profile page
     await page.getByRole("link", { name: "Profile" }).click();
 
     // update profile with empty name
