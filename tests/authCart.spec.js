@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import { ObjectId } from "mongodb";
 import mongoose from "mongoose";
 
+import userModel from "../models/userModel.js";
 import productModel from "../models/productModel.js";
 
 const user = {
@@ -58,6 +59,10 @@ test.describe("Auth, Home, Cart Interactions UI Test", () => {
     await page.goto("/");
   });
 
+  test.afterEach(async ({ page }) => {
+    await userModel.deleteMany({});
+  });
+
   test("Cart should persist after logout and re-login", async ({ page }) => {
     // Verify Empty Cart
     await page.getByRole("link", { name: "Cart" }).click();
@@ -65,10 +70,23 @@ test.describe("Auth, Home, Cart Interactions UI Test", () => {
     await expect(page.getByText("Your Cart Is Empty")).toBeVisible();
     await expect(page.getByText(product.name)).not.toBeVisible();
 
+    // Register User
+    await page.getByRole("link", { name: "Register" }).click();
+    await fillAndSubmitRegistrationForm(page);
+
+    // Ensure User is registered
+    await expect(page.getByText("Register Successfully, please login")).toBeVisible();
+    await page.waitForURL("/login");
+    await expect(page).toHaveURL("/login");
+
     // Login User
     await page.getByRole("link", { name: "Login" }).click();
     await page.waitForURL("/login");
     await fillAndSubmitLoginForm(page);
+
+    // Ensure User is authenticated
+    await expect(page.getByText("Login successfully!")).toBeVisible();
+    await page.waitForURL("/");
 
     // Add Item into Cart
     await page.getByRole("button", { name: "ADD TO CART" }).nth(0).click();
@@ -87,6 +105,10 @@ test.describe("Auth, Home, Cart Interactions UI Test", () => {
 
     // Login User
     await fillAndSubmitLoginForm(page);
+
+    // Ensure User is authenticated
+    await expect(page.getByText("Login successfully!")).toBeVisible();
+    await page.waitForURL("/");
 
     // Navigate to Cart Page
     await page.getByRole("link", { name: "Cart" }).click();
