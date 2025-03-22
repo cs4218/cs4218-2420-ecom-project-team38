@@ -72,17 +72,16 @@ test.describe("Admin orders ui tests", () => {
   });
 
   test.beforeEach(async ({ page }) => {
-    await userModel.deleteMany({});
+    await mongoose.connection.dropDatabase();
     await userModel.create([mockAdminUser, mockUser]);
-    await productModel.deleteMany({});
     await productModel.create(mockProduct);
-    await orderModel.deleteMany({});
     await orderModel.create(mockOrder);
 
     await page.goto("/");
   });
 
   test.afterAll(async () => {
+    await mongoose.connection.dropDatabase();
     await mongoose.disconnect();
   });
 

@@ -69,17 +69,16 @@ test.describe("Admin category ui tests", () => {
   });
 
   test.beforeEach(async ({ page }) => {
-    await userModel.deleteMany({});
+    await mongoose.connection.dropDatabase();
     await userModel.create([mockAdminUser, mockUser]);
-    await categoryModel.deleteMany({});
     await categoryModel.create(mockCategory);
-    await productModel.deleteMany({});
     await productModel.create(mockProduct);
 
     await page.goto("/");
   });
 
   test.afterAll(async () => {
+    await mongoose.connection.dropDatabase();
     await mongoose.disconnect();
   });
 
