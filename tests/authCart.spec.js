@@ -58,6 +58,44 @@ test.describe("Auth, Home, Cart Interactions UI Test", () => {
     await page.goto("/");
   });
 
+  test("Cart should persist after logout and re-login", async ({ page }) => {
+    // Verify Empty Cart
+    await page.getByRole("link", { name: "Cart" }).click();
+    await page.waitForURL("/cart");
+    await expect(page.getByText("Your Cart Is Empty")).toBeVisible();
+    await expect(page.getByText(product.name)).not.toBeVisible();
+
+    // Login User
+    await page.getByRole("link", { name: "Login" }).click();
+    await page.waitForURL("/login");
+    await fillAndSubmitLoginForm(page);
+
+    // Add Item into Cart
+    await page.getByRole("button", { name: "ADD TO CART" }).nth(0).click();
+
+    // Ensure Item has been added
+    await expect(page.getByText("Item added to cart")).toBeVisible();
+
+    // Logout User
+    await page.getByTestId("user-name-dropdown").click();
+    await page.getByRole("link", { name: "Logout" }).click();
+
+    // Ensure User is logged out
+    await expect(page.getByText("Logout successfully!")).toBeVisible();
+    await page.waitForURL("/login");
+    await expect(page).toHaveURL("/login");
+
+    // Login User
+    await fillAndSubmitLoginForm(page);
+
+    // Navigate to Cart Page
+    await page.getByRole("link", { name: "Cart" }).click();
+    await page.waitForURL("/cart");
+
+    // Verify that item has been correctly added and persisted
+    await expect(page.getByTestId("cart-items")).toContainText(product.name);
+  });
+
   test("Register, Login, Add Item to Cart, and Verify in Cart Page", async ({ page }) => {
     // Register User
     await page.getByRole("link", { name: "Register" }).click();
