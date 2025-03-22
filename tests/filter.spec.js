@@ -98,47 +98,49 @@ test.describe("Filter in home page", () => {
   test("should filter products by price", async ({ page }) => {
     await page.waitForSelector('[data-testid="product-list"]');
 
-    let products = await page.locator('[data-testid="product-list"] .card-body').count();
-    expect(products).toBe(4);
+    let productCount = await page.locator('[data-testid="product-list"] .card-body').count();
+    expect(productCount).toBe(4);
 
     await page.getByRole("radio", { name: "$100 or more" }).check();
     await page.waitForSelector('[data-testid="product-list"]');
-    products = await page.locator('[data-testid="product-list"] .card-body').count();
-    expect(products).toBe(2);
+    productCount = await page.locator('[data-testid="product-list"] .card-body').count();
+    expect(productCount).toBe(2);
 
     await page.getByRole("radio", { name: "$20 to $" }).check();
     await page.waitForSelector('[data-testid="product-list"]');
-    products = await page.locator('[data-testid="product-list"] .card-body').count();
-    expect(products).toBe(1);
+    productCount = await page.locator('[data-testid="product-list"] .card-body').count();
+    expect(productCount).toBe(1);
+    await expect(page.getByRole('heading', { name: 'Book', exact: true })).toBeVisible();
   });
 
   test("should filter products by both category and price", async ({ page }) => {
     await page.waitForSelector('[data-testid="product-list"]');
 
-    let products = await page.locator('[data-testid="product-list"] .card-body').count();
-    expect(products).toBe(4);
+    let productCount = await page.locator('[data-testid="product-list"] .card-body').count();
+    expect(productCount).toBe(4);
 
     await page.getByRole("checkbox", { name: "Books" }).check();
     await page.getByRole("radio", { name: "$20 to $" }).check();
     await page.waitForSelector('[data-testid="product-list"]');
-    products = await page.locator('[data-testid="product-list"] .card-body').count();
-    expect(products).toBe(1);
+    productCount = await page.locator('[data-testid="product-list"] .card-body').count();
+    expect(productCount).toBe(1);
+    await expect(page.getByRole('heading', { name: 'Book', exact: true })).toBeVisible();
   });
 
   test("should reset filters", async ({ page }) => {
     await page.waitForSelector('[data-testid="product-list"]');
 
-    let products = await page.locator('[data-testid="product-list"] .card-body').count();
-    expect(products).toBe(4);
+    let productCount = await page.locator('[data-testid="product-list"] .card-body').count();
+    expect(productCount).toBe(4);
 
     await page.getByRole("checkbox", { name: "Electronics" }).check();
     await page.waitForSelector('[data-testid="product-list"]');
-    products = await page.locator('[data-testid="product-list"] .card-body').count();
-    expect(products).toBe(2);
+    productCount = await page.locator('[data-testid="product-list"] .card-body').count();
+    expect(productCount).toBe(2);
 
     await page.getByRole("button", { name: "RESET FILTERS" }).click();
     await page.waitForSelector('[data-testid="product-list"]');
-    products = await page.locator('[data-testid="product-list"] .card-body').count();
-    expect(products).toBe(4);
+    productCount = await page.locator('[data-testid="product-list"] .card-body').count();
+    expect(productCount).toBe(4);
   });
 });
