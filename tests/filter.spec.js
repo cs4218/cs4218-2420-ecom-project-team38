@@ -68,15 +68,53 @@ test.describe("Filter in home page", () => {
     expect(products).toBe(3);
 
     await page.getByRole("checkbox", { name: "Electronics" }).check();
+    await page.waitForSelector('[data-testid="product-list"]');
     products = await page.locator('[data-testid="product-list"] .card-body').count();
     expect(products).toBe(2);
 
-    await page.getByRole("checkbox", { name: "Books" }).uncheck();
+    await page.getByRole("checkbox", { name: "Electronics" }).uncheck();
+    await page.getByRole("checkbox", { name: "Books" }).check();
+    await page.waitForSelector('[data-testid="product-list"]');
+    products = await page.locator('[data-testid="product-list"] .card-body').count();
+    expect(products).toBe(1); // Book
+
+    await page.getByRole("button", { name: "RESET FILTERS" }).click();
+    await page.waitForSelector('[data-testid="product-list"]');
     products = await page.locator('[data-testid="product-list"] .card-body').count();
     expect(products).toBe(3);
+  });
 
-    await page.getByRole("checkbox", { name: "Books" }).check();
+  test("should filter products by price", async ({ page }) => {
+    await page.waitForSelector('[data-testid="product-list"]');
+
+    let products = await page.locator('[data-testid="product-list"] .card-body').count();
+    expect(products).toBe(3);
+
+    await page.getByRole("radio", { name: "$100 or more" }).check();
+    await page.waitForSelector('[data-testid="product-list"]');
+    products = await page.locator('[data-testid="product-list"] .card-body').count();
+    expect(products).toBe(2);
+
+    await page.getByRole("radio", { name: "$20 to $" }).check();
+    await page.waitForSelector('[data-testid="product-list"]');
     products = await page.locator('[data-testid="product-list"] .card-body').count();
     expect(products).toBe(1);
+  });
+
+  test("should reset filters", async ({ page }) => {
+    await page.waitForSelector('[data-testid="product-list"]');
+
+    let products = await page.locator('[data-testid="product-list"] .card-body').count();
+    expect(products).toBe(3);
+
+    await page.getByRole("checkbox", { name: "Electronics" }).check();
+    await page.waitForSelector('[data-testid="product-list"]');
+    products = await page.locator('[data-testid="product-list"] .card-body').count();
+    expect(products).toBe(2);
+
+    await page.getByRole("button", { name: "RESET FILTERS" }).click();
+    await page.waitForSelector('[data-testid="product-list"]');
+    products = await page.locator('[data-testid="product-list"] .card-body').count();
+    expect(products).toBe(3);
   });
 });
