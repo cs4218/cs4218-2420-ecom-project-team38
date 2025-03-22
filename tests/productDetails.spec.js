@@ -93,4 +93,16 @@ test.describe("ProductDetails Page", () => {
     await expect(page.getByRole("heading", { name: "Oops! Page Not Found" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Back to Home" })).toBeVisible();
   });
+
+  test("should add product to cart", async ({ page }) => {
+    const slug = products[0].slug;
+    await page.goto(`/product/${slug}`);
+    await page.waitForURL(`/product/${slug}`);
+
+    await page.getByRole('button', { name: 'ADD TO CART' }).click();
+    await expect(page.getByText('Item added to cart')).toBeVisible();
+  
+    await page.getByRole('link', { name: 'Cart' }).click();
+    await expect(page.getByText(`${products[0].name}`, { exact: true })).toBeVisible();
+  });
 });
