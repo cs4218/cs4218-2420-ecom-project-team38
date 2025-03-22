@@ -212,12 +212,14 @@ test.describe("Admin category ui tests", () => {
     await page.getByRole("link", { name: "Products" }).click();
     await page.getByRole("link", { name: mockProduct.name }).click();
     await page.getByRole("button", { name: "DELETE PRODUCT" }).click();
-    await page.waitForURL("/dashboard/admin/products");
 
     await expect(page.getByText("Product Deleted Successfully")).toBeVisible();
 
-    // delete category - succeeds due to no existing products
+    // go to create category page
+    await page.waitForURL("/dashboard/admin/products");
     await page.getByRole("link", { name: "Create Category" }).click();
+
+    // delete category - succeeds due to no existing products
     await page.getByRole("button", { name: "Delete" }).click();
 
     await expect(
