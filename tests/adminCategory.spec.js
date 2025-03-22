@@ -187,6 +187,8 @@ test.describe("Admin category ui tests", () => {
   test("should allow admin user to delete category only if no products in the category", async ({
     page,
   }) => {
+    page.on("dialog", async (dialog) => await dialog.accept());
+
     // login
     await login(page);
 
@@ -206,10 +208,16 @@ test.describe("Admin category ui tests", () => {
       page.getByText("There are existing products in this category")
     ).toBeVisible();
 
-    // delete products
-    await productModel.deleteMany({});
+    // delete product
+    await page.getByRole("link", { name: "Products" }).click();
+    await page.getByRole("link", { name: mockProduct.name }).click();
+    await page.getByRole("button", { name: "DELETE PRODUCT" }).click();
+    await page.waitForURL("/dashboard/admin/products");
+
+    await expect(page.getByText("Product Deleted Successfully")).toBeVisible();
 
     // delete category - succeeds due to no existing products
+    await page.getByRole("link", { name: "Create Category" }).click();
     await page.getByRole("button", { name: "Delete" }).click();
 
     await expect(
