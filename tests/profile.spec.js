@@ -75,8 +75,23 @@ test.describe("Profile ui tests", () => {
     // go to profile page
     await page.getByRole("link", { name: "Profile" }).click();
 
+    await expect(
+      page.getByRole("textbox", { name: "Enter Your Name" })
+    ).toHaveValue(mockUser.name);
+    await expect(
+      page.getByRole("textbox", { name: "Enter Your Email" })
+    ).toHaveValue(mockUser.email);
+    await expect(
+      page.getByRole("textbox", { name: "Enter Your Password" })
+    ).toHaveValue("");
+    await expect(
+      page.getByRole("textbox", { name: "Enter Your Phone" })
+    ).toHaveValue(mockUser.phone);
+    await expect(
+      page.getByRole("textbox", { name: "Enter Your Address" })
+    ).toHaveValue(mockUser.address);
+
     // update profile
-    await page.getByRole("textbox", { name: "Enter Your Name" }).click();
     await page
       .getByRole("textbox", { name: "Enter Your Name" })
       .fill(updatedName);
@@ -109,10 +124,11 @@ test.describe("Profile ui tests", () => {
     ).toBeVisible();
   });
 
-  test("should allow user to update and login with new password", async ({
+  test("should allow user to update and login with new password only if valid", async ({
     page,
   }) => {
-    const updatedPassword = "newpassword456";
+    const invalidPassword = "2weak";
+    const validPassword = "newpassword456";
 
     // login
     await login(page);
@@ -122,10 +138,20 @@ test.describe("Profile ui tests", () => {
     await page.getByRole("link", { name: "Dashboard" }).click();
     await page.getByRole("link", { name: "Profile" }).click();
 
-    // update password
+    // update password - invalid
     await page
       .getByRole("textbox", { name: "Enter Your Password" })
-      .fill(updatedPassword);
+      .fill(invalidPassword);
+    await page.getByRole("button", { name: "UPDATE" }).click();
+
+    await expect(
+      page.getByText("Passsword should be at least 6 characters long")
+    ).toBeVisible();
+
+    // update password - valid
+    await page
+      .getByRole("textbox", { name: "Enter Your Password" })
+      .fill(validPassword);
     await page.getByRole("button", { name: "UPDATE" }).click();
 
     await expect(page.getByText("Profile Updated Successfully")).toBeVisible();
@@ -140,12 +166,113 @@ test.describe("Profile ui tests", () => {
       .fill(mockUser.email);
     await page
       .getByRole("textbox", { name: "Enter Your Password" })
-      .fill(updatedPassword);
+      .fill(validPassword);
     await page.getByRole("button", { name: "LOGIN" }).click();
 
     await expect(page.getByText("Login successfully!")).toBeVisible();
     await expect(
       page.getByRole("heading", { name: "All Products", exact: true })
+    ).toBeVisible();
+  });
+
+  test("should not allow user to update profile when required values are missing", async ({
+    page,
+  }) => {
+    const updatedPhone = "87654321";
+    const updatedAddress = "13 Computing Drive";
+
+    // login
+    await login(page);
+
+    // go to dashboard page
+    await page.getByTestId("user-name-dropdown").click();
+    await page.getByRole("link", { name: "Dashboard" }).click();
+
+    // go to profile page
+    await page.getByRole("link", { name: "Profile" }).click();
+
+    // update profile with empty name
+    await page.getByRole("textbox", { name: "Enter Your Name" }).clear();
+    await page
+      .getByRole("textbox", { name: "Enter Your Phone" })
+      .fill(updatedPhone);
+    await page
+      .getByRole("textbox", { name: "Enter Your Address" })
+      .fill(updatedAddress);
+    await page.getByRole("button", { name: "UPDATE" }).click();
+
+    await expect(
+      page.getByText("Name, address and phone are required")
+    ).toBeVisible();
+
+    // go to dashboard page
+    await page.getByTestId("user-name-dropdown").click();
+    await page.getByRole("link", { name: "Dashboard" }).click();
+
+    // view profile - not updated
+    await expect(
+      page.getByRole("heading", { name: `User Name : ${mockUser.name}` })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: `User Email : ${mockUser.email}` })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: `User Contact : ${mockUser.phone}` })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: `User Address : ${mockUser.address}` })
+    ).toBeVisible();
+  });
+
+  test("should not allow user to update profile when values are invalid", async ({
+    page,
+  }) => {
+    const updatedName = "New User";
+    const invalidPhone = "not-a-number";
+    const updatedAddress = "13 Computing Drive";
+
+    // login
+    await login(page);
+
+    // go to dashboard page
+    await page.getByTestId("user-name-dropdown").click();
+    await page.getByRole("link", { name: "Dashboard" }).click();
+
+    // go to profile page
+    await page.getByRole("link", { name: "Profile" }).click();
+
+    // update profile with empty name
+    await page
+      .getByRole("textbox", { name: "Enter Your Name" })
+      .fill(updatedName);
+    await page
+      .getByRole("textbox", { name: "Enter Your Phone" })
+      .fill(invalidPhone);
+    await page
+      .getByRole("textbox", { name: "Enter Your Address" })
+      .fill(updatedAddress);
+    await page.getByRole("button", { name: "UPDATE" }).click();
+
+    await expect(
+      page.getByText("Phone should be 8 digits long and begin with 6, 8 or 9")
+    ).toBeVisible();
+
+    // go to dashboard page
+    await page.getByTestId("user-name-dropdown").click();
+    await page.getByRole("link", { name: "Dashboard" }).click();
+
+    // view profile - not updated
+    await expect(
+      page.getByRole("heading", { name: `User Name : ${mockUser.name}` })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: `User Email : ${mockUser.email}` })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: `User Contact : ${mockUser.phone}` })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: `User Address : ${mockUser.address}` })
     ).toBeVisible();
   });
 
