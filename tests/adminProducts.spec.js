@@ -390,4 +390,55 @@ test.describe("Admin products UI test", () => {
 
     await expect(page.getByText("Something went wrong")).toBeVisible();
   });
+
+  test("Should not allow admin user to clear compulsory fields while updating a product", async ({
+    page,
+  }) => {
+    const productToUpdate = {
+      ...products[0],
+      category: categories[0].name,
+      shipping: products[0].shipping ? "Yes" : "No",
+    };
+    const updateProductDetails = {
+      name: "Updated Phone",
+      description: "Updated Phone description",
+      price: 1500,
+      quantity: 15,
+      shipping: "No",
+      category: categories[1].name,
+    };
+
+    // update product
+
+    await page.getByRole("link", { name: "Products" }).click();
+    const productToUpdateLink = page
+      .getByTestId("products-list")
+      .locator("a")
+      .filter({ hasText: productToUpdate.name });
+    await productToUpdateLink.click();
+    await page.waitForURL(`/dashboard/admin/product/${productToUpdate.slug}`);
+    await page
+      .locator(".ant-select")
+      .getByText(productToUpdate.category)
+      .click();
+    await page.getByTitle(updateProductDetails.category).click();
+    await page.getByPlaceholder("write a name").clear(); // clear name
+    await page
+      .getByPlaceholder("write a description")
+      .fill(updateProductDetails.description);
+    await page
+      .getByPlaceholder("write a Price")
+      .fill(updateProductDetails.price.toString());
+    await page
+      .getByPlaceholder("write a quantity")
+      .fill(updateProductDetails.quantity.toString());
+    await page
+      .locator(".ant-select")
+      .getByText(productToUpdate.shipping ? "Yes" : "No")
+      .click();
+    await page.getByTitle(updateProductDetails.shipping).click();
+    await page.getByRole("button", { name: "UPDATE PRODUCT" }).click();
+
+    await expect(page.getByText("Something went wrong")).toBeVisible();
+  });
 });
