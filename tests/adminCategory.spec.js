@@ -82,7 +82,7 @@ test.describe("Admin category ui tests", () => {
     await mongoose.disconnect();
   });
 
-  test("should allow admin user to create new category and filter products", async ({
+  test("should allow admin user to create new category and browse products in the category", async ({
     page,
   }) => {
     const newCategory = "New Category";
@@ -125,7 +125,61 @@ test.describe("Admin category ui tests", () => {
     ).toBeVisible();
   });
 
-  test("should allow admin user to update category and filter products", async ({
+  test("should not allow admin user to create a blank category", async ({
+    page,
+  }) => {
+    const blankCategory = "  ";
+
+    // login
+    await login(page);
+
+    // go to create category page
+    await page.getByTestId("user-name-dropdown").click();
+    await page.getByRole("link", { name: "Dashboard" }).click();
+    await page.getByRole("link", { name: "Create Category" }).click();
+
+    await expect(
+      page.getByRole("heading", { name: "Manage Category" })
+    ).toBeVisible();
+
+    // create new category
+    await page
+      .getByRole("textbox", { name: "Enter new category" })
+      .fill(blankCategory);
+    await page.getByRole("button", { name: "Submit" }).click();
+
+    await expect(
+      page.getByText("Something went wrong in the input form")
+    ).toBeVisible();
+  });
+
+  test("should not allow admin user to create a duplicate category", async ({
+    page,
+  }) => {
+    const duplicateCategory = mockCategory.name;
+
+    // login
+    await login(page);
+
+    // go to create category page
+    await page.getByTestId("user-name-dropdown").click();
+    await page.getByRole("link", { name: "Dashboard" }).click();
+    await page.getByRole("link", { name: "Create Category" }).click();
+
+    await expect(
+      page.getByRole("heading", { name: "Manage Category" })
+    ).toBeVisible();
+
+    // create new category
+    await page
+      .getByRole("textbox", { name: "Enter new category" })
+      .fill(duplicateCategory);
+    await page.getByRole("button", { name: "Submit" }).click();
+
+    await expect(page.getByText("Category Already Exists")).toBeVisible();
+  });
+
+  test("should allow admin user to update category and browse products in the category", async ({
     page,
   }) => {
     const updatedCategory = "Updated Category";
@@ -183,10 +237,10 @@ test.describe("Admin category ui tests", () => {
     ).toBeVisible();
   });
 
-  test("should allow admin user to delete category only if no products in the category", async ({
+  test("should allow admin user to delete category if no products in the category", async ({
     page,
   }) => {
-    page.on("dialog", async (dialog) => await dialog.accept());
+    await productModel.deleteMany({});
 
     // login
     await login(page);
@@ -200,25 +254,7 @@ test.describe("Admin category ui tests", () => {
       page.getByRole("heading", { name: "Manage Category" })
     ).toBeVisible();
 
-    // delete category - fails due to existing products
-    await page.getByRole("button", { name: "Delete" }).click();
-
-    await expect(
-      page.getByText("There are existing products in this category")
-    ).toBeVisible();
-
-    // delete product
-    await page.getByRole("link", { name: "Products" }).click();
-    await page.getByRole("link", { name: mockProduct.name }).click();
-    await page.getByRole("button", { name: "DELETE PRODUCT" }).click();
-
-    await expect(page.getByText("Product Deleted Successfully")).toBeVisible();
-
-    // go to create category page
-    await page.waitForURL("/dashboard/admin/products");
-    await page.getByRole("link", { name: "Create Category" }).click();
-
-    // delete category - succeeds due to no existing products
+    // delete category
     await page.getByRole("button", { name: "Delete" }).click();
 
     await expect(
@@ -233,6 +269,33 @@ test.describe("Admin category ui tests", () => {
     await expect(
       page.getByRole("link", { name: mockCategory.name, exact: true })
     ).toHaveCount(0);
+  });
+
+  test("should not allow admin user to delete category if there are products in the category", async ({
+    page,
+  }) => {
+    // login
+    await login(page);
+
+    // go to create category page
+    await page.getByTestId("user-name-dropdown").click();
+    await page.getByRole("link", { name: "Dashboard" }).click();
+    await page.getByRole("link", { name: "Create Category" }).click();
+
+    await expect(
+      page.getByRole("heading", { name: "Manage Category" })
+    ).toBeVisible();
+
+    // delete category
+    await page.getByRole("button", { name: "Delete" }).click();
+
+    await expect(
+      page.getByText("There are existing products in this category")
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole("cell", { name: mockCategory.name, exact: true })
+    ).toBeVisible();
   });
 
   test("should redirect unauthorized user from create category page to login page", async ({
