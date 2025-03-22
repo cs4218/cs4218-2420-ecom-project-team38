@@ -481,7 +481,7 @@ describe("UpdateProduct page", () => {
         )
       );
       expect(console.log).toHaveBeenCalledWith(mockError);
-      expect(toast.error).toHaveBeenCalledWith("something went wrong");
+      expect(toast.error).toHaveBeenCalledWith("Something went wrong");
     });
   });
 
