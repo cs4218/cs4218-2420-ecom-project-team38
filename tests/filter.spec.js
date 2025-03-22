@@ -90,7 +90,7 @@ test.describe("Filter in home page", () => {
     await page.waitForSelector('[data-testid="product-list"]');
     productCount = await page.locator('[data-testid="product-list"] .card-body').count();
     expect(productCount).toBe(2);
-    await expect(page.getByRole("heading", { name: `${products[2].name}` })).toBeVisible();
+    await expect(getByRole('heading', { name: 'Book', exact: true })).toBeVisible();
     await expect(page.getByRole("heading", { name: `${products[3].name}` })).toBeVisible();
 
     await page.getByRole("checkbox", { name: "Books" }).uncheck();
