@@ -84,7 +84,7 @@ test.describe("ProductDetails Page", () => {
     ).toBeVisible();
     expect(
       page.getByRole("heading", {
-        name: `Price : ${products[0].price.toLocaleString("en-US", {
+        name: `Price :${products[0].price.toLocaleString("en-US", {
           style: "currency",
           currency: "USD",
         })}`,
