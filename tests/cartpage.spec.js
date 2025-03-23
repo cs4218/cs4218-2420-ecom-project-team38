@@ -79,7 +79,6 @@ test.describe("Cart Page UI Test", () => {
   test.beforeAll(async () => {
     const mongoUri = process.env.MONGO_URL;
     await mongoose.connect(mongoUri);
-    await userModel.insertOne(user);
     await productModel.insertMany(products);
   });
 
@@ -88,6 +87,14 @@ test.describe("Cart Page UI Test", () => {
     await mongoose.connection.close();
     await mongoose.disconnect();
   });
+
+  test.beforeEach(async () => {
+    await userModel.insertOne(user);
+  });
+
+  test.afterEach(async () => {
+    await userModel.deleteMany({});
+  })
 
   test.describe("Cart - Unauthenticated Users", () => {
     test.beforeEach(async ({ page }) => {
@@ -121,11 +128,7 @@ test.describe("Cart Page UI Test", () => {
     });
     test.describe("Cart with Items", () => {
       test.beforeEach(async ({ page }) => {
-        await userModel.insertOne(user);
         await fillCart(page);
-      });
-      test.afterEach(async () => {
-        await userModel.deleteMany({});
       });
       test("should render the item added into cart with details, total price, remove button and make payment button", async ({ page }) => {
         for (let product of products) {
