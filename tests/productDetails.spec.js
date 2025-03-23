@@ -95,7 +95,7 @@ test.describe("ProductDetails Page", () => {
     await page.waitForURL("/product/phone");
     await expect(page.getByRole("heading", { name: "Similar Products ➡️" })).toBeVisible();
     await expect(page.getByRole("heading", { name: `${products[1].name}` })).toBeVisible();
-    await page.getByRole('heading', { name: `Category : ${categories[0].name}` }).toBeVisible();
+    await expect(page.getByRole('heading', { name: `Category : ${categories[0].name}` })).toBeVisible();
   });
 
   test("should not have a similar product section if no similar products", async ({ page }) => {
