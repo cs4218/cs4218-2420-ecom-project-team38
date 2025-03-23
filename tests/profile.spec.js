@@ -4,6 +4,17 @@ import userModel from "../models/userModel";
 import { hashPassword } from "../helpers/authHelper";
 
 test.describe("Profile ui tests", () => {
+  const goToDashboardPage = async (page) => {
+    await page.getByTestId("user-name-dropdown").click();
+    await page.getByRole("link", { name: "Dashboard" }).click();
+    await page.waitForURL("/dashboard/user");
+  };
+
+  const goToProfilePage = async (page) => {
+    await page.getByRole("link", { name: "Profile" }).click();
+    await page.waitForURL("/dashboard/user/profile");
+  };
+
   let mockUser, login;
 
   test.beforeAll(async () => {
@@ -21,7 +32,7 @@ test.describe("Profile ui tests", () => {
     };
 
     login = async (page) => {
-      await page.getByRole("link", { name: "Login" }).click();
+      await page.goto("/login");
       await page
         .getByRole("textbox", { name: "Enter Your Email" })
         .fill(mockUser.email);
@@ -29,16 +40,13 @@ test.describe("Profile ui tests", () => {
         .getByRole("textbox", { name: "Enter Your Password" })
         .fill(mockPassword);
       await page.getByRole("button", { name: "LOGIN" }).click();
-
-      await expect(page.getByText("Login successfully!")).toBeVisible();
+      await page.waitForURL("/");
     };
   });
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async () => {
     await mongoose.connection.dropDatabase();
     await userModel.create(mockUser);
-
-    await page.goto("/");
   });
 
   test.afterAll(async () => {
@@ -55,8 +63,7 @@ test.describe("Profile ui tests", () => {
     await login(page);
 
     // go to dashboard page
-    await page.getByTestId("user-name-dropdown").click();
-    await page.getByRole("link", { name: "Dashboard" }).click();
+    await goToDashboardPage(page);
 
     // view profile
     await expect(
@@ -73,7 +80,7 @@ test.describe("Profile ui tests", () => {
     ).toBeVisible();
 
     // go to profile page
-    await page.getByRole("link", { name: "Profile" }).click();
+    await goToProfilePage(page);
 
     await expect(
       page.getByRole("textbox", { name: "Enter Your Name" })
@@ -106,8 +113,7 @@ test.describe("Profile ui tests", () => {
     await expect(page.getByText("Profile Updated Successfully")).toBeVisible();
 
     // go to dashboard page
-    await page.getByTestId("user-name-dropdown").click();
-    await page.getByRole("link", { name: "Dashboard" }).click();
+    await goToDashboardPage(page);
 
     // view updated profile
     await expect(
@@ -134,9 +140,8 @@ test.describe("Profile ui tests", () => {
     await login(page);
 
     // go to profile page
-    await page.getByTestId("user-name-dropdown").click();
-    await page.getByRole("link", { name: "Dashboard" }).click();
-    await page.getByRole("link", { name: "Profile" }).click();
+    await goToDashboardPage(page);
+    await goToProfilePage(page);
 
     // update profile with empty name
     await page.getByRole("textbox", { name: "Enter Your Name" }).clear();
@@ -153,8 +158,7 @@ test.describe("Profile ui tests", () => {
     ).toBeVisible();
 
     // go to dashboard page
-    await page.getByTestId("user-name-dropdown").click();
-    await page.getByRole("link", { name: "Dashboard" }).click();
+    await goToDashboardPage(page);
 
     // view profile - not updated
     await expect(
@@ -182,9 +186,8 @@ test.describe("Profile ui tests", () => {
     await login(page);
 
     // go to profile page
-    await page.getByTestId("user-name-dropdown").click();
-    await page.getByRole("link", { name: "Dashboard" }).click();
-    await page.getByRole("link", { name: "Profile" }).click();
+    await goToDashboardPage(page);
+    await goToProfilePage(page);
 
     // update profile with empty name
     await page
@@ -203,8 +206,7 @@ test.describe("Profile ui tests", () => {
     ).toBeVisible();
 
     // go to dashboard page
-    await page.getByTestId("user-name-dropdown").click();
-    await page.getByRole("link", { name: "Dashboard" }).click();
+    await goToDashboardPage(page);
 
     // view profile - not updated
     await expect(
@@ -230,9 +232,8 @@ test.describe("Profile ui tests", () => {
     await login(page);
 
     // go to profile page
-    await page.getByTestId("user-name-dropdown").click();
-    await page.getByRole("link", { name: "Dashboard" }).click();
-    await page.getByRole("link", { name: "Profile" }).click();
+    await goToDashboardPage(page);
+    await goToProfilePage(page);
 
     // update password
     await page
@@ -245,6 +246,7 @@ test.describe("Profile ui tests", () => {
     // logout
     await page.getByTestId("user-name-dropdown").click();
     await page.getByRole("link", { name: "Logout" }).click();
+    await page.waitForURL("/login");
 
     // login with updated password
     await page
@@ -256,6 +258,10 @@ test.describe("Profile ui tests", () => {
     await page.getByRole("button", { name: "LOGIN" }).click();
 
     await expect(page.getByText("Login successfully!")).toBeVisible();
+
+    // wait for redirection to home page
+    await page.waitForURL("/");
+
     await expect(
       page.getByRole("heading", { name: "All Products", exact: true })
     ).toBeVisible();
@@ -270,9 +276,8 @@ test.describe("Profile ui tests", () => {
     await login(page);
 
     // go to profile page
-    await page.getByTestId("user-name-dropdown").click();
-    await page.getByRole("link", { name: "Dashboard" }).click();
-    await page.getByRole("link", { name: "Profile" }).click();
+    await goToDashboardPage(page);
+    await goToProfilePage(page);
 
     // update password
     await page

@@ -7,6 +7,13 @@ import { hashPassword } from "../helpers/authHelper";
 import fs from "fs";
 
 test.describe("Admin orders ui tests", () => {
+  const goToAdminOrdersPage = async (page) => {
+    await page.getByTestId("user-name-dropdown").click();
+    await page.getByRole("link", { name: "Dashboard" }).click();
+    await page.getByRole("link", { name: "Orders" }).click();
+    await page.waitForURL("/dashboard/admin/orders");
+  };
+
   let mockAdminUser, mockUser, login;
   let mockProduct, mockOrder;
 
@@ -36,7 +43,7 @@ test.describe("Admin orders ui tests", () => {
     };
 
     login = async (page, isAdmin = true) => {
-      await page.getByRole("link", { name: "Login" }).click();
+      await page.goto("/login");
       await page
         .getByRole("textbox", { name: "Enter Your Email" })
         .fill(isAdmin ? mockAdminUser.email : mockUser.email);
@@ -44,8 +51,7 @@ test.describe("Admin orders ui tests", () => {
         .getByRole("textbox", { name: "Enter Your Password" })
         .fill(mockPassword);
       await page.getByRole("button", { name: "LOGIN" }).click();
-
-      await expect(page.getByText("Login successfully!")).toBeVisible();
+      await page.waitForURL("/");
     };
 
     mockProduct = {
@@ -71,13 +77,11 @@ test.describe("Admin orders ui tests", () => {
     };
   });
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async () => {
     await mongoose.connection.dropDatabase();
     await userModel.create([mockAdminUser, mockUser]);
     await productModel.create(mockProduct);
     await orderModel.create(mockOrder);
-
-    await page.goto("/");
   });
 
   test.afterAll(async () => {
@@ -89,10 +93,8 @@ test.describe("Admin orders ui tests", () => {
     // login
     await login(page);
 
-    // go to orders page
-    await page.getByTestId("user-name-dropdown").click();
-    await page.getByRole("link", { name: "Dashboard" }).click();
-    await page.getByRole("link", { name: "Orders" }).click();
+    // go to admin orders page
+    await goToAdminOrdersPage(page);
 
     // view user's order - table headers
     await expect(page.getByRole("columnheader", { name: "#" })).toBeVisible();
@@ -142,10 +144,8 @@ test.describe("Admin orders ui tests", () => {
     // login
     await login(page);
 
-    // go to orders page
-    await page.getByTestId("user-name-dropdown").click();
-    await page.getByRole("link", { name: "Dashboard" }).click();
-    await page.getByRole("link", { name: "Orders" }).click();
+    // go to admin orders page
+    await goToAdminOrdersPage(page);
 
     // update order status
     await page.getByText(mockOrder.status).click();
@@ -154,6 +154,7 @@ test.describe("Admin orders ui tests", () => {
     // logout
     await page.getByTestId("user-name-dropdown").click();
     await page.getByRole("link", { name: "Logout" }).click();
+    await page.waitForURL("/login");
 
     // login as non-admin user
     await login(page, false);
@@ -162,6 +163,7 @@ test.describe("Admin orders ui tests", () => {
     await page.getByTestId("user-name-dropdown").click();
     await page.getByRole("link", { name: "Dashboard" }).click();
     await page.getByRole("link", { name: "Orders" }).click();
+    await page.waitForURL("/dashboard/user/orders");
 
     await expect(
       page.getByRole("cell", { name: updatedOrderStatus })

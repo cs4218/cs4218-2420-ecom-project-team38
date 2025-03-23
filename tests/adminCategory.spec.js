@@ -7,6 +7,19 @@ import { hashPassword } from "../helpers/authHelper";
 import fs from "fs";
 
 test.describe("Admin category ui tests", () => {
+  const goToCreateCategoryPage = async (page) => {
+    await page.getByTestId("user-name-dropdown").click();
+    await page.getByRole("link", { name: "Dashboard" }).click();
+    await page.getByRole("link", { name: "Create Category" }).click();
+    await page.waitForURL("/dashboard/admin/create-category");
+  };
+
+  const goToCategoriesPage = async (page) => {
+    await page.getByRole("link", { name: "Categories" }).click();
+    await page.getByRole("link", { name: "All Categories" }).click();
+    await page.waitForURL("/categories");
+  };
+
   let mockAdminUser, mockUser, login;
   let mockCategory, mockProduct;
 
@@ -35,7 +48,7 @@ test.describe("Admin category ui tests", () => {
     };
 
     login = async (page, isAdmin = true) => {
-      await page.getByRole("link", { name: "Login" }).click();
+      await page.goto("/login");
       await page
         .getByRole("textbox", { name: "Enter Your Email" })
         .fill(isAdmin ? mockAdminUser.email : mockUser.email);
@@ -43,8 +56,7 @@ test.describe("Admin category ui tests", () => {
         .getByRole("textbox", { name: "Enter Your Password" })
         .fill(mockPassword);
       await page.getByRole("button", { name: "LOGIN" }).click();
-
-      await expect(page.getByText("Login successfully!")).toBeVisible();
+      await page.waitForURL("/");
     };
 
     mockCategory = {
@@ -68,13 +80,11 @@ test.describe("Admin category ui tests", () => {
     };
   });
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async () => {
     await mongoose.connection.dropDatabase();
     await userModel.create([mockAdminUser, mockUser]);
     await categoryModel.create(mockCategory);
     await productModel.create(mockProduct);
-
-    await page.goto("/");
   });
 
   test.afterAll(async () => {
@@ -91,13 +101,7 @@ test.describe("Admin category ui tests", () => {
     await login(page);
 
     // go to create category page
-    await page.getByTestId("user-name-dropdown").click();
-    await page.getByRole("link", { name: "Dashboard" }).click();
-    await page.getByRole("link", { name: "Create Category" }).click();
-
-    await expect(
-      page.getByRole("heading", { name: "Manage Category" })
-    ).toBeVisible();
+    await goToCreateCategoryPage(page);
 
     // create new category
     await page
@@ -111,8 +115,7 @@ test.describe("Admin category ui tests", () => {
     await expect(page.getByText(`${newCategory} is created`)).toBeVisible();
 
     // go to categories page
-    await page.getByRole("link", { name: "Categories" }).click();
-    await page.getByRole("link", { name: "All Categories" }).click();
+    await goToCategoriesPage(page);
 
     // go to category product page
     await page.getByRole("link", { name: newCategory, exact: true }).click();
@@ -134,13 +137,7 @@ test.describe("Admin category ui tests", () => {
     await login(page);
 
     // go to create category page
-    await page.getByTestId("user-name-dropdown").click();
-    await page.getByRole("link", { name: "Dashboard" }).click();
-    await page.getByRole("link", { name: "Create Category" }).click();
-
-    await expect(
-      page.getByRole("heading", { name: "Manage Category" })
-    ).toBeVisible();
+    await goToCreateCategoryPage(page);
 
     // create new category
     await page
@@ -162,13 +159,7 @@ test.describe("Admin category ui tests", () => {
     await login(page);
 
     // go to create category page
-    await page.getByTestId("user-name-dropdown").click();
-    await page.getByRole("link", { name: "Dashboard" }).click();
-    await page.getByRole("link", { name: "Create Category" }).click();
-
-    await expect(
-      page.getByRole("heading", { name: "Manage Category" })
-    ).toBeVisible();
+    await goToCreateCategoryPage(page);
 
     // create new category
     await page
@@ -188,13 +179,7 @@ test.describe("Admin category ui tests", () => {
     await login(page);
 
     // go to create category page
-    await page.getByTestId("user-name-dropdown").click();
-    await page.getByRole("link", { name: "Dashboard" }).click();
-    await page.getByRole("link", { name: "Create Category" }).click();
-
-    await expect(
-      page.getByRole("heading", { name: "Manage Category" })
-    ).toBeVisible();
+    await goToCreateCategoryPage(page);
 
     // update category
     await page.getByRole("button", { name: "Edit" }).click();
@@ -213,8 +198,7 @@ test.describe("Admin category ui tests", () => {
     await expect(page.getByText(`${updatedCategory} is updated`)).toBeVisible();
 
     // go to categories page
-    await page.getByRole("link", { name: "Categories" }).click();
-    await page.getByRole("link", { name: "All Categories" }).click();
+    await goToCategoriesPage(page);
 
     // go to category product page
     await page
@@ -246,13 +230,7 @@ test.describe("Admin category ui tests", () => {
     await login(page);
 
     // go to create category page
-    await page.getByTestId("user-name-dropdown").click();
-    await page.getByRole("link", { name: "Dashboard" }).click();
-    await page.getByRole("link", { name: "Create Category" }).click();
-
-    await expect(
-      page.getByRole("heading", { name: "Manage Category" })
-    ).toBeVisible();
+    await goToCreateCategoryPage(page);
 
     // delete category
     await page.getByRole("button", { name: "Delete" }).click();
@@ -263,8 +241,7 @@ test.describe("Admin category ui tests", () => {
     await expect(page.getByText("category is deleted")).toBeVisible();
 
     // go to categories page
-    await page.getByRole("link", { name: "Categories" }).click();
-    await page.getByRole("link", { name: "All Categories" }).click();
+    await goToCategoriesPage(page);
 
     await expect(
       page.getByRole("link", { name: mockCategory.name, exact: true })
@@ -278,13 +255,7 @@ test.describe("Admin category ui tests", () => {
     await login(page);
 
     // go to create category page
-    await page.getByTestId("user-name-dropdown").click();
-    await page.getByRole("link", { name: "Dashboard" }).click();
-    await page.getByRole("link", { name: "Create Category" }).click();
-
-    await expect(
-      page.getByRole("heading", { name: "Manage Category" })
-    ).toBeVisible();
+    await goToCreateCategoryPage(page);
 
     // delete category
     await page.getByRole("button", { name: "Delete" }).click();
@@ -292,7 +263,6 @@ test.describe("Admin category ui tests", () => {
     await expect(
       page.getByText("There are existing products in this category")
     ).toBeVisible();
-
     await expect(
       page.getByRole("cell", { name: mockCategory.name, exact: true })
     ).toBeVisible();

@@ -23,7 +23,7 @@ test.describe("Orders ui tests", () => {
     };
 
     login = async (page) => {
-      await page.getByRole("link", { name: "Login" }).click();
+      await page.goto("/login");
       await page
         .getByRole("textbox", { name: "Enter Your Email" })
         .fill(mockUser.email);
@@ -31,8 +31,7 @@ test.describe("Orders ui tests", () => {
         .getByRole("textbox", { name: "Enter Your Password" })
         .fill(mockPassword);
       await page.getByRole("button", { name: "LOGIN" }).click();
-
-      await expect(page.getByText("Login successfully!")).toBeVisible();
+      await page.waitForURL("/");
     };
 
     mockProduct = {
@@ -50,12 +49,10 @@ test.describe("Orders ui tests", () => {
     };
   });
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async () => {
     await mongoose.connection.dropDatabase();
     await userModel.create(mockUser);
     await productModel.create(mockProduct);
-
-    await page.goto("/");
   });
 
   test.afterAll(async () => {
@@ -79,6 +76,7 @@ test.describe("Orders ui tests", () => {
 
     // go to cart page
     await page.getByRole("link", { name: "Cart" }).click();
+    await page.waitForURL("/cart");
 
     // make payment
     await page.getByRole("button", { name: "Paying with Card" }).click();
@@ -98,7 +96,6 @@ test.describe("Orders ui tests", () => {
       .getByRole("textbox", { name: "CVV" })
       .fill(mockCardCvv);
     await page.getByRole("button", { name: "Make Payment" }).click();
-    await page.waitForURL("/dashboard/user/orders");
 
     await expect(
       page.getByText("Payment Completed Successfully")
