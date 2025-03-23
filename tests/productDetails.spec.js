@@ -75,7 +75,7 @@ test.describe("ProductDetails Page", () => {
   test("should show product details", async ({ page }) => {
     await page.goto('/product/phone');
     await page.waitForURL('/product/phone');
-    await expect(page.getByRole("heading", { name: `'Name : ${products[0].name}` })).toBeVisible();
+    await expect(page.getByRole("heading", { name: `Name : ${products[0].name}` })).toBeVisible();
     await expect(
       page.getByRole("heading", { name: `Description : ${products[0].description}` })
     ).toBeVisible();
