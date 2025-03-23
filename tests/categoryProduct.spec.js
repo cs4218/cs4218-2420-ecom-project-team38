@@ -104,14 +104,11 @@ test.describe("CategoryProduct UI tests", () => {
 
   test("should show preview of product details in category page", async ({ page }) => {
     await page.goto("/category/electronics");
-    await expect(page.locator('[data-testid="product-list"] .card-body')).toBeVisible();
-    await expect(page.locator('[data-testid="product-list"] .card-body')).toContainText(products[0].name);
-    await expect(page.locator('[data-testid="product-list"] .card-body')).toContainText(products[0].description);
-    await expect(page.locator('[data-testid="product-list"] .card-body')).toContainText(
-      products[0].price.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      })).toBeVisible();
+    await expect(page.getByText('Phone')).toBeVisible();
+    await expect(page.getByText('Phone description')).toBeVisible();
+    await expect(page.getByText('1,000.00')).toBeVisible();
+    await expect(page.getByRole("button", { name: "More Details" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "ADD TO CART" })).toBeVisible();
   });
 
   test("should show no results if category does not exist", async ({ page }) => {
