@@ -102,6 +102,18 @@ test.describe("CategoryProduct UI tests", () => {
     await expect(page.getByRole("button", { name: "Please login to checkout" })).toBeVisible();
   });
 
+  test("should show preview of product details in category page", async ({ page }) => {
+    await page.goto("/category/electronics");
+    await expect(page.locator('[data-testid="product-list"] .card-body')).toBeVisible();
+    await expect(page.locator('[data-testid="product-list"] .card-body')).toContainText(products[0].name);
+    await expect(page.locator('[data-testid="product-list"] .card-body')).toContainText(products[0].description);
+    await expect(page.locator('[data-testid="product-list"] .card-body')).toContainText(
+      products[0].price.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      })).toBeVisible();
+  });
+
   test("should show no results if category does not exist", async ({ page }) => {
     await page.goto("/category/non-existent-category");
     await expect(page.getByRole("heading", { name: "Category -" })).toBeVisible();
