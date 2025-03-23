@@ -121,7 +121,11 @@ test.describe("Cart Page UI Test", () => {
     });
     test.describe("Cart with Items", () => {
       test.beforeEach(async ({ page }) => {
+        await userModel.insertOne(user);
         await fillCart(page);
+      });
+      test.afterEach(async () => {
+        await userModel.deleteMany({});
       });
       test("should render the item added into cart with details, total price, remove button and make payment button", async ({ page }) => {
         for (let product of products) {
@@ -135,7 +139,7 @@ test.describe("Cart Page UI Test", () => {
         const productItem = page.getByTestId("cart-items").locator("div", {
           hasText: products[0].name,
         });
-        await productItem.getByRole("button", { name: "Remove" }).first().click();
+        await productItem.getByRole("button", { name: "Remove" }).click();
         await expect(page.getByTestId("cart-items")).not.toContainText(products[0].name);
         await expect(page.getByTestId("cart-items")).toContainText(products[1].name);
       });
