@@ -79,7 +79,6 @@ test.describe("Cart Page UI Test", () => {
   test.beforeAll(async () => {
     const mongoUri = process.env.MONGO_URL;
     await mongoose.connect(mongoUri);
-    await userModel.insertOne(user);
     await productModel.insertMany(products);
   });
 
@@ -88,6 +87,14 @@ test.describe("Cart Page UI Test", () => {
     await mongoose.connection.close();
     await mongoose.disconnect();
   });
+
+  test.beforeEach(async () => {
+    await userModel.insertOne(user);
+  });
+
+  test.afterEach(async () => {
+    await userModel.deleteMany({});
+  })
 
   test.describe("Cart - Unauthenticated Users", () => {
     test.beforeEach(async ({ page }) => {
