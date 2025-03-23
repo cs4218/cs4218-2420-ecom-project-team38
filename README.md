@@ -16,6 +16,8 @@
 
 ### Running the Tests
 
+#### Unit and Integration Tests (Jest and SuperTest)
+
 - To run both frontend and backend tests, run `npm run test`
 
 - To run frontend tests only, run `npm run test:frontend`
@@ -23,6 +25,12 @@
 - To run backend tests only, run `npm run test:backend`
 
 - To run specific test file(s) only, run `npm run test <filename>`
+
+#### UI Tests (Playwright)
+
+- To run UI tests, run `npm run test:e2e`
+
+- To run specific UI test file(s) only, run `npx playwright test <filename>`
 
 ### Link to CI
 
