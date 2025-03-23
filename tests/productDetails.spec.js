@@ -77,8 +77,8 @@ test.describe("ProductDetails Page", () => {
     await page.goto(`/product/${slug}`);
     await page.waitForURL(`/product/${slug}`);
     await expect(page.getByRole("heading", { name: `'Name : ${products[0].name}` })).toBeVisible();
-    await page.getByRole('heading', { name: `Description : ${products[0].description}` }).toBeVisible();
-    await page.getByRole('heading', { name: `Category : ${categories[0].name}` }).toBeVisible();
+    await expect(page.getByRole('heading', { name: `Description : ${products[0].description}` })).toBeVisible();
+    await expect(page.getByRole('heading', { name: `Category : ${categories[0].name}` })).toBeVisible();
     expect(
           page.getByRole("heading", {
             name: `Price : ${products[0].price.toLocaleString("en-US", {
