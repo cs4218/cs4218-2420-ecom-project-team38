@@ -135,7 +135,7 @@ test.describe("Cart Page UI Test", () => {
         const productItem = page.getByTestId("cart-items").locator("div", {
           hasText: products[0].name,
         });
-        await productItem.getByRole("button", { name: "Remove" }).click();
+        await productItem.getByRole("button", { name: "Remove" }).first().click();
         await expect(page.getByTestId("cart-items")).not.toContainText(products[0].name);
         await expect(page.getByTestId("cart-items")).toContainText(products[1].name);
       });
