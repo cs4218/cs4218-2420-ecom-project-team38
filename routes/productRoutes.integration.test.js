@@ -1058,5 +1058,18 @@ describe("Product Routes", () => {
       expect(response.body).toHaveProperty("success", false);
       expect(response.body).toHaveProperty("message", "Unauthorized Access");
     });
+
+    it("Should not process payment if error occurs during payment processing", async () => {
+      const response = await request(app)
+        .post("/api/v1/product/braintree/payment")
+        .set("Authorization", `${token}`)
+        .send({
+          nonce: "fake-gateway-rejected-cvv-nonce",
+          cart: [{ _id: pid, price: 10 }],
+        });
+
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty("ok", false);
+    });
   });
 });
