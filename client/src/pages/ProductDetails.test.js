@@ -22,7 +22,7 @@ jest.mock("../context/auth", () => ({
 }));
 
 jest.mock("../context/cart", () => ({
-  useCart: jest.fn(() => [null, jest.fn()]),
+  useCart: jest.fn(() => [[null], jest.fn(), jest.fn(), jest.fn()]),
 }));
 
 jest.mock("../context/category", () => ({
@@ -347,7 +347,7 @@ describe("ProductDetails Component", () => {
 
   it("Adds product to cart when 'ADD TO CART' button is clicked", async () => {
     const mockSetCart = jest.fn();
-    useCart.mockReturnValue([[], mockSetCart]);
+    useCart.mockReturnValue([[], mockSetCart, jest.fn(), jest.fn()]);
 
     axios.get.mockImplementation((url) => {
       if (url.includes("get-product/test-product")) {
@@ -467,7 +467,7 @@ describe("ProductDetails Component", () => {
     });
 
     const mockSetCart = jest.fn();
-    useCart.mockReturnValue([[], mockSetCart]);
+    useCart.mockReturnValue([[], mockSetCart, jest.fn(), jest.fn()]);
 
     render(
       <MemoryRouter initialEntries={["/product/test-product"]}>

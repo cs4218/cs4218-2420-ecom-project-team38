@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 const Search = () => {
   const [values, _setValues] = useSearch();
-  const [cart, setCart] = useCart();
+  const [cart, setCart, addToCartDB]  = useCart();
   const navigate = useNavigate();
 
   return (
@@ -55,6 +55,7 @@ const Search = () => {
                         "cart",
                         JSON.stringify([...cart, p])
                       );
+                      addToCartDB(p._id);
                       toast.success("Item Added to cart");
                     }}
                   >

@@ -1,9 +1,57 @@
 import React from "react"
 import { useState, useContext, createContext, useEffect } from "react";
+import axios from "axios";
 
 const CartContext = createContext();
 const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
+
+  const addToCartDB = async (productId) => {
+    try {
+      const authData = localStorage.getItem("auth");
+      
+      const parsed = JSON.parse(authData);  
+      const userId = parsed?.user?._id;
+
+      await axios.post("/api/v1/cart/add-item", {
+        userId,
+        productId,
+      });
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
+  };
+
+  const removeFromCartDB = async (productId) => {
+    try {
+      const authData = localStorage.getItem("auth");
+      
+      const parsed = JSON.parse(authData);  
+      const userId = parsed?.user?._id;
+
+      await axios.post("/api/v1/cart/remove-item", {
+        userId,
+        productId,
+      });
+    } catch (error) {
+      console.error("Error removing from cart:", error);
+    }
+  };
+
+  const clearCartDB = async () => {
+    try {
+      const authData = localStorage.getItem("auth");
+      
+      const parsed = JSON.parse(authData);  
+      const userId = parsed?.user?._id;
+
+      await axios.post("/api/v1/cart/clear-cart", {
+        userId,
+      });
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
+  };
 
   useEffect(() => {
     let existingCartItem = localStorage.getItem("cart");
@@ -11,7 +59,7 @@ const CartProvider = ({ children }) => {
   }, []);
 
   return (
-    <CartContext.Provider value={[cart, setCart]}>
+    <CartContext.Provider value={[cart, setCart, addToCartDB, removeFromCartDB, clearCartDB]}>
       {children}
     </CartContext.Provider>
   );

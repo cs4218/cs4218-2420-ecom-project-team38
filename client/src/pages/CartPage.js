@@ -9,8 +9,8 @@ import toast from "react-hot-toast";
 import "../styles/CartStyles.css";
 
 const CartPage = () => {
-  const [auth, setAuth] = useAuth();
-  const [cart, setCart] = useCart();
+  const [auth] = useAuth();
+  const [cart, setCart, , removeFromCartDB, clearCartDB ] = useCart();
   const [clientToken, setClientToken] = useState("");
   const [instance, setInstance] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,6 +35,7 @@ const CartPage = () => {
   //delete item
   const removeCartItem = (pid) => {
     try {
+      removeFromCartDB(pid);
       let myCart = [...cart];
       let index = myCart.findIndex((item) => item._id === pid);
       myCart.splice(index, 1);
@@ -73,6 +74,7 @@ const CartPage = () => {
       setLoading(false);
       localStorage.removeItem("cart");
       setCart([]);
+      clearCartDB();
       navigate("/dashboard/user/orders");
       toast.success("Payment Completed Successfully ");
     } catch (error) {
