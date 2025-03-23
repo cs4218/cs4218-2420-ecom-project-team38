@@ -107,8 +107,14 @@ test.describe("CategoryProduct UI tests", () => {
     await expect(page.getByRole('heading', { name: 'Phone' })).toBeVisible();
     await expect(page.getByText('Phone description')).toBeVisible();
     await expect(page.getByText('1,000.00')).toBeVisible();
-    await expect(page.getByRole("button", { name: "More Details" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "ADD TO CART" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "More Details" }).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: "ADD TO CART" }).first()).toBeVisible();
+
+    await expect(page.getByRole('heading', { name: 'Laptop' })).toBeVisible();
+    await expect(page.getByText('Laptop description')).toBeVisible();
+    await expect(page.getByText('2,000.00')).toBeVisible();
+    await expect(page.getByRole("button", { name: "More Details" }).nth(1)).toBeVisible();
+    await expect(page.getByRole("button", { name: "ADD TO CART" }).nth(1)).toBeVisible();
   });
 
   test("should show no results if category does not exist", async ({ page }) => {
