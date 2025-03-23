@@ -72,12 +72,30 @@ test.describe("ProductDetails Page", () => {
     await mongoose.disconnect();
   });
 
+  test("should show product details", async ({ page }) => {
+    const slug = products[0].slug;
+    await page.goto(`/product/${slug}`);
+    await page.waitForURL(`/product/${slug}`);
+    await expect(page.getByRole("heading", { name: `'Name : ${products[0].name}` })).toBeVisible();
+    await page.getByRole('heading', { name: `Description : ${products[0].description}` }).toBeVisible();
+    await page.getByRole('heading', { name: `Category : ${categories[0].name}` }).toBeVisible();
+    expect(
+          page.getByRole("heading", {
+            name: `Price : ${products[0].price.toLocaleString("en-US", {
+              style: "currency",
+              currency: "USD",
+            })}`,
+          })
+        ).toBeVisible();
+  });
+
   test("should have a similar product section", async ({ page }) => {
     const slug = products[0].slug;
     await page.goto(`/product/${slug}`);
     await page.waitForURL("/product/phone");
     await expect(page.getByRole("heading", { name: "Similar Products ➡️" })).toBeVisible();
     await expect(page.getByRole("heading", { name: `${products[1].name}` })).toBeVisible();
+    await page.getByRole('heading', { name: `Category : ${categories[0].name}` }).toBeVisible();
   });
 
   test("should not have a similar product section if no similar products", async ({ page }) => {
