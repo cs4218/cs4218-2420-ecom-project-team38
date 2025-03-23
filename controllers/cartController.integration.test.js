@@ -163,4 +163,46 @@ describe("Cart Controller Integration Tests", () => {
       });
     });
   });
+  describe("Clear Cart Controller Integration Tests", () => {
+    beforeEach(async () => {
+      await userModel.insertOne(user_non_empty_cart);
+    });
+
+    describe("Success", () => {
+      it("should clear cart successfully", async () => {
+        const res = await supertest(app).post("/api/v1/cart/clear-cart").send({
+          userId: user_non_empty_cart._id,
+        });
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.message).toBe("Cart cleared successfully");
+
+        const db_user = await userModel.findById(user_non_empty_cart._id);
+        expect(db_user.cart).toEqual([]);
+      });
+    });
+    describe("Field validation", () => {
+      it("should return an error when the fields are empty", async () => {
+        const res = await supertest(app).post("/api/v1/cart/clear-cart").send({});
+        expect(res.status).toBe(400);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe("User ID is required");
+
+        const db_user = await userModel.findById(user_non_empty_cart._id);
+        expect(db_user.cart).toEqual([product._id]);
+      });
+
+      it("should return an error when the user does not exist", async () => {
+        const res = await supertest(app).post("/api/v1/cart/clear-cart").send({
+          userId: "invalidID",
+        });
+        expect(res.status).toBe(400);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe("Error clearing cart");
+
+        const db_user = await userModel.findById(user_non_empty_cart._id);
+        expect(db_user.cart).toEqual([product._id]);
+      });
+    });
+  });
 });

@@ -55,11 +55,42 @@ export const removeItemCartController = async (req, res) => {
       message: "Item removed from cart successfully",
       cart,
     });
-  } catch (error) { 
+  } catch (error) {
     console.log(error);
     res.status(400).send({
       success: false,
       message: "Error removing item from cart",
+      error,
+    });
+  }
+};
+
+export const clearCartController = async (req, res) => {
+  try {
+    let { userId } = req.body;
+    if (!userId) {
+      return res.status(400).send({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    const updatedCart = await userModel.findByIdAndUpdate(
+      userId,
+      { $set: { cart: [] } },
+      { new: true }
+    );
+
+    return res.status(200).send({
+      success: true,
+      message: "Cart cleared successfully",
+      updatedCart,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).send({
+      success: false,
+      message: "Error clearing cart",
       error,
     });
   }

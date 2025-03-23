@@ -10,7 +10,7 @@ import "../styles/CartStyles.css";
 
 const CartPage = () => {
   const [auth] = useAuth();
-  const [cart, setCart, , removeFromCartDB ] = useCart();
+  const [cart, setCart, , removeFromCartDB, clearCartDB ] = useCart();
   const [clientToken, setClientToken] = useState("");
   const [instance, setInstance] = useState("");
   const [loading, setLoading] = useState(false);
@@ -74,6 +74,7 @@ const CartPage = () => {
       setLoading(false);
       localStorage.removeItem("cart");
       setCart([]);
+      clearCartDB();
       navigate("/dashboard/user/orders");
       toast.success("Payment Completed Successfully ");
     } catch (error) {

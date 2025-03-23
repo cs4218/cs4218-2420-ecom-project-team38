@@ -38,13 +38,28 @@ const CartProvider = ({ children }) => {
     }
   };
 
+  const clearCartDB = async () => {
+    try {
+      const authData = localStorage.getItem("auth");
+      
+      const parsed = JSON.parse(authData);  
+      const userId = parsed?.user?._id;
+
+      await axios.post("/api/v1/cart/clear-cart", {
+        userId,
+      });
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
+  };
+
   useEffect(() => {
     let existingCartItem = localStorage.getItem("cart");
     if (existingCartItem) setCart(JSON.parse(existingCartItem));
   }, []);
 
   return (
-    <CartContext.Provider value={[cart, setCart, addToCartDB, removeFromCartDB]}>
+    <CartContext.Provider value={[cart, setCart, addToCartDB, removeFromCartDB, clearCartDB]}>
       {children}
     </CartContext.Provider>
   );
